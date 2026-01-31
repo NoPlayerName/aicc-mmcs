@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Http\Livewire\Jsh;
+
+use App\Services\MaterialUseJsh\MaterialUseJshService;
+use Livewire\Attributes\On;
+use Livewire\Component;
+
+class FormMaterialInput extends Component
+{
+
+    public $lot;
+    public $id;
+    public $chargeId;
+    public $product;
+    public $charging;
+    public $edit = false;
+
+    #[On('FormInputMat')]
+    public function showForm($data)
+    {
+        // dd($data);
+        // dd($data);
+        // dd($id, $data);
+        $this->id = $data['production_plan_id'];
+        $this->chargeId = $data['chargingHeadId'];
+        $this->lot = $data['lot'] ?? '-';
+        $this->charging = $data['charging'] ?? '-';
+        $this->product = $data['model_id'] ?? "-";
+        $this->dispatch('showFormInput');
+    }
+    #[On('FormUpdateMat')]
+    public function showFormUpdate($data)
+    {
+        // dd($edit);
+        // dd($data);
+        // dd($id, $data);
+        $this->edit = $data['is_edit'];
+        $this->id = $data['production_plan_id'];
+        $this->chargeId = $data['chargingHeadId'];
+        $this->lot = $data['lot'] ?? '-';
+        $this->charging = $data['charging'] ?? '-';
+        $this->product = $data['model_id'] ?? "-";
+        $this->dispatch('showFormEdit');
+    }
+    #[On('rawMat')]
+    public function changeRawMat($rawMat)
+    {
+        $this->dispatch('RawMat', data: $rawMat)->to(RawMaterial::class);
+    }
+
+    #[On('additMat')]
+    public function changeAdditiveMat($data)
+    {
+        $this->dispatch('AdditiveMat', data: $data)->to(AdditiveMaterial::class);
+    }
+    #[On('typeAddjust')]
+    public function changeTypeAddjust($data)
+    {
+        $this->dispatch('TypeAddjust', data: $data)->to(AdditiveMaterial::class);
+    }
+    #[On('typeTapping')]
+    public function changeTypeTapping($data)
+    {
+        $this->dispatch('TypeTapping', data: $data)->to(InputTemptTapping::class);
+    }
+
+    public function saveCharge()
+    {
+        $data = [
+            'plan_id_anchor' => $this->id,
+            'charging' => $this->charging,
+        ];
+
+        $save = app(MaterialUseJshService::class)->saveChargingHead($data);
+        if ($save) {
+            $this->dispatch('success', message: 'Data charging berhasil ditambahkan!');
+        } else {
+            $this->dispatch('error', message: 'Data charging gagal ditambahkan');
+        }
+    }
+
+
+    public function render()
+    {
+        return view('livewire.jsh.form-material-input');
+    }
+}

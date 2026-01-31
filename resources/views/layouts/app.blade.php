@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-    <title>{{ $title ?? 'Packing Palet' }}</title>
+    <title>{{ $title ?? 'Melting Material Control' }}</title>
     @include('components.head')
 
     {{-- Customize styles per page --}}
     @stack('style')
 </head>
 
-<body data-sidebar="dark">
+<body data-topbar="dark" data-layout="horizontal">
 
     <!-- Begin page -->
     <div id="layout-wrapper">
@@ -17,7 +17,7 @@
         @livewire('components.topbar')
 
         <!-- ========== Left Sidebar Start ========== -->
-        @livewire('components.sidebar')
+        @livewire('components.top_nav')
         <!-- Left Sidebar End -->
 
         <!-- ============================================================== -->
@@ -62,6 +62,12 @@
             @if (session()->has('error'))
                 toastr.error("{{ session('error') }}");
             @endif
+            Livewire.on('success', (e) => {
+                toastr.success(e.message);
+            })
+            Livewire.on('error', (e) => {
+                toastr.error(e.message);
+            })
         });
     </script>
 

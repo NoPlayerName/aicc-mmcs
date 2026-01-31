@@ -3,9 +3,7 @@
         <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-
-
-                <a href="#" class="logo logo-light">
+                <a href="{{ url('/') }}" class="logo logo-light">
                     <span class="logo-sm">
                         <img class="img-fluid" src={{ asset('assets/images/logo-sm.png') }} alt="">
                     </span>
@@ -15,11 +13,18 @@
                 </a>
             </div>
 
-            <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+            <button type="button" class="btn btn-sm px-3 font-size-24 d-lg-none header-item" data-toggle="collapse"
+                data-target="#topnav-menu-content">
                 <i class="ri-menu-2-line align-middle"></i>
             </button>
 
-
+            <!-- App Search-->
+            <!-- <form class="app-search d-none d-lg-block">
+                <div class="position-relative">
+                    <input type="text" class="form-control" placeholder="Search...">
+                    <span class="ri-search-line"></span>
+                </div>
+            </form> -->
 
         </div>
 
@@ -56,24 +61,18 @@
             <div class="dropdown d-inline-block user-dropdown">
                 <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="rounded-circle header-profile-user" src={{ asset('assets/images/users/avatar-2.jpg') }}
-                        alt="Header Avatar">
-                    <span class=" d-xl-inline-block ml-1">User</span>
+                    <img class="rounded-circle header-profile-user"
+                        src="{{ asset('assets/images/users/avatar-2.jpg') }}" alt="Header Avatar">
+                    <span class=" d-xl-inline-block ml-1">
 
-                    <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                    </span>
+                    <i class="mdi mdi-chevron-down  d-xl-inline-block"></i>
                 </button>
-
                 <div class="dropdown-menu dropdown-menu-right">
-
                     <!-- item-->
-                    <a class="dropdown-item" href="javascript:void(0);"><i
-                            class="ri-lock-unlock-line align-middle mr-1"></i> Change Password</a>
 
-                    <a class="dropdown-item text-danger" href="#"><i
-                            class="ri-shut-down-line align-middle mr-1 text-danger"></i> Logout</a>
-
-
-                    <!-- <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="logout();"><i class="ri-shut-down-line align-middle mr-1 text-danger"></i> Logout</a> -->
+                    <a class="dropdown-item text-danger" href="#" wire:click='logout'><i
+                            class="ri-shut-down-line align-middle mr-1 text-danger"></i>Logout</a>
                 </div>
             </div>
 

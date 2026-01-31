@@ -127,7 +127,7 @@ return [
     |
     */
 
-    'inject_assets' => true,
+    'inject_assets' => false,
 
     /*
     |---------------------------------------------------------------------------
@@ -170,4 +170,5 @@ return [
     */
 
     'pagination_theme' => 'bootstrap',
+    'asset_url' => null,
 ];

@@ -3,9 +3,10 @@
         <div class="row">
             <div class="col-sm-6">
                 <div class="text-sm-left d-none d-sm-block">
-                    <script>
+                    {{-- <script>
                         document.write(new Date().getFullYear())
-                    </script> © AICC
+                    </script> --}}
+                    {{ date('Y') }} © AICC
                 </div>
             </div>
         </div>

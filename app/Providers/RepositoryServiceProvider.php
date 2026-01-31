@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Providers;
+
+use App\Repositories\MaterialUseJsh\MaterialUseJshRepository;
+use App\Repositories\MaterialUseJsh\MaterialUseJshRepositoryInterface;
+use App\Repositories\PlanProductionJsh\PlanProdRepository;
+use App\Repositories\PlanProductionJsh\PlanProdRepositoryInterface;
+use Illuminate\Support\ServiceProvider;
+
+class RepositoryServiceProvider extends ServiceProvider
+{
+    /**
+     * Register services.
+     */
+    public function register(): void
+    {
+        $bindings = [
+            PlanProdRepositoryInterface::class => PlanProdRepository::class,
+            MaterialUseJshRepositoryInterface::class => MaterialUseJshRepository::class,
+        ];
+
+        foreach ($bindings as $interface => $implementation) {
+            $this->app->bind($interface, $implementation);
+        }
+    }
+
+    /**
+     * Bootstrap services.
+     */
+    public function boot(): void
+    {
+        //
+    }
+}

@@ -42,7 +42,7 @@ return [
             'synchronous' => null,
         ],
 
-        'mysql' => [
+        'master' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -53,6 +53,64 @@ return [
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+        'jsh_prod_plan' => [
+            'driver' => 'mysql',
+            'url' => env('PROD_JSH_DB_URL'),
+            'host' => env('PROD_JSH_DB_HOST', '127.0.0.1'),
+            'port' => env('PROD_JSH_DB_PORT', '3306'),
+            'database' => env('PROD_JSH_DB_DATABASE', 'laravel'),
+            'username' => env('PROD_JSH_DB_USERNAME', 'root'),
+            'password' => env('PROD_JSH_DB_PASSWORD', ''),
+            'unix_socket' => env('PROD_JSH_DB_SOCKET', ''),
+            'charset' => env('PROD_JSH_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('PROD_JSH_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+        'molding' => [
+            'driver' => 'mysql',
+            'url' => env('MOLDING_DB_URL'),
+            'host' => env('MOLDING_DB_HOST', '127.0.0.1'),
+            'port' => env('MOLDING_DB_PORT', '3306'),
+            'database' => env('MOLDING_DB_DATABASE', 'laravel'),
+            'username' => env('MOLDING_DB_USERNAME', 'root'),
+            'password' => env('MOLDING_DB_PASSWORD', ''),
+            'unix_socket' => env('MOLDING_DB_SOCKET', ''),
+            'charset' => env('MOLDING_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('MOLDING_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'material-use' => [
+            'driver' => 'mysql',
+            'url' => env('MATERIAL_DB_URL'),
+            'host' => env('MATERIAL_DB_HOST', '127.0.0.1'),
+            'port' => env('MATERIAL_DB_PORT', '3306'),
+            'database' => env('MATERIAL_DB_DATABASE', 'laravel'),
+            'username' => env('MATERIAL_DB_USERNAME', 'root'),
+            'password' => env('MATERIAL_DB_PASSWORD', ''),
+            'unix_socket' => env('MATERIAL_DB_SOCKET', ''),
+            'charset' => env('MATERIAL_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('MATERIAL_DB_COLLATION', 'utf8mb4_unicode_ci'),
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
@@ -147,7 +205,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
