@@ -2,9 +2,9 @@
     <div class="row align-items-end">
         <div class="col-md-3">
             <label class="control-lable">Temperatur</label>
-            <input class="form-control form-control-lg @error('temperature') is-invalid @enderror" type="text"
-                wire:model='temperature'>
-            @error('temperature')
+            <input class="form-control form-control-lg @error('temperatur') is-invalid @enderror" type="text"
+                wire:model='temperatur'>
+            @error('temperatur')
             <small class="text-danger d-block">{{ $message }}</small>
             @else
             <div style="height: 20px;"></div> @enderror
@@ -36,7 +36,7 @@
         <table class="table table-striped mb-0">
             <thead>
                 <tr>
-                    <th>Temperature</th>
+                    <th>Temperatur</th>
                     <th>Type Tapping</th>
                     <th style="width: 150px;">Action</th>
                 </tr>
@@ -48,7 +48,7 @@
                 @foreach ($dataTapping as $index => $rW )
                 <tr>
                     <th>{{ $rW['temperatur'] }}</th>
-                    <td>{{ $rW['typeTappingText'] }}</td>
+                    <td>{{ $rW['type_tapping_text'] }}</td>
                     <td>
                         <div>
                             <button class="btn btn-danger btn-sm waves-effect" wire:click='remove({{ $index }})'>

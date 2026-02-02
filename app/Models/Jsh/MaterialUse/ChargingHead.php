@@ -37,4 +37,8 @@ class ChargingHead extends BaseModelJsh
     {
         return $this->hasMany(TemptTappingJsh::class, 'charging_head_id', 'id');
     }
+    protected function serializeDate(\DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 }

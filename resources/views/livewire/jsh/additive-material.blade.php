@@ -34,6 +34,7 @@
             <button class="btn btn-lg btn-primary" data-toggle="tooltip" title="Add Material" wire:click='addMat'> <i
                     class="fas fa-plus"></i>
                 Add</button>
+            <div style="height: 20px;"></div>
         </div>
     </div>
     <div class="row">

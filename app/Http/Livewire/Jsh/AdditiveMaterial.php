@@ -20,8 +20,10 @@ class AdditiveMaterial extends Component
     public $weight = '';
     public $typeAddjust = '';
     public $totalWeight = 0;
-    #[Reactive]
+    // #[Reactive]
     public $chargeId;
+    // #[Reactive]
+    public $edit;
 
     public function rules()
     {
@@ -33,8 +35,36 @@ class AdditiveMaterial extends Component
 
     public function mount($chargeId = null)
     {
-        $this->chargeId = $chargeId;
-        // dd($this->chargeId);
+        // $this->chargeId = $chargeId;
+    }
+    #[On('input-material-data')]
+    public function inputData($id, $isEdit)
+    {
+        $this->reset('dataAdditiveMat');
+        $this->chargeId = $id;
+        $this->edit = $isEdit;
+        // $this->loadData();
+
+    }
+    #[On('load-material-data')]
+    public function triggerLoad($id, $isEdit)
+    {
+        // dd($id);
+        $this->chargeId = $id;
+        $this->edit = $isEdit;
+        $this->loadData();
+    }
+
+    public function loadData()
+    {
+        if ($this->edit) {
+            // Ubah ke array agar bisa digabung dengan input manual
+            $data = app(MaterialUseJshService::class)->getAdditiveMat($this->chargeId);
+            // PAKSA JADI ARRAY DI SINI
+            // dd($data);
+            // Agar selanjutnya array_values() tidak error
+            $this->dataAdditiveMat = collect($data)->toArray();
+        }
     }
 
     #[On('AdditiveMat')]
@@ -76,13 +106,26 @@ class AdditiveMaterial extends Component
     }
     public function save()
     {
-        $save = app(MaterialUseJshService::class)->saveAdditiveMat($this->dataAdditiveMat);
-        if ($save) {
-            $this->reset(['dataAdditiveMat', 'totalWeight']);
-            // $this->dispatch('saved');
-            $this->dispatch('success', message: 'Data Additive berhasil disave');
+        if ($this->edit) {
+            $save = app(MaterialUseJshService::class)->saveUpdateAdditiveMat($this->dataAdditiveMat);
+            if ($save) {
+                // $this->reset(['dataAdditiveMat', 'totalWeight']);
+                // $this->dispatch('saved');
+                $this->loadData();
+                $this->dispatch('success', message: 'Data Additive berhasil diubah');
+            } else {
+                $this->dispatch('error', message: 'Data Additive gagal diubah');
+            }
         } else {
-            $this->dispatch('error', message: 'Data Additive gagal save');
+
+            $save = app(MaterialUseJshService::class)->saveAdditiveMat($this->dataAdditiveMat);
+            if ($save) {
+                $this->reset(['dataAdditiveMat', 'totalWeight']);
+                // $this->dispatch('saved');
+                $this->dispatch('success', message: 'Data Additive berhasil disave');
+            } else {
+                $this->dispatch('error', message: 'Data Additive gagal save');
+            }
         }
     }
 

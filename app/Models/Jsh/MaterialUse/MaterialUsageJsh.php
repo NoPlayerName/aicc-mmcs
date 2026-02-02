@@ -14,6 +14,8 @@ class MaterialUsageJsh extends BaseModelJsh
     protected $casts = [
         'type_additive' => EnumTypeAdditive::class,
         'type' => EnumTypeMat::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     protected $fillable = [
@@ -30,5 +32,9 @@ class MaterialUsageJsh extends BaseModelJsh
     public function charging()
     {
         return $this->belongsTo(MaterialUsageJsh::class, 'id', 'charging_head_id');
+    }
+    protected function serializeDate(\DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

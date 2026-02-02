@@ -16,9 +16,9 @@ class RawMaterial extends Component
     public $material = '';
     public $weight = '';
     public $totalWeight = 0;
-    #[Reactive]
+    // #[Reactive]
     public $chargeId;
-    #[Reactive]
+    // #[Reactive]
     public $edit;
 
 
@@ -29,15 +29,31 @@ class RawMaterial extends Component
             'weight' => 'required|numeric',
         ];
     }
-    public function mount($chargeId = null, $edit = false)
+    public function mount()
     {
-        $this->chargeId = $chargeId;
-        $this->edit = $edit;
+        // $this->chargeId = $chargeId;
+        // $this->edit = $edit;
+        // $this->loadData();
+    }
+    #[On('input-material-data')]
+    public function inputData($id, $isEdit)
+    {
+        $this->reset(['dataRawMat', 'totalWeight']);
+        $this->chargeId = $id;
+        $this->edit = $isEdit;
+    }
+    #[On('load-material-data')]
+    public function triggerLoad($id, $isEdit)
+    {
+
+        $this->chargeId = $id;
+        $this->edit = $isEdit;
+        $this->loadData();
     }
 
     public function loadData()
     {
-        if ($this->edit && $this->chargeId) {
+        if ($this->edit) {
             // Ubah ke array agar bisa digabung dengan input manual
             $data = app(MaterialUseJshService::class)->getRawMat($this->chargeId);
 
@@ -57,7 +73,7 @@ class RawMaterial extends Component
 
     public function addRawMat()
     {
-        // dd($this->edit);
+
         $user = Auth::user()->usr;
         $this->validate();
         $this->dataRawMat[] = [
@@ -84,26 +100,38 @@ class RawMaterial extends Component
 
     public function calculate()
     {
-        $this->totalWeight = collect($this->dataRawMat)->sum('weight');
+        $this->totalWeight = collect($this->dataRawMat)->sum('weight') . ' Kg';
     }
 
     public function save()
     {
-
-        $save = app(MaterialUseJshService::class)->saveRawMat($this->dataRawMat);
-        // dd($save);
-        if ($save) {
-            $this->reset(['dataRawMat', 'totalWeight']);
-            $this->dispatch('saved');
-            $this->dispatch('success', message: 'Data raw material berhasil disave');
+        if ($this->edit) {
+            $save = app(MaterialUseJshService::class)->saveUpdateRawMat($this->dataRawMat);
+            if ($save) {
+                // $this->reset(['dataRawMat', 'totalWeight']);
+                $this->dispatch('saved');
+                $this->dispatch('success', message: 'Data raw material berhasil diubah');
+                // $this->loadData();
+            } else {
+                $this->dispatch('error', message: 'Data raw material gagal diubah');
+            }
         } else {
-            $this->dispatch('error', message: 'Data raw material gagal save');
+
+            $save = app(MaterialUseJshService::class)->saveRawMat($this->dataRawMat);
+            // dd($save);
+            if ($save) {
+                $this->reset(['dataRawMat', 'totalWeight']);
+                $this->dispatch('saved');
+                $this->dispatch('success', message: 'Data raw material berhasil disave');
+            } else {
+                $this->dispatch('error', message: 'Data raw material gagal save');
+            }
         }
     }
 
     public function render()
     {
-        $this->loadData();
+
         return view('livewire.jsh.raw-material');
     }
 }

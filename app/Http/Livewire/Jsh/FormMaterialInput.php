@@ -27,6 +27,7 @@ class FormMaterialInput extends Component
         $this->lot = $data['lot'] ?? '-';
         $this->charging = $data['charging'] ?? '-';
         $this->product = $data['model_id'] ?? "-";
+        $this->dispatch('input-material-data', id: $this->chargeId, isEdit: $this->edit);
         $this->dispatch('showFormInput');
     }
     #[On('FormUpdateMat')]
@@ -41,6 +42,9 @@ class FormMaterialInput extends Component
         $this->lot = $data['lot'] ?? '-';
         $this->charging = $data['charging'] ?? '-';
         $this->product = $data['model_id'] ?? "-";
+
+        $this->dispatch('load-material-data', id: $this->chargeId, isEdit: $this->edit);
+
         $this->dispatch('showFormEdit');
     }
     #[On('rawMat')]

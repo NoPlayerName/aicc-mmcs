@@ -11,6 +11,8 @@ class TemptTappingJsh extends BaseModelJsh
 
     protected $casts = [
         'type_tapping' => EnumTypeTapping::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
     protected $fillable = [
@@ -25,5 +27,9 @@ class TemptTappingJsh extends BaseModelJsh
     public function charging()
     {
         return $this->belongsTo(ChargingHead::class, 'id', 'charging_head_id');
+    }
+    protected function serializeDate(\DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

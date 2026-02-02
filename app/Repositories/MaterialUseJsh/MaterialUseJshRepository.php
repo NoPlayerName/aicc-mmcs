@@ -42,8 +42,34 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
 
     public function getRawMat($data)
     {
-        $data = MaterialUsageJsh::select('charging_head_id', 'material_id', 'weight', 'type', 'created_by')->where('charging_head_id', $data)
+        $data = MaterialUsageJsh::select('charging_head_id', 'material_id', 'weight', 'type', 'created_by', 'created_at')->where('charging_head_id', $data)
             ->where('type', EnumTypeMat::RawMaterial->value)->get();
+        // dd($data);
+        return $data;
+    }
+    public function getAdditiveMat($data)
+    {
+        $data = MaterialUsageJsh::select('charging_head_id', 'material_id', 'weight', 'type', 'type_additive', 'created_by', 'created_at')->where('charging_head_id', $data)
+            ->where('type', EnumTypeMat::Additive->value)->get()->map(function ($item) {
+                $item->type_additive_text = $item->type_additive?->text() ?? '-';
+                return $item;
+            });
+        return $data;
+    }
+    public function getKwh($data)
+    {
+        $data = KwhJsh::select('charging_head_id', 'charge_time', 'kwh_start_charge', 'kwh_ok_charge', 'power')->where('charging_head_id', $data)
+            ->first();
+        return $data;
+    }
+
+    public function getTempTapping($data)
+    {
+        $data = TemptTappingJsh::select('charging_head_id', 'temperatur', 'type_tapping', 'created_by', 'created_at')->where('charging_head_id', $data)
+            ->get()->map(function ($item) {
+                $item->type_tapping_text = $item->type_tapping?->text() ?? '-';
+                return $item;
+            });
         return $data;
     }
 
@@ -100,6 +126,25 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
             return false;
         }
     }
+    public function saveUpdateRawMat($data)
+    {
+        // dd($data);
+        DB::beginTransaction();
+        try {
+            MaterialUsageJsh::where('charging_head_id', $data[0]['charging_head_id'])->where('type', EnumTypeMat::RawMaterial->value)->delete();
+            MaterialUsageJsh::insert($data);
+            DB::commit();
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Save raw mat fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
+
     public function saveAdditiveMat($data)
     {
         $dataToSave = collect($data)
@@ -115,6 +160,24 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error('Save additive fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
+    public function saveUpdateAdditiveMat($data)
+    {
+        // dd($data);
+        DB::beginTransaction();
+        try {
+            MaterialUsageJsh::where('charging_head_id', $data[0]['charging_head_id'])->where('type', EnumTypeMat::Additive->value)->delete();
+            MaterialUsageJsh::insert($data);
+            DB::commit();
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Save raw mat fail', [
                 'error' => $th->getMessage(),
                 'trace' => $th->getTraceAsString(),
             ]);
@@ -138,11 +201,47 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
             return false;
         }
     }
+    public function UpdateKwh($data)
+    {
+        DB::beginTransaction();
+        try {
+            KwhJsh::where('charging_head_id', $data['charging_head_id'])->update($data);
+            // KwhJsh::insert($data);
+            DB::commit();
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Save kwh fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
     public function saveTemptTapping($data)
     {
         // dd($data);
         DB::beginTransaction();
         try {
+            TemptTappingJsh::insert($data);
+            DB::commit();
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Save tempt tapping fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
+    public function updateTemptTapping($data)
+    {
+        // dd($data);
+        DB::beginTransaction();
+        try {
+
+            TemptTappingJsh::where('charging_head_id', $data[0]['charging_head_id'])->delete();
             TemptTappingJsh::insert($data);
             DB::commit();
             return true;
