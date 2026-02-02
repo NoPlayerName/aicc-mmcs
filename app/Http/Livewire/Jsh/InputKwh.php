@@ -57,11 +57,11 @@ class InputKwh extends Component
             $data = app(MaterialUseJshService::class)->getKwh($this->chargeId);
             // dd($data);
             $this->form = [
-                'charging_head_id' => $data->charging_head_id,
-                'charge_time' => $data->charge_time,
-                'kwh_start_charge' => $data->kwh_start_charge,
-                'kwh_ok_charge' => $data->kwh_ok_charge,
-                'power' => $data->power,
+                'charging_head_id' => $data->charging_head_id ?? $this->chargeId,
+                'charge_time' => $data->charge_time ?? null,
+                'kwh_start_charge' => $data->kwh_start_charge ?? null,
+                'kwh_ok_charge' => $data->kwh_ok_charge ?? null,
+                'power' => $data->power ?? null,
             ];
         }
     }

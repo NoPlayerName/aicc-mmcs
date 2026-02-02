@@ -11,7 +11,7 @@ class ChargingHead extends BaseModelJsh
     protected $table = "tb_charging_head_jsh";
 
     protected $fillable = [
-        'plan_id_achor',
+        'plan_id_anchor',
         'charging',
         'lot',
         'model_id',

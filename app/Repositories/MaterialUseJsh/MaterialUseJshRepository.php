@@ -82,9 +82,10 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
 
     public function saveChargingHead($data)
     {
+
         try {
-            ChargingHead::insert($data);
-            return true;
+            $dataReturn =  ChargingHead::create($data);
+            return $dataReturn;
         } catch (\Throwable $th) {
             Log::error('Save charging fail', [
                 'error' => $th->getMessage(),

@@ -38,6 +38,7 @@ class RawMaterial extends Component
     #[On('input-material-data')]
     public function inputData($id, $isEdit)
     {
+        // $id ? dd($id) : $this->chargeId = $id;
         $this->reset(['dataRawMat', 'totalWeight']);
         $this->chargeId = $id;
         $this->edit = $isEdit;

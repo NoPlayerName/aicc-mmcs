@@ -133,12 +133,14 @@
                                                         <td>
                                                             <div>
                                                                 <button class="btn btn-info btn-sm waves-effect"
-                                                                    wire:click='Detail({{ $indexPlan}}, {{ $indexCharge }})'>
+                                                                    wire:click='Detail({{ $indexPlan}}, {{ $indexCharge }})'
+                                                                    @disabled(empty($charge['charging']))>
                                                                     <i class="fas fa-eye" data-toggle="tooltip"
                                                                         title="View"></i>
                                                                 </button>
-                                                                <button class="btn btn-warning btn-sm waves-effect"
-                                                                    wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'>
+                                                                <button class="btn btn-warning btn-sm waves-effect "
+                                                                    wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'
+                                                                    @disabled(empty($charge['charging']))>
                                                                     <i class="fas fa-edit" data-toggle="tooltip"
                                                                         title="Edit"></i>
                                                                 </button>

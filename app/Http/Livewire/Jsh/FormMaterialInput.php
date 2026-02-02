@@ -78,6 +78,7 @@ class FormMaterialInput extends Component
 
         $save = app(MaterialUseJshService::class)->saveChargingHead($data);
         if ($save) {
+            $this->dispatch('input-material-data', id: $save['id'], isEdit: $this->edit);
             $this->dispatch('success', message: 'Data charging berhasil ditambahkan!');
         } else {
             $this->dispatch('error', message: 'Data charging gagal ditambahkan');
