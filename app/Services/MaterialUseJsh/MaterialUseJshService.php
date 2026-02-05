@@ -62,7 +62,11 @@ class MaterialUseJshService
 
     public function saveRawMat($data)
     {
-        $save = $this->materialUse->saveRawMat($data);
+        $newData = array_map(function ($item) {
+            unset($item['material_name']);
+            return $item;
+        }, $data);
+        $save = $this->materialUse->saveRawMat($newData);
         return $save;
     }
     public function saveUpdateRawMat($data)
@@ -70,6 +74,7 @@ class MaterialUseJshService
         $user = Auth::user()->usr;
         $now = now();
         $update = array_map(function ($item) use ($now, $user) {
+            unset($item['material_name']);
             $item['updated_by'] = $user;
             $item['updated_at'] = $now;
             return $item;
@@ -80,7 +85,12 @@ class MaterialUseJshService
     }
     public function saveAdditiveMat($data)
     {
-        $save = $this->materialUse->saveAdditiveMat($data);
+        $newData = array_map(function ($item) {
+            unset($item['type_additive_text']);
+            unset($item['material_name']);
+            return $item;
+        }, $data);
+        $save = $this->materialUse->saveAdditiveMat($newData);
         return $save;
     }
     public function saveUpdateAdditiveMat($data)
@@ -89,6 +99,7 @@ class MaterialUseJshService
         $now = now();
         $update = array_map(function ($item) use ($now, $user) {
             unset($item['type_additive_text']);
+            unset($item['material_name']);
             $item['updated_by'] = $user;
             $item['updated_at'] = $now;
             return $item;
@@ -122,8 +133,9 @@ class MaterialUseJshService
     }
     public function saveTemptTapping($data)
     {
+
         unset($data['type_tapping_text']);
-        $newData = collect($data)->map(function ($item) use ($user) {
+        $newData = collect($data)->map(function ($item) {
             // 1. Ubah array jadi collection agar bisa pakai forget()
             $row = collect($item)->forget('type_tapping_text');
 

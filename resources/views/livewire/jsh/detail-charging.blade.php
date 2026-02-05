@@ -113,7 +113,7 @@
 
                                                     @foreach ($rawMaterial as $index => $rW )
                                                     <tr>
-                                                        <th>{{ $rW->material_id }}</th>
+                                                        <th>{{ $rW->material_name }}</th>
                                                         <td>{{ $rW->weight }}</td>
 
                                                     </tr>
@@ -155,7 +155,7 @@
 
                                                     @foreach ($additive as $index => $aW )
                                                     <tr>
-                                                        <th>{{ $aW->material_id }}</th>
+                                                        <th>{{ $aW->material_name }}</th>
                                                         <th>{{ $aW->type_additive_text }}</th>
                                                         <td>{{ $aW->weight }}</td>
 

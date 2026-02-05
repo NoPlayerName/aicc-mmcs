@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Jsh;
 
 use App\Enums\EnumTypeAdditive;
 use App\Enums\EnumTypeMat;
+use App\Services\Master\Material\MaterialService;
 use App\Services\MaterialUseJsh\MaterialUseJshService;
 
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,7 @@ class AdditiveMaterial extends Component
 
     public $dataAdditiveMat = [];
     public $material = '';
+    public $materialText = '';
     public $weight = '';
     public $typeAddjust = '';
     public $totalWeight = 0;
@@ -24,6 +26,7 @@ class AdditiveMaterial extends Component
     public $chargeId;
     // #[Reactive]
     public $edit;
+    public $additiveSelect;
 
     public function rules()
     {
@@ -55,6 +58,12 @@ class AdditiveMaterial extends Component
         $this->loadData();
     }
 
+    public function loadSelectAdditive()
+    {
+        $data = app(MaterialService::class)->getAdditive();
+        $this->additiveSelect = $data;
+    }
+
     public function loadData()
     {
         if ($this->edit) {
@@ -63,14 +72,16 @@ class AdditiveMaterial extends Component
             // PAKSA JADI ARRAY DI SINI
             // dd($data);
             // Agar selanjutnya array_values() tidak error
+            // dd($data);
             $this->dataAdditiveMat = collect($data)->toArray();
         }
     }
 
     #[On('AdditiveMat')]
-    public function changeAdditiveMat($data)
+    public function changeAdditiveMat($data, $name)
     {
         $this->material = $data;
+        $this->materialText = $name;
     }
     #[On('TypeAddjust')]
     public function TypeAddjust($data)
@@ -85,6 +96,7 @@ class AdditiveMaterial extends Component
         $this->dataAdditiveMat[] = [
             'charging_head_id' => $this->chargeId,
             'material_id' => $this->material,
+            'material_name' => $this->materialText,
             'weight' => $this->weight,
             'type' => EnumTypeMat::Additive->value,
             'type_additive' => $this->typeAddjust,
@@ -95,7 +107,6 @@ class AdditiveMaterial extends Component
 
         // reset input
         $this->material = null;
-        $this->typeAddjust = null;
         $this->weight = null;
     }
 
@@ -131,6 +142,7 @@ class AdditiveMaterial extends Component
 
     public function render()
     {
+        $this->loadSelectAdditive();
         return view('livewire.jsh.additive-material');
     }
 }

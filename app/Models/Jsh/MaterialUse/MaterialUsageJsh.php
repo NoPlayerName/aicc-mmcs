@@ -5,6 +5,7 @@ namespace App\Models\Jsh\MaterialUse;
 use App\Enums\EnumTypeAdditive;
 use App\Enums\EnumTypeMat;
 use App\Models\BaseModelJsh;
+use App\Models\Master\TbMaterial;
 
 class MaterialUsageJsh extends BaseModelJsh
 {
@@ -31,7 +32,11 @@ class MaterialUsageJsh extends BaseModelJsh
 
     public function charging()
     {
-        return $this->belongsTo(MaterialUsageJsh::class, 'id', 'charging_head_id');
+        return $this->belongsTo(ChargingHead::class, 'id', 'charging_head_id');
+    }
+    public function material()
+    {
+        return $this->belongsTo(TbMaterial::class, 'material_id', 'material_code');
     }
     protected function serializeDate(\DateTimeInterface $date)
     {

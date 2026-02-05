@@ -22,6 +22,7 @@ class FormMaterialInput extends Component
         // dd($data);
         // dd($data);
         // dd($id, $data);
+        $this->edit = $data['is_edit'];
         $this->id = $data['production_plan_id'];
         $this->chargeId = $data['chargingHeadId'];
         $this->lot = $data['lot'] ?? '-';
@@ -48,15 +49,15 @@ class FormMaterialInput extends Component
         $this->dispatch('showFormEdit');
     }
     #[On('rawMat')]
-    public function changeRawMat($rawMat)
+    public function changeRawMat($rawMat, $name)
     {
-        $this->dispatch('RawMat', data: $rawMat)->to(RawMaterial::class);
+        $this->dispatch('RawMat', data: $rawMat, name: $name)->to(RawMaterial::class);
     }
 
     #[On('additMat')]
-    public function changeAdditiveMat($data)
+    public function changeAdditiveMat($data, $name)
     {
-        $this->dispatch('AdditiveMat', data: $data)->to(AdditiveMaterial::class);
+        $this->dispatch('AdditiveMat', data: $data, name: $name)->to(AdditiveMaterial::class);
     }
     #[On('typeAddjust')]
     public function changeTypeAddjust($data)
@@ -78,6 +79,7 @@ class FormMaterialInput extends Component
 
         $save = app(MaterialUseJshService::class)->saveChargingHead($data);
         if ($save) {
+            $this->dispatch('refreshData')->to(MaterialInput::class);
             $this->dispatch('input-material-data', id: $save['id'], isEdit: $this->edit);
             $this->dispatch('success', message: 'Data charging berhasil ditambahkan!');
         } else {

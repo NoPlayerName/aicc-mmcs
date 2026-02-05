@@ -104,11 +104,11 @@
                                             @livewire('jsh.additive-material', ['chargeId' => $chargeId])
                                         </div>
                                         <div class="tab-pane" id="kwh" role="tabpanel" wire:key="Kwh-{{ $chargeId }}">
-                                            @livewire('jsh.input-kwh', ['chargeId' => $chargeId, 'Edit' => $edit])
+                                            @livewire('jsh.input-kwh', ['chargeId' => $chargeId, 'edit' => $edit])
                                         </div>
                                         <div class="tab-pane" id="temptTapping" role="tabpanel"
                                             wire:key="temptTapping-{{ $chargeId }}">
-                                            @livewire('jsh.input-tempt-tapping', ['chargeId' => $chargeId, 'Edit'
+                                            @livewire('jsh.input-tempt-tapping', ['chargeId' => $chargeId, 'edit'
                                             => $edit])
                                         </div>
                                     </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Jsh;
 
 use App\Enums\EnumTypeMat;
+use App\Services\Master\Material\MaterialService;
 use App\Services\MaterialUseJsh\MaterialUseJshService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -14,12 +15,14 @@ class RawMaterial extends Component
 
     public $dataRawMat = [];
     public $material = '';
+    public $materialText = '';
     public $weight = '';
     public $totalWeight = 0;
     // #[Reactive]
     public $chargeId;
     // #[Reactive]
     public $edit;
+    public $rawMatSelect;
 
 
     public function rules()
@@ -52,6 +55,12 @@ class RawMaterial extends Component
         $this->loadData();
     }
 
+    public function loadSelectAdditive()
+    {
+        $data = app(MaterialService::class)->getRawMat();
+        $this->rawMatSelect = $data;
+    }
+
     public function loadData()
     {
         if ($this->edit) {
@@ -67,9 +76,10 @@ class RawMaterial extends Component
 
 
     #[On('RawMat')]
-    public function changeRawMat($data)
+    public function changeRawMat($data, $name)
     {
         $this->material = $data;
+        $this->materialText = $name;
     }
 
     public function addRawMat()
@@ -80,6 +90,7 @@ class RawMaterial extends Component
         $this->dataRawMat[] = [
             'charging_head_id' => $this->chargeId,
             'material_id' => $this->material,
+            'material_name' => $this->materialText,
             'weight' => $this->weight,
             'type' => EnumTypeMat::RawMaterial->value,
             'created_by' => $user,
@@ -132,7 +143,7 @@ class RawMaterial extends Component
 
     public function render()
     {
-
+        $this->loadSelectAdditive();
         return view('livewire.jsh.raw-material');
     }
 }

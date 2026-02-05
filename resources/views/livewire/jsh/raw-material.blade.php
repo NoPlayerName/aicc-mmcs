@@ -4,14 +4,10 @@
             <label class="control-label">Material</label>
             <select class="form-control form-control-lg select2-search-disable" id="rawMat-select2">
                 <option>Select</option>
-                <option>Steel Scrap</option>
-                <option>Bricket</option>
-                <optgroup label="Return Scrap">
-                    <option value="CA">RS ACE</option>
-                    <option value="NV">AGARI</option>
-                    <option value="OR">NG Prod</option>
-                </optgroup>
-                <option>N</option>
+                @foreach ($rawMatSelect as $rw)
+                <option value="{{ $rw['material_code'] }}">{{ $rw['material_name'] }}</option>
+                @endforeach
+
             </select>
             <div style="height: 20px;"></div>
         </div>
@@ -52,7 +48,7 @@
 
                 @foreach ($dataRawMat as $index => $rW )
                 <tr>
-                    <th>{{ $rW['material_id'] }}</th>
+                    <th>{{ $rW['material_name'] }}</th>
                     <td>{{ $rW['weight'] }}</td>
                     <td>
                         <div>

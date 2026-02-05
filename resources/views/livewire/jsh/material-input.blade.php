@@ -57,7 +57,7 @@
                         <div id="accordion" class="custom-accordion">
                             @if ($data != null)
                             @foreach ($data as $indexPlan => $dt)
-                            <div wire:ignore class="card mb-1 shadow-none" wire:key={{ $indexPlan }}>
+                            <div class="card mb-1 shadow-none" wire:key={{ $indexPlan }}>
                                 <a href="#collapse{{ $indexPlan }}" class="text-dark " data-toggle="collapse"
                                     aria-expanded="false">
                                     <div class="card-header" id="heading{{ $indexPlan }}">
@@ -110,7 +110,8 @@
                                     </div>
                                 </a>
 
-                                <div id="collapse{{ $indexPlan }}" class="collapse"
+                                <div id="collapse{{ $indexPlan }}"
+                                    class="collapse {{ $openIndex === $indexPlan ? 'show' : '' }}"
                                     aria-labelledby="heading{{ $indexPlan }}">
                                     <div class="card-body">
                                         <div class="table-responsive">
@@ -212,29 +213,31 @@
             minimumResultsForSearch: Infinity
         }).on('change', function (e) {
            
-            let $data = $(this).val();
-            Livewire.dispatch('rawMat', {rawMat: $data});
+            let data = $(this).val();
+            let Name = $(this).find('option:selected').text();
+            Livewire.dispatch('rawMat', {rawMat: data, name: Name});
         });
         $('#Additive-select2').select2({
             minimumResultsForSearch: Infinity
         }).on('change', function (e) {
             
-            let $data = $(this).val();
-            Livewire.dispatch('additMat', {data: $data});
+            let data = $(this).val();
+            let Name = $(this).find('option:selected').text();
+            Livewire.dispatch('additMat', {data: data, name: Name});
         });
         $('#Type-Adjust-select2').select2({
             minimumResultsForSearch: Infinity
         }).on('change', function (e) {
             
-            let $data = $(this).val();
-            Livewire.dispatch('typeAddjust', {data: $data});
+            let data = $(this).val();
+            Livewire.dispatch('typeAddjust', {data: data});
         });
         $('#Type-Tapping-select2').select2({
             minimumResultsForSearch: Infinity
         }).on('change', function (e) {
             
-            let $data = $(this).val();
-            Livewire.dispatch('typeTapping', {data: $data});
+            let data = $(this).val();
+            Livewire.dispatch('typeTapping', {data: data});
         });
         Livewire.on('showFormInput', () => {
             $('#modal-material-input').modal("show");

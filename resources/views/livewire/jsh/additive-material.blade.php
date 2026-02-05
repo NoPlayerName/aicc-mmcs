@@ -4,11 +4,12 @@
         <div class="col-md-3" wire:ignore>
 
             <label class="control-label">Material</label>
-            <select class="form-control form-control-lg select2-search-disable" id="Additive-select2">
+            <select class="form-control form-control-lg select2" id="Additive-select2">
                 <option>Select</option>
-                <option value="carbon g-8">Carbon G-8</option>
-                <option value="carbon sp">Carbon SP-500</option>
-                <option value="fe">Fe.Si</option>
+                @foreach ($additiveSelect as $indeSelect => $additive )
+                <option value="{{ $additive['material_code'] }}">{{
+                    $additive['material_name'] }}</option>
+                @endforeach
             </select>
             <div style="height: 20px;"></div>
         </div>
@@ -53,7 +54,7 @@
 
                 @foreach ($dataAdditiveMat as $index => $aW )
                 <tr>
-                    <th>{{ $aW['material_id'] }}</th>
+                    <th>{{ $aW['material_name'] }}</th>
                     <th>{{ $aW['type_additive_text'] }}</th>
                     <td>{{ $aW['weight'] }}</td>
                     <td>

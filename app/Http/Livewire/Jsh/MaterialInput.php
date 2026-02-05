@@ -14,11 +14,17 @@ class MaterialInput extends BaseLivewireComponent
     public $data;
     public $date;
     public $shift;
+    public $openIndex = null;
     public function mount()
     {
         $this->mountBase();
     }
     public function updatedShift($value)
+    {
+        // Cek apakah shift masuk
+        $this->ChangeFilter();
+    }
+    public function updatedDate($value)
     {
         // Cek apakah shift masuk
         $this->ChangeFilter();
@@ -36,17 +42,27 @@ class MaterialInput extends BaseLivewireComponent
         $this->shift = $data;
         $this->changeFilter();
     }
-
+    #[On('refreshData')]
     public function changeFilter()
     {
         $this->data = app(PlanProductionService::class)
             ->getPlanProd($this->date, $this->shift) ?? collect();
-        // dd($this->data);
+    }
+
+    // Fungsi untuk handle klik accordion
+    public function toggleAccordion($index)
+    {
+        if ($this->openIndex === $index) {
+            $this->openIndex = null; // Tutup jika yang terbuka diklik lagi
+        } else {
+            $this->openIndex = $index; // Buka yang diklik
+        }
     }
 
 
     public function Proccess($dataPlan, $dataCharge)
     {
+        $this->openIndex = $dataPlan;
         $Data = $this->data[$dataPlan]['chargings'][$dataCharge];
         $Data['is_edit'] = false;
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
@@ -54,12 +70,14 @@ class MaterialInput extends BaseLivewireComponent
     }
     public function Detail($dataPlan, $dataCharge)
     {
+        $this->openIndex = $dataPlan;
         $Data = $this->data[$dataPlan]['chargings'][$dataCharge];
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
         $this->dispatch('DetailCharging', data: $Data)->to(DetailCharging::class);
     }
     public function Edit($dataPlan, $dataCharge)
     {
+        $this->openIndex = $dataPlan;
         $Data = $this->data[$dataPlan]['chargings'][$dataCharge];
         $Data['is_edit'] = true;
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);

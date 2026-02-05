@@ -27,8 +27,12 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
             'id'             => $data->id,
             'plan_id_anchor' => $data->plan_id_anchor,
             'charging'       => $data->charging,
-            'rawMat'         => $data->rawMatUse,
+            'rawMat'         => $data->rawMatUse->map(function ($item) {
+                $item->material_name = $item->material?->material_name ?? '-';
+                return $item;
+            }),
             'additive'       => $data->additMatUse->map(function ($item) {
+                $item->material_name = $item->material?->material_name ?? '-';
                 $item->type_additive_text = $item->type_additive?->text() ?? '-';
                 return $item;
             }),
@@ -42,17 +46,21 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
 
     public function getRawMat($data)
     {
-        $data = MaterialUsageJsh::select('charging_head_id', 'material_id', 'weight', 'type', 'created_by', 'created_at')->where('charging_head_id', $data)
-            ->where('type', EnumTypeMat::RawMaterial->value)->get();
+        $data = MaterialUsageJsh::with('material')->select('charging_head_id', 'material_id', 'weight', 'type', 'created_by', 'created_at')->where('charging_head_id', $data)
+            ->where('type', EnumTypeMat::RawMaterial->value)->get()->map(function ($item) {
+                $item->material_name = $item->material?->material_name ?? '-';
+                return $item->makeHidden('material');
+            });
         // dd($data);
         return $data;
     }
     public function getAdditiveMat($data)
     {
-        $data = MaterialUsageJsh::select('charging_head_id', 'material_id', 'weight', 'type', 'type_additive', 'created_by', 'created_at')->where('charging_head_id', $data)
+        $data = MaterialUsageJsh::with('material')->select('charging_head_id', 'material_id', 'weight', 'type', 'type_additive', 'created_by', 'created_at')->where('charging_head_id', $data)
             ->where('type', EnumTypeMat::Additive->value)->get()->map(function ($item) {
                 $item->type_additive_text = $item->type_additive?->text() ?? '-';
-                return $item;
+                $item->material_name = $item->material?->material_name ?? '-';
+                return $item->makeHidden('material');
             });
         return $data;
     }

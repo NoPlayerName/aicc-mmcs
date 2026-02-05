@@ -41,7 +41,6 @@ class InputTemptTapping extends Component
         $this->reset('dataTapping');
         $this->chargeId = $id;
         $this->edit = $isEdit;
-        $this->loadData();
     }
     #[On('load-material-data')]
     public function triggerLoad($id, $isEdit)
@@ -92,6 +91,7 @@ class InputTemptTapping extends Component
     }
     public function save()
     {
+
         if ($this->edit) {
             $save =  app(MaterialUseJshService::class)->updateTemptTapping($this->dataTapping);
             if ($save) {
