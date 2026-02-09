@@ -2,6 +2,7 @@
 
 namespace App\Models\Jsh;
 
+use App\Models\Jsh\MaterialUse\ChargingHead;
 use App\Models\Jsh\Molding\Models;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,5 +18,10 @@ class ProdPlan extends Model
     public function models()
     {
         return $this->belongsTo(Models::class, 'model_id', 'id');
+    }
+
+    public function chargingHeads()
+    {
+        return $this->hasMany(ChargingHead::class, 'plan_id_anchor', 'production_plan_id');
     }
 }

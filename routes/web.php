@@ -7,7 +7,8 @@ use App\Http\Livewire\Dashboard;
 use App\Http\Livewire\Invetory\StockForm;
 use App\Http\Livewire\Invetory\StockTable;
 use App\Http\Livewire\Jsh\MaterialInput;
-use App\Http\Livewire\Report\Jsh\TotalFurnaceJsh;
+use App\Http\Livewire\Report\Jsh\AllFurnaceJsh;
+use App\Http\Livewire\Report\Jsh\FurnaceJsh;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:web')->group(function () {
@@ -17,7 +18,8 @@ Route::middleware('auth:web')->group(function () {
     Route::prefix('jsh')->name('jsh.')->group(function () {
         Route::get('/material-input', MaterialInput::class)->name('material-input.index');
         Route::prefix('report')->name('report.')->group(function () {
-            Route::get('/total-furnace', TotalFurnaceJsh::class)->name('total-furnace-report');
+            Route::get('/total-furnace', AllFurnaceJsh::class)->name('total-furnace-report');
+            Route::get('/furnace-report', FurnaceJsh::class)->name('furnace-report');
         });
     });
 

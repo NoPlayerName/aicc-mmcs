@@ -17,10 +17,10 @@ class PlanProductionService
         $this->MaterialUseJsh = $MaterialUseJsh;
     }
 
-    private function furnaceJsh($tanggal, $shift)
-    {
-        return $this->MaterialUseJsh->getFurnace($tanggal, $shift);
-    }
+    // private function furnaceJsh($tanggal, $shift)
+    // {
+    //     return $this->MaterialUseJsh->getFurnace($tanggal, $shift);
+    // }
 
     public function getPlanProd($date, $shift)
     {

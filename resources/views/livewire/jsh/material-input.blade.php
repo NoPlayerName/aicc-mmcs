@@ -168,11 +168,9 @@
 
                             <!-- 🚨 DATA KOSONG -->
                             <div class="card">
-                                <div class="card-body text-center text-muted">
-                                    <i class="mdi mdi-database-off font-size-24"></i>
-                                    <p class="mb-0 mt-2">
-                                        Data production plan belum tersedia
-                                    </p>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                                    <h5>Data Tidak ditemukan</h5>
                                 </div>
                             </div>
                             @endif

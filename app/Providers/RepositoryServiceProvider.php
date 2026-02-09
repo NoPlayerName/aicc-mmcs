@@ -8,6 +8,8 @@ use App\Repositories\MaterialUseJsh\MaterialUseJshRepository;
 use App\Repositories\MaterialUseJsh\MaterialUseJshRepositoryInterface;
 use App\Repositories\PlanProductionJsh\PlanProdRepository;
 use App\Repositories\PlanProductionJsh\PlanProdRepositoryInterface;
+use App\Repositories\Report\Jsh\JshReportRepository;
+use App\Repositories\Report\Jsh\JshReportRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -21,6 +23,7 @@ class RepositoryServiceProvider extends ServiceProvider
             PlanProdRepositoryInterface::class => PlanProdRepository::class,
             MaterialUseJshRepositoryInterface::class => MaterialUseJshRepository::class,
             MaterialRepositoryInterface::class => MaterialRepository::class,
+            JshReportRepositoryInterface::class => JshReportRepository::class,
         ];
 
         foreach ($bindings as $interface => $implementation) {

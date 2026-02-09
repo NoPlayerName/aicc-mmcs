@@ -54,10 +54,10 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                         ->values();
 
                     return [
-                        'plan_furnace'  =>  $firstGroup->plan_furnace,
-                        'plan_process_date'  =>  $firstGroup->plan_process_date,
-                        'shift'  =>  $firstGroup->shift,
-                        'model_id' =>  $firstGroup->models?->model,
+                        'plan_furnace'  =>  $firstGroup->plan_furnace ?? '-',
+                        'plan_process_date'  =>  $firstGroup->plan_process_date ?? '-',
+                        'shift'  =>  $firstGroup->shift ?? '-',
+                        'model_id' =>  $firstGroup->models?->model ?? '-',
                         'chargings' => $chargings, // 🔥 charging DI DALAM prodplan
                     ];
                 })
