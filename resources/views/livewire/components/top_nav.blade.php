@@ -47,7 +47,7 @@
                             <a href="{{ route('jsh.report.total-furnace-report') }}" class="dropdown-item">All
                                 Furnace</a>
                             <a href="{{ route('jsh.report.furnace-report') }}" class="dropdown-item">Furnace</a>
-                            <a href="#report/asakai-finishing" class="dropdown-item">Product</a>
+                            <a href="{{ route('jsh.report.product-report') }}" class="dropdown-item">Product</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">

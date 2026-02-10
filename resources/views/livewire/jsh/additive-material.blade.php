@@ -1,28 +1,31 @@
 <div>
 
     <div class="row align-items-end">
-        <div class="col-md-3" wire:ignore>
-
+        <div class=" col-md-3" wire:ignore>
             <label class="control-label">Material</label>
-            <select class="form-control form-control-lg select2" id="Additive-select2">
+            <select class="form-control form-control-lg select2 @error('material') is-invalid 
+            @enderror" id="Additive-select2">
                 <option>Select</option>
                 @foreach ($additiveSelect as $indeSelect => $additive )
                 <option value="{{ $additive['material_code'] }}">{{
                     $additive['material_name'] }}</option>
                 @endforeach
             </select>
-            <div style="height: 20px;"></div>
+            @error('material')
+            <small class="text-danger d-block">{{ $message }}</small>
+            @else
+            <div style="height: 20px;"></div> @enderror
         </div>
-        <div class="col-md-3" wire:ignore>
+        <div class="  col-md-3">
             <label class="control-label">Type Adjustment</label>
-            <select class="form-control form-control-lg select2-search-disable" id="Type-Adjust-select2">
+            <select class="form-control form-control-lg select2" id="Type-Adjust-select2">
                 <option>Select</option>
                 <option value="1">Pra Adjust</option>
                 <option value="2">Adjustment</option>
             </select>
             <div style="height: 20px;"></div>
         </div>
-        <div class="col-md-3">
+        <div class="  col-md-3">
             <label class="control-label">Weight (KG)</label>
             <input class="form-control form-control-lg @error('weight') is-invalid @enderror" type="text"
                 placeholder="Kg" wire:model="weight">
@@ -31,7 +34,7 @@
             @else
             <div style="height: 20px;"></div> @enderror
         </div>
-        <div class="col-md-auto">
+        <div class=" col-md-auto">
             <button class="btn btn-lg btn-primary" data-toggle="tooltip" title="Add Material" wire:click='addMat'> <i
                     class="fas fa-plus"></i>
                 Add</button>

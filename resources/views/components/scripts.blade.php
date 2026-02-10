@@ -37,6 +37,7 @@
 
 <script src={{ asset('assets/libs/toastr/build/toastr.min.js') }}></script>
 
+
 <script src={{ asset('assets/js/app.js') }}></script>
 
 <script src="{{ asset('vendor/livewire/livewire.js') }}" data-update-uri="{{ url('/livewire/update') }}"

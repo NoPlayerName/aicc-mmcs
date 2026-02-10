@@ -27,4 +27,11 @@ class JshReportService
         $data = $this->report->reportFurnace($newStartDate, $newEndDate, $type, $shift, $furnace);
         return $data;
     }
+    public function reportProduct($startDate, $endDate, $type, $shift, $furnace)
+    {
+        $newStartDate = Carbon::createFromFormat('d/m/Y', $startDate)->format('Y-m-d');
+        $newEndDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
+        $data = $this->report->reportProduct($newStartDate, $newEndDate, $type, $shift, $furnace);
+        return $data;
+    }
 }

@@ -208,7 +208,7 @@
             Livewire.dispatch('Shift', {data: Data});
         });
         $('#rawMat-select2').select2({
-            minimumResultsForSearch: Infinity
+            minimumResultsForSearch: 0
         }).on('change', function (e) {
            
             let data = $(this).val();
@@ -216,7 +216,7 @@
             Livewire.dispatch('rawMat', {rawMat: data, name: Name});
         });
         $('#Additive-select2').select2({
-            minimumResultsForSearch: Infinity
+           minimumResultsForSearch: 0
         }).on('change', function (e) {
             
             let data = $(this).val();
@@ -224,14 +224,12 @@
             Livewire.dispatch('additMat', {data: data, name: Name});
         });
         $('#Type-Adjust-select2').select2({
-            minimumResultsForSearch: Infinity
         }).on('change', function (e) {
             
             let data = $(this).val();
             Livewire.dispatch('typeAddjust', {data: data});
         });
         $('#Type-Tapping-select2').select2({
-            minimumResultsForSearch: Infinity
         }).on('change', function (e) {
             
             let data = $(this).val();
