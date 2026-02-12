@@ -10,27 +10,34 @@
                             <i class="ri-dashboard-line mr-2"></i> Dashboard
                         </a>
                     </li>
-
+                    @if ($this->canView('/jsh/material-input', 'can_access'))
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('jsh.material-input.index') }}" wire:navigate>
                             <i class="ri-file-list-3-line mr-2"></i> JSH
                         </a>
                     </li>
-
+                    @endif
+                    @if ($this->canView('/ace/material-input', 'can_access') || $this->canView('/ace/ladle-transfer',
+                    'can_access'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-layout" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class=" ri-file-list-3-line mr-2"></i>ACE <div class="arrow-down"></div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="topnav-layout">
+                            @if ($this->canView('/ace/material-input', 'can_access'))
                             <a href="{{ route('ace.material-input-ace.index') }}" class="dropdown-item"
                                 wire:navigate>Material
                                 Input</a>
+                            @endif
+                            @if ($this->canView('/ace/ladle-transfer',
+                            'can_access'))
                             <a href="{{ route('ace.ladle-transfer.index') }}" class="dropdown-item " wire:navigate>Ladle
                                 Transfer</a>
-
+                            @endif
                         </div>
                     </li>
+                    @endif
 
                     <li class="nav-item">
                         <a class="nav-link" href="#" wire:navigate>

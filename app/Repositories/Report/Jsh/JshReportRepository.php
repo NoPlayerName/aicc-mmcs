@@ -26,12 +26,13 @@ class JshReportRepository implements JshReportRepositoryInterface
                         'material_id' => $usage->material_id,
                         'material_name' => $usage->material?->material_name,
                         'date' => $plan->plan_process_date,
-                        'weight' => (float) $usage->weight
+                        'weight' => (float) $usage->weight,
+                        'type_adj' => $usage->type_additive,
                     ];
                 });
             });
         })->groupBy('material_id')
-            ->map(function ($items, $materialId) {
+            ->map(function ($items, $materialId) use ($type) {
                 $row = [
                     'material_id' => $materialId,
                     'material_name' => $items->first()['material_name'] ?? '-'
@@ -40,10 +41,21 @@ class JshReportRepository implements JshReportRepositoryInterface
 
                 // Grouping per tanggal untuk kolom horizontal
                 foreach ($items->groupBy('date') as $date => $usageGroup) {
-                    $sumWeight = $usageGroup->sum('weight');
-                    $alias = 'date_' . str_replace('-', '_', $date);
-                    $row[$alias] = $sumWeight;
-                    $total += $sumWeight;
+                    $dateKey = str_replace('-', '_', $date);
+
+                    if ($type === EnumTypeMat::Additive->value) {
+                        // Logika khusus Additive
+                        $preWeight = $usageGroup->where('type_adj', 1)->sum('weight');
+                        $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
+
+                        $row['pre_date_' . $dateKey] = $preWeight;
+                        $row['date_' . $dateKey]     = $adjWeight;
+                    } else {
+                        // Logika Raw Material (Tanpa P.ADJ)
+                        $row['date_' . $dateKey] = $usageGroup->sum('weight');
+                    }
+
+                    $total += $usageGroup->sum('weight');
                 }
 
                 $row['subtotal'] = $total;
@@ -58,10 +70,7 @@ class JshReportRepository implements JshReportRepositoryInterface
         }])->whereBetween('plan_process_date', [$startDate, $endDate])
             ->when($shift, function ($query) use ($shift) {
                 return $query->where('shift', $shift);
-            })
-            ->when($furnace, function ($query) use ($furnace) {
-                return $query->where('plan_furnace', $furnace);
-            })
+            })->where('plan_furnace', $furnace)
             ->get();
 
         return $plans->flatMap(function ($plan) use ($type) {
@@ -71,25 +80,39 @@ class JshReportRepository implements JshReportRepositoryInterface
                     return [
                         'material_id' => $usage->material_id,
                         'material_name' => $usage->material?->material_name,
+                        'plan_furnace' => $plan->plan_furnace,
                         'date' => $plan->plan_process_date,
-                        'weight' => (float) $usage->weight
+                        'weight' => (float) $usage->weight,
+                        'type_adj' => $usage->type_additive,
                     ];
                 });
             });
         })->groupBy('material_id')
-            ->map(function ($items, $materialId) {
+            ->map(function ($items, $materialId) use ($type) {
                 $row = [
                     'material_id' => $materialId,
-                    'material_name' => $items->first()['material_name'] ?? '-'
+                    'material_name' => $items->first()['material_name'] ?? '-',
+                    'plan_furnace' => $items->first()['plan_furnace'] ?? '-',
                 ];
                 $total = 0;
 
                 // Grouping per tanggal untuk kolom horizontal
                 foreach ($items->groupBy('date') as $date => $usageGroup) {
-                    $sumWeight = $usageGroup->sum('weight');
-                    $alias = 'date_' . str_replace('-', '_', $date);
-                    $row[$alias] = $sumWeight;
-                    $total += $sumWeight;
+                    $dateKey = str_replace('-', '_', $date);
+
+                    if ($type === EnumTypeMat::Additive->value) {
+                        // Logika khusus Additive
+                        $preWeight = $usageGroup->where('type_adj', 1)->sum('weight');
+                        $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
+
+                        $row['pre_date_' . $dateKey] = $preWeight;
+                        $row['date_' . $dateKey]     = $adjWeight;
+                    } else {
+                        // Logika Raw Material (Tanpa P.ADJ)
+                        $row['date_' . $dateKey] = $usageGroup->sum('weight');
+                    }
+
+                    $total += $usageGroup->sum('weight');
                 }
 
                 $row['subtotal'] = $total;
@@ -118,12 +141,13 @@ class JshReportRepository implements JshReportRepositoryInterface
                             'material_name' => $usage->material?->material_name,
                             'product_name' => $plan->models?->model . ' - ' . $plan->models?->alias,
                             'date' => $plan->plan_process_date,
-                            'weight' => (float) $usage->weight
+                            'weight' => (float) $usage->weight,
+                            'type_adj' => $usage->type_additive,
                         ];
                     });
                 });
             })->groupBy('material_id')
-                ->map(function ($items, $materialId) {
+                ->map(function ($items, $materialId) use ($type) {
                     $row = [
                         'material_id' => $materialId,
                         'material_name' => $items->first()['material_name'] ?? '-',
@@ -133,10 +157,21 @@ class JshReportRepository implements JshReportRepositoryInterface
 
                     // Grouping per tanggal untuk kolom horizontal
                     foreach ($items->groupBy('date') as $date => $usageGroup) {
-                        $sumWeight = $usageGroup->sum('weight');
-                        $alias = 'date_' . str_replace('-', '_', $date);
-                        $row[$alias] = $sumWeight;
-                        $total += $sumWeight;
+                        $dateKey = str_replace('-', '_', $date);
+
+                        if ($type === EnumTypeMat::Additive->value) {
+                            // Logika khusus Additive
+                            $preWeight = $usageGroup->where('type_adj', 1)->sum('weight');
+                            $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
+
+                            $row['pre_date_' . $dateKey] = $preWeight;
+                            $row['date_' . $dateKey]     = $adjWeight;
+                        } else {
+                            // Logika Raw Material (Tanpa P.ADJ)
+                            $row['date_' . $dateKey] = $usageGroup->sum('weight');
+                        }
+
+                        $total += $usageGroup->sum('weight');
                     }
 
                     $row['subtotal'] = $total;

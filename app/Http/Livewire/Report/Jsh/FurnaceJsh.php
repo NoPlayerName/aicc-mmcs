@@ -4,13 +4,16 @@ namespace App\Http\Livewire\Report\Jsh;
 
 use App\Enums\EnumFurnace;
 use App\Enums\EnumTypeMat;
+use App\Exports\Jsh\Furnace\JshFurnaceExport;
+use App\Http\Livewire\BaseLivewireComponent;
 use App\Services\Report\JshReportService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Livewire\Component;
+use Maatwebsite\Excel\Facades\Excel;
 use Livewire\Attributes\On;
 
-class FurnaceJsh extends Component
+class FurnaceJsh extends BaseLivewireComponent
 {
     public $startDate = null;
     public $endDate = null;
@@ -27,8 +30,10 @@ class FurnaceJsh extends Component
 
     public function mount()
     {
+        $this->mountBase();
         $this->furnaceSelect =  EnumFurnace::all();
     }
+
 
     public function updatedActiveTab()
     {
@@ -83,6 +88,13 @@ class FurnaceJsh extends Component
         } catch (\Exception $e) {
             $this->hasSearched = false;
         }
+    }
+    public function export()
+    {
+        if (!$this->hasSearched) return;
+        $fileName = 'JSH_Furnace_Report_' . now()->format('Ymd_His') . '.xlsx';
+        $service = app(JshReportService::class);
+        return Excel::download(new JshFurnaceExport($service, $this->startDate, $this->endDate, $this->shift, $this->dateRange, $this->furnace), $fileName);
     }
     public function render()
     {

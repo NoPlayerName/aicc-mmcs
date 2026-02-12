@@ -17,7 +17,12 @@ class MaterialInput extends BaseLivewireComponent
     public $openIndex = null;
     public function mount()
     {
-        $this->mountBase();
+        $permissionAcces =  $this->mountBase();
+        if (!$permissionAcces) {
+            // $this->dispatch('error', message: 'You no have access to this menu!');
+            session()->flash('error', 'You no have access to this menu!');
+            return redirect()->route('dashboard');
+        }
     }
     public function updatedShift($value)
     {

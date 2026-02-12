@@ -11,6 +11,13 @@
         background-color: white !important;
         z-index: 1;
     }
+
+    .sticky-col-head {
+        position: sticky;
+        left: 0;
+        background-color: rgb(37, 37, 37) !important;
+        z-index: 1;
+    }
 </style>
 @endpush
 
@@ -71,8 +78,8 @@
                             </div>
 
                             <div class="col-md-auto">
-                                <button class="btn btn-md btn-success" wire:click='exportExcel' @if(!$hasSearched)
-                                    disabled @endif>
+                                <button class="btn btn-md btn-success" wire:click='export' @if(!$hasSearched) disabled
+                                    @endif>
                                     <i class="far fa-file-excel"></i> Export
                                 </button>
                                 <div style="height: 15px;"></div>
@@ -105,64 +112,61 @@
                             @if($hasSearched)
                             <div class="tab-pane active" id="rawMaterial" role="tabpanel">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-bordered mb-0">
-                                        <thead class="table-dark text-center">
+                                    <table class="table table-bordered text-center align-middle">
+                                        <thead class="table-dark">
                                             <tr>
-                                                <th rowspan="2" class="align-middle ">Material Name
+                                                <th rowspan="{{ $activeTab === 'additive' ? 3 : 2 }}"
+                                                    class="sticky-col-head ">Material Name</th>
+                                                {{-- Colspan dikali 2 jika Additive untuk menampung P.ADJ dan ADJ --}}
+                                                <th
+                                                    colspan="{{ $activeTab === 'additive' ? count($dateRange) * 2 : count($dateRange) }}">
+                                                    Actual Usage (Kg)
                                                 </th>
-                                                <th colspan="{{ count($dateRange) }}">Actual Usage (Kg)</th>
-                                                <th rowspan="2" class="align-middle bg-primary">Subtotal</th>
+                                                <th rowspan="{{ $activeTab === 'additive' ? 3 : 2 }}">Subtotal</th>
                                             </tr>
                                             <tr>
                                                 @foreach($dateRange as $date)
-                                                <th style="min-width: 80px;">{{
-                                                    \Carbon\Carbon::parse($date)->format('d/m') }}</th>
+                                                <th colspan="{{ $activeTab === 'additive' ? 2 : 1 }}">
+                                                    {{ \Carbon\Carbon::parse($date)->format('d/m') }}
+                                                </th>
                                                 @endforeach
                                             </tr>
+                                            {{-- Baris ketiga hanya untuk Additive --}}
+                                            @if($activeTab === 'additive')
+                                            <tr>
+                                                @foreach($dateRange as $date)
+                                                <th style="font-size: 10px;" class="bg-secondary">P.ADJ</th>
+                                                <th style="font-size: 10px;" class="bg-info">ADJ</th>
+                                                @endforeach
+                                            </tr>
+                                            @endif
                                         </thead>
                                         <tbody>
-                                            @forelse($data as $row)
+                                            @foreach($data as $row)
                                             <tr>
-                                                <td class="fw-bold sticky-col">
-                                                    {{ $row->material_name }} <br>
-                                                    <small class="text-muted">{{ $row->material_id }}</small>
-                                                </td>
+                                                <td class="text-start sticky-col">{{ $row->material_name }}</td>
                                                 @foreach($dateRange as $date)
-                                                @php $alias = 'date_' . str_replace('-', '_', $date); @endphp
-                                                <td class="text-center">
-                                                    {{ isset($row->$alias) && $row->$alias > 0 ?
-                                                    number_format($row->$alias, 0, ',', '.') : '-' }}
-                                                </td>
+                                                @php $dateKey = str_replace('-', '_', $date); @endphp
+
+                                                @if($activeTab === 'additive')
+                                                @php
+                                                $preAlias = 'pre_date_' . $dateKey;
+                                                $adjAlias = 'date_' . $dateKey;
+                                                @endphp
+                                                <td>{{ isset($row->$preAlias) && $row->$preAlias > 0 ?
+                                                    number_format($row->$preAlias, 0) : '-' }}</td>
+                                                <td>{{ isset($row->$adjAlias) && $row->$adjAlias > 0 ?
+                                                    number_format($row->$adjAlias, 0) : '-' }}</td>
+                                                @else
+                                                @php $alias = 'date_' . $dateKey; @endphp
+                                                <td>{{ isset($row->$alias) && $row->$alias > 0 ?
+                                                    number_format($row->$alias, 0) : '-' }}</td>
+                                                @endif
                                                 @endforeach
-                                                <td class="text-center fw-bold bg-light text-primary">
-                                                    {{ number_format($row->subtotal, 0, ',', '.') }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ number_format($row->subtotal, 0) }}</td>
                                             </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="{{ count($dateRange) + 2 }}" class="text-center py-4">
-                                                    Data
-                                                    tidak ditemukan.</td>
-                                            </tr>
-                                            @endforelse
+                                            @endforeach
                                         </tbody>
-                                        @if(!empty($data) && count($data) > 0)
-                                        <tfoot class="bg-light fw-bold">
-                                            <tr>
-                                                <td class="text-center sticky-col">GRAND TOTAL</td>
-                                                @foreach($dateRange as $date)
-                                                @php $alias = 'date_' . str_replace('-', '_', $date); @endphp
-                                                <td class="text-center">{{
-                                                    number_format(collect($data)->sum($alias), 0,
-                                                    ',', '.') }}</td>
-                                                @endforeach
-                                                <td class="text-center bg-primary text-white">
-                                                    {{ number_format(collect($data)->sum('subtotal'), 0, ',', '.')
-                                                    }}
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-                                        @endif
                                     </table>
                                 </div>
                             </div>

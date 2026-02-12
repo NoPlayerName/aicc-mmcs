@@ -23,7 +23,6 @@ abstract class BaseLivewireComponent extends Component
         if (!$this->route) {
             $this->route = $this->getRouteKeyFromRequest();
         }
-
         // Batasi akses view halaman
         return $this->authorizeMethod('can_access');
         // return $this->route;

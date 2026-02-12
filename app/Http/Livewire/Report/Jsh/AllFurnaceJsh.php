@@ -3,13 +3,16 @@
 namespace App\Http\Livewire\Report\Jsh;
 
 use App\Enums\EnumTypeMat;
+use App\Exports\Jsh\FullFurnace\JshAllFurnaceExport;
+use App\Http\Livewire\BaseLivewireComponent;
 use App\Services\Report\JshReportService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Livewire\Attributes\On;
+use Maatwebsite\Excel\Facades\Excel;
 use Livewire\Component;
 
-class AllFurnaceJsh extends Component
+class AllFurnaceJsh extends BaseLivewireComponent
 {
     public $startDate = null;
     public $endDate = null;
@@ -20,6 +23,11 @@ class AllFurnaceJsh extends Component
     // Properti untuk menyimpan hasil agar bisa dibaca di View
     public $data = [];
     public $dateRange = [];
+
+    public function mount()
+    {
+        $this->mountBase();
+    }
 
     public function updatedActiveTab()
     {
@@ -68,6 +76,14 @@ class AllFurnaceJsh extends Component
         } catch (\Exception $e) {
             $this->hasSearched = false;
         }
+    }
+
+    public function export()
+    {
+        if (!$this->hasSearched) return;
+        $fileName = 'JSH_All_Furnace_Report_' . now()->format('Ymd_His') . '.xlsx';
+        $service = app(JshReportService::class);
+        return Excel::download(new JshAllFurnaceExport($service, $this->startDate, $this->endDate, $this->shift, $this->dateRange), $fileName);
     }
 
     public function render()

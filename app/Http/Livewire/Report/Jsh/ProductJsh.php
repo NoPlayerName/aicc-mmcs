@@ -4,14 +4,17 @@ namespace App\Http\Livewire\Report\Jsh;
 
 
 use App\Enums\EnumTypeMat;
+use App\Exports\Jsh\Product\JshProductExport;
+use App\Http\Livewire\BaseLivewireComponent;
 use App\Services\Master\ProductJsh\ModelService;
 use App\Services\Report\JshReportService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Livewire\Attributes\On;
-use Livewire\Component;
+use Maatwebsite\Excel\Facades\Excel;
 
-class ProductJsh extends Component
+class ProductJsh extends BaseLivewireComponent
+
 {
 
     public $startDate = null;
@@ -27,8 +30,10 @@ class ProductJsh extends Component
     public $data = [];
     public $dateRange = [];
 
-    public function mount() {}
-
+    public function mount()
+    {
+        $this->mountBase();
+    }
     public function loadProduct()
     {
         $data = app(ModelService::class)->getModel();
@@ -88,6 +93,13 @@ class ProductJsh extends Component
         } catch (\Exception $e) {
             $this->hasSearched = false;
         }
+    }
+    public function export()
+    {
+        if (!$this->hasSearched) return;
+        $fileName = 'JSH_Product_Report_' . now()->format('Ymd_His') . '.xlsx';
+        $service = app(JshReportService::class);
+        return Excel::download(new JshProductExport($service, $this->startDate, $this->endDate, $this->shift, $this->dateRange, $this->product), $fileName);
     }
     public function render()
     {
