@@ -1,16 +1,39 @@
 <div>
     <div class="row align-items-end">
-        <div class="col-md-3" wire:ignore>
+        @if (!$is_trial)
+        <div class="col-md-3">
             <label class="control-label">Material</label>
-            <select class="form-control form-control-lg select2-search-disable" id="rawMat-select2">
-                <option>Select</option>
-                @foreach ($rawMatSelect as $rw)
-                <option value="{{ $rw['material_code'] }}">{{ $rw['material_name'] }}</option>
-                @endforeach
-
-            </select>
-            <div style="height: 20px;"></div>
+            <div wire:ignore wire:key="container-select-reguler">
+                <select class="form-control form-control-lg @error('material') is-invalid 
+            @enderror" id="rawMat-select2">
+                    <option value="">Select</option>
+                    @foreach ($rawMatSelect as $rw)
+                    <option value="{{ $rw['material_code'] }}">{{ $rw['material_name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @error('material')
+            <small class="text-danger d-block">{{ $message }}</small>
+            @else
+            <div style="height: 20px;"></div> @enderror
         </div>
+        @else
+        <div class="col-md-3">
+            <label class="control-label">Material Trial</label>
+            <div wire:ignore wire:key="container-select-trial">
+                <select class="form-control form-control-lg" id="rawMat-select2">
+                    <option value="">Select</option>
+                    @foreach ($rawMatSelect as $rw)
+                    <option value="{{ $rw['material_code'] }}">{{ $rw['material_name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @error('material')
+            <small class="text-danger d-block">{{ $message }}</small>
+            @else
+            <div style="height: 20px;"></div> @enderror
+        </div>
+        @endif
 
         <div class="col-md-3">
             <label class="control-label">Weight (KG)</label>
@@ -25,6 +48,13 @@
         <div class="col-md-2">
             <label class="control-label">Total Material</label>
             <input class="form-control form-control-lg" type="text" readonly wire:model='totalWeight'>
+            <div style="height: 20px;"></div>
+        </div>
+        <div class="col-md-2">
+            <label class="control-label">Trial?</label>
+            <div> <input type="checkbox" id="switch2" switch="success" wire:model.live="is_trial" />
+                <label for="switch2" data-on-label="Yes" data-off-label="No"></label>
+            </div>
             <div style="height: 20px;"></div>
         </div>
 

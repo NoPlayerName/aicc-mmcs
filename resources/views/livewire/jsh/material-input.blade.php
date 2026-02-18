@@ -247,6 +247,28 @@
         Livewire.on('saved', () => {
             $('#modal-material-input').modal("hide");
         });
+        Livewire.on('loadMaterial', () => {
+            setTimeout(()=> {
+                $('#rawMat-select2').select2('destroy').select2(
+                    {minimumResultsForSearch: 0}
+                ).on('change', function (e) {
+                    let data = $(this).val();
+                    let Name = $(this).find('option:selected').text();
+                    Livewire.dispatch('rawMat', {rawMat: data, name: Name});
+                });
+            }, 100);
+        });
+        Livewire.on('loadAdditive', () => {
+            setTimeout(()=> {
+                $('#Additive-select2').select2('destroy').select2(
+                    {minimumResultsForSearch: 0}
+                ).on('change', function (e) {
+                    let data = $(this).val();
+                    let Name = $(this).find('option:selected').text();
+                     Livewire.dispatch('additMat', {data: data, name: Name});
+                });
+            }, 100);
+        });
     })
 </script>
 @endpush

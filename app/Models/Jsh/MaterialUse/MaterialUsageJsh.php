@@ -6,6 +6,7 @@ use App\Enums\EnumTypeAdditive;
 use App\Enums\EnumTypeMat;
 use App\Models\BaseModelJsh;
 use App\Models\Master\TbMaterial;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class MaterialUsageJsh extends BaseModelJsh
 {
@@ -21,7 +22,8 @@ class MaterialUsageJsh extends BaseModelJsh
 
     protected $fillable = [
         'charging_head_id',
-        'material_id',
+        'materialable_id',   // UBAH: dari material_id
+        'materialable_type',
         'weight',
         'type',
         'type_additive',
@@ -30,13 +32,14 @@ class MaterialUsageJsh extends BaseModelJsh
         'updated_at',
     ];
 
+
     public function charging()
     {
         return $this->belongsTo(ChargingHead::class, 'id', 'charging_head_id');
     }
-    public function material()
+    public function materialable(): MorphTo
     {
-        return $this->belongsTo(TbMaterial::class, 'material_id', 'material_code');
+        return $this->morphTo();
     }
     protected function serializeDate(\DateTimeInterface $date)
     {

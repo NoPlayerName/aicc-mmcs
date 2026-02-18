@@ -71,7 +71,7 @@ class AllFurnaceJsh extends BaseLivewireComponent
 
             // 3. Ambil data dan simpan ke properti public
             $this->data = app(JshReportService::class)->reportTotalFurnace($this->startDate, $this->endDate, $type, $this->shift);
-
+            // dd($this->data);
             $this->hasSearched = true;
         } catch (\Exception $e) {
             $this->hasSearched = false;

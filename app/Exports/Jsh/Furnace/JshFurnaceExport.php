@@ -5,7 +5,7 @@ namespace App\Exports\Jsh\Furnace;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use App\Enums\EnumTypeMat;
 
-class  JshFurnaceExport implements WithMultipleSheets
+class JshFurnaceExport implements WithMultipleSheets
 {
     protected $repo, $start, $end, $shift, $dateRange, $furnace;
 
@@ -30,7 +30,6 @@ class  JshFurnaceExport implements WithMultipleSheets
                 $this->shift,
                 EnumTypeMat::RawMaterial->value,
                 $this->furnace
-
             ),
             // Sheet 2: Additive
             new JshFurnaceSheetExport(
@@ -39,6 +38,20 @@ class  JshFurnaceExport implements WithMultipleSheets
                 'Additive',
                 $this->shift,
                 EnumTypeMat::Additive->value,
+                $this->furnace,
+            ),
+            // Sheet 3: KWH
+            new JshKwhSheetExport(
+                $this->repo->getKwhData($this->start, $this->end, $this->shift, $this->furnace),
+                // $this->dateRange,
+                $this->shift,
+                $this->furnace,
+            ),
+            // Sheet 4: Temperature Tapping
+            new JshTappingSheetExport(
+                $this->repo->getTappingData($this->start, $this->end, $this->shift, $this->furnace),
+                // $this->dateRange,
+                $this->shift,
                 $this->furnace,
             ),
         ];

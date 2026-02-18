@@ -23,6 +23,7 @@ class RawMaterial extends Component
     // #[Reactive]
     public $edit;
     public $rawMatSelect;
+    public $is_trial = false;
 
 
     public function rules()
@@ -42,7 +43,7 @@ class RawMaterial extends Component
     public function inputData($id, $isEdit)
     {
         // $id ? dd($id) : $this->chargeId = $id;
-        $this->reset(['dataRawMat', 'totalWeight']);
+        $this->reset(['dataRawMat', 'totalWeight', 'is_trial', 'rawMatSelect']);
         $this->chargeId = $id;
         $this->edit = $isEdit;
     }
@@ -55,10 +56,25 @@ class RawMaterial extends Component
         $this->loadData();
     }
 
+    public function updatedIsTrial()
+    {
+        $this->reset(['weight', 'totalWeight', 'rawMatSelect']);
+        $this->loadSelectAdditive();
+        $this->dispatch('loadMaterial');
+    }
+
     public function loadSelectAdditive()
     {
-        $data = app(MaterialService::class)->getRawMat();
-        $this->rawMatSelect = $data;
+
+        if (!$this->is_trial) {
+
+            $data = app(MaterialService::class)->getRawMat();
+            $this->rawMatSelect = $data;
+        } else {
+
+            $data = app(MaterialService::class)->getRawMatTrial();
+            $this->rawMatSelect = $data;
+        }
     }
 
     public function loadData()
@@ -84,13 +100,13 @@ class RawMaterial extends Component
 
     public function addRawMat()
     {
-
         $user = Auth::user()->usr;
         $this->validate();
         $this->dataRawMat[] = [
             'charging_head_id' => $this->chargeId,
-            'material_id' => $this->material,
+            'materialable_id' => $this->material,
             'material_name' => $this->materialText,
+            'materialable_type' => $this->is_trial ? 'trial' : 'master',
             'weight' => $this->weight,
             'type' => EnumTypeMat::RawMaterial->value,
             'created_by' => $user,

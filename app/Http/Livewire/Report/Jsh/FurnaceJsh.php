@@ -12,6 +12,7 @@ use Carbon\CarbonPeriod;
 use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Log;
 
 class FurnaceJsh extends BaseLivewireComponent
 {
@@ -27,6 +28,8 @@ class FurnaceJsh extends BaseLivewireComponent
     // Properti untuk menyimpan hasil agar bisa dibaca di View
     public $data = [];
     public $dateRange = [];
+    public $kwhData = [];
+    public $tappingData = [];
 
     public function mount()
     {
@@ -63,7 +66,10 @@ class FurnaceJsh extends BaseLivewireComponent
         $this->hasSearched = false;
         $this->data = [];
         $this->dateRange = [];
+        $this->kwhData = [];
+        $this->tappingData = [];
     }
+
     public function search()
     {
         // Validasi input
@@ -81,14 +87,22 @@ class FurnaceJsh extends BaseLivewireComponent
             // 2. Tentukan tipe material
             $type = ($this->activeTab === 'raw-material') ? EnumTypeMat::RawMaterial->value : EnumTypeMat::Additive->value;
 
-            // 3. Ambil data dan simpan ke properti public
+            // 3. Ambil data material
             $this->data = app(JshReportService::class)->reportFurnace($this->startDate, $this->endDate, $type, $this->shift, $this->furnace);
+
+            // 4. Ambil data KWH dan Temperature Tapping (always fetch regardless of activeTab)
+            $reportData = app(JshReportService::class)->reportFurnaceWithKwhTapping($this->startDate, $this->endDate, $type, $this->shift, $this->furnace);
+            // dd($this->data, $reportData);
+            $this->kwhData = $reportData['kwh'];
+            $this->tappingData = $reportData['tapping'];
 
             $this->hasSearched = true;
         } catch (\Exception $e) {
             $this->hasSearched = false;
+            Log::error('Search error: ' . $e->getMessage());
         }
     }
+
     public function export()
     {
         if (!$this->hasSearched) return;
@@ -96,6 +110,7 @@ class FurnaceJsh extends BaseLivewireComponent
         $service = app(JshReportService::class);
         return Excel::download(new JshFurnaceExport($service, $this->startDate, $this->endDate, $this->shift, $this->dateRange, $this->furnace), $fileName);
     }
+
     public function render()
     {
         return view('livewire.report.jsh.furnace-jsh');
