@@ -5,13 +5,15 @@ namespace App\Models\Master;
 use App\Models\Jsh\MaterialUse\MaterialUsageJsh;
 use Illuminate\Database\Eloquent\Model;
 
-class TbMaterial extends Model
+class TbMaterialTrial extends Model
 {
     protected $connection = 'master';
-    protected $table = 'tb_material_erp';
+    protected $table = 'tb_material_trial';
     protected $primaryKey = 'material_code';
-    protected $keyType = 'string';
     public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = ['material_code', 'material_name', 'unit', 'is_active'];
 
     public function materialUse()
     {

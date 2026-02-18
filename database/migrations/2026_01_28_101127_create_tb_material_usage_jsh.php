@@ -14,8 +14,13 @@ return new class extends Migration
         Schema::connection('material-use')->create('tb_material_usage_jsh', function (Blueprint $table) {
             $table->id();
             $table->integer('charging_head_id')->nullable()->index();
-            $table->string('material_id')->nullable()->index();
-            $table->decimal('weight')->nullable();
+            // $table->string('material_id')->nullable()->index();
+            // --- TULIS MANUAL AGAR AMAN ---
+            // Kolom untuk ID Material (String)
+            $table->string('materialable_id')->nullable()->index();
+            // Kolom untuk Tipe Model (master/trial)
+            $table->string('materialable_type')->nullable()->index();
+            $table->float('weight')->nullable();
             $table->tinyInteger('type')->nullable();
             $table->tinyInteger('type_additive')->nullable();
             $table->string('created_by')->nullable();

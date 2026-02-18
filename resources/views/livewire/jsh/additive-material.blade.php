@@ -1,21 +1,40 @@
 <div>
 
     <div class="row align-items-end">
-        <div class=" col-md-3" wire:ignore>
+        @if (!$is_trial)
+        <div class="col-md-3">
             <label class="control-label">Material</label>
-            <select class="form-control form-control-lg select2 @error('material') is-invalid 
+            <div wire:ignore wire:key="container-select-reguler">
+                <select class="form-control form-control-lg @error('material') is-invalid 
             @enderror" id="Additive-select2">
-                <option>Select</option>
-                @foreach ($additiveSelect as $indeSelect => $additive )
-                <option value="{{ $additive['material_code'] }}">{{
-                    $additive['material_name'] }}</option>
-                @endforeach
-            </select>
+                    <option value="">Select</option>
+                    @foreach ($additiveSelect as $rw)
+                    <option value="{{ $rw['material_code'] }}">{{ $rw['material_name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
             @error('material')
             <small class="text-danger d-block">{{ $message }}</small>
             @else
             <div style="height: 20px;"></div> @enderror
         </div>
+        @else
+        <div class="col-md-3">
+            <label class="control-label">Material Trial</label>
+            <div wire:ignore wire:key="container-select-trial">
+                <select class="form-control form-control-lg" id="Additive-select2">
+                    <option value="">Select</option>
+                    @foreach ($additiveSelect as $rw)
+                    <option value="{{ $rw['material_code'] }}">{{ $rw['material_name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @error('material')
+            <small class="text-danger d-block">{{ $message }}</small>
+            @else
+            <div style="height: 20px;"></div> @enderror
+        </div>
+        @endif
         <div class="  col-md-3">
             <label class="control-label">Type Adjustment</label>
             <select class="form-control form-control-lg select2" id="Type-Adjust-select2">
@@ -25,7 +44,7 @@
             </select>
             <div style="height: 20px;"></div>
         </div>
-        <div class="  col-md-3">
+        <div class="col-md-2">
             <label class="control-label">Weight (KG)</label>
             <input class="form-control form-control-lg @error('weight') is-invalid @enderror" type="text"
                 placeholder="Kg" wire:model="weight">
@@ -33,6 +52,15 @@
             <small class="text-danger d-block">{{ $message }}</small>
             @else
             <div style="height: 20px;"></div> @enderror
+        </div>
+
+        <div class="col-md-2">
+            <label class="control-label">Trial?</label>
+            <div>
+                <input type="checkbox" id="switch2-additive" switch="success" wire:model.live="is_trial" />
+                <label for="switch2-additive" data-on-label="Yes" data-off-label="No"></label>
+            </div>
+            <div style="height: 20px;"></div>
         </div>
         <div class=" col-md-auto">
             <button class="btn btn-lg btn-primary" data-toggle="tooltip" title="Add Material" wire:click='addMat'> <i

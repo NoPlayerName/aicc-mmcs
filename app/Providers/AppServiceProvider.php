@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Master\TbMaterial;
+use App\Models\Master\TbMaterialTrial;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,5 +23,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        Relation::morphMap([
+            'master' => TbMaterial::class,
+            'trial' => TbMaterialTrial::class,
+        ]);
     }
 }

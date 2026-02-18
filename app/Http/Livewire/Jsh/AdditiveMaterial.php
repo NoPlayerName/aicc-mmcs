@@ -27,6 +27,7 @@ class AdditiveMaterial extends Component
     // #[Reactive]
     public $edit;
     public $additiveSelect;
+    public $is_trial = false;
 
     public function rules()
     {
@@ -57,11 +58,25 @@ class AdditiveMaterial extends Component
         $this->edit = $isEdit;
         $this->loadData();
     }
+    public function updatedIsTrial()
+    {
+        $this->reset(['weight', 'totalWeight', 'additiveSelect']);
+        $this->loadSelectAdditive();
+        $this->dispatch('loadAdditive');
+    }
 
     public function loadSelectAdditive()
     {
-        $data = app(MaterialService::class)->getAdditive();
-        $this->additiveSelect = $data;
+
+        if (!$this->is_trial) {
+
+            $data = app(MaterialService::class)->getAdditive();
+            $this->additiveSelect = $data;
+        } else {
+
+            $data = app(MaterialService::class)->getAdditiveMatTrial();
+            $this->additiveSelect = $data;
+        }
     }
 
     public function loadData()
@@ -95,8 +110,9 @@ class AdditiveMaterial extends Component
         $this->validate();
         $this->dataAdditiveMat[] = [
             'charging_head_id' => $this->chargeId,
-            'material_id' => $this->material,
+            'materialable_id' => $this->material,
             'material_name' => $this->materialText,
+            'materialable_type' => $this->is_trial ? 'trial' : 'master',
             'weight' => $this->weight,
             'type' => EnumTypeMat::Additive->value,
             'type_additive' => $this->typeAddjust,

@@ -28,11 +28,11 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
             'plan_id_anchor' => $data->plan_id_anchor,
             'charging'       => $data->charging,
             'rawMat'         => $data->rawMatUse->map(function ($item) {
-                $item->material_name = $item->material?->material_name ?? '-';
+                $item->material_name = $item->materialable?->material_name ?? '-';
                 return $item;
             }),
             'additive'       => $data->additMatUse->map(function ($item) {
-                $item->material_name = $item->material?->material_name ?? '-';
+                $item->material_name = $item->materialable?->material_name ?? '-';
                 $item->type_additive_text = $item->type_additive?->text() ?? '-';
                 return $item;
             }),
@@ -46,9 +46,9 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
 
     public function getRawMat($data)
     {
-        $data = MaterialUsageJsh::with('material')->select('charging_head_id', 'material_id', 'weight', 'type', 'created_by', 'created_at')->where('charging_head_id', $data)
+        $data = MaterialUsageJsh::with('materialable')->select('charging_head_id', 'materialable_id', 'materialable_type', 'weight', 'type', 'created_by', 'created_at')->where('charging_head_id', $data)
             ->where('type', EnumTypeMat::RawMaterial->value)->get()->map(function ($item) {
-                $item->material_name = $item->material?->material_name ?? '-';
+                $item->material_name = $item->materialable?->material_name ?? '-';
                 return $item->makeHidden('material');
             });
         // dd($data);
@@ -56,10 +56,10 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
     }
     public function getAdditiveMat($data)
     {
-        $data = MaterialUsageJsh::with('material')->select('charging_head_id', 'material_id', 'weight', 'type', 'type_additive', 'created_by', 'created_at')->where('charging_head_id', $data)
+        $data = MaterialUsageJsh::with('materialable')->select('charging_head_id', 'materialable_id', 'materialable_type', 'weight', 'type', 'type_additive', 'created_by', 'created_at')->where('charging_head_id', $data)
             ->where('type', EnumTypeMat::Additive->value)->get()->map(function ($item) {
                 $item->type_additive_text = $item->type_additive?->text() ?? '-';
-                $item->material_name = $item->material?->material_name ?? '-';
+                $item->material_name = $item->materialable?->material_name ?? '-';
                 return $item->makeHidden('material');
             });
         return $data;

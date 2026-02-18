@@ -25,4 +25,14 @@ class MaterialService
         $data =  $this->Material->getRawMat();
         return $data;
     }
+    public function getRawMatTrial()
+    {
+        $data =  $this->Material->getRawMatTrial();
+        return $data;
+    }
+    public function getAdditiveMatTrial()
+    {
+        $data =  $this->Material->getAdditiveMatTrial();
+        return $data;
+    }
 }
