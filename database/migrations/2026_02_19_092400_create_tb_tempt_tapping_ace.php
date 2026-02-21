@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('material-use')->create('tb_charging_head_jsh', function (Blueprint $table) {
+        Schema::connection('material-use')->create('tb_tempt_tapping_ace', function (Blueprint $table) {
             $table->id();
-            $table->string('plan_id_anchor')->index();
-            $table->smallInteger('charging')->nullable();
-            $table->tinyInteger('status')->nullable();
-            $table->string('created_by')->nullable();
+            $table->integer('charging_head_id')->nullable()->index();
+            $table->string('temperatur')->nullable();
+            $table->tinyInteger('type_tapping');
+            $table->string('created_by');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('material-use')->dropIfExists('tb_charging_head');
+        Schema::connection('material-use')->dropIfExists('tb_tempt_tapping_ace');
     }
 };

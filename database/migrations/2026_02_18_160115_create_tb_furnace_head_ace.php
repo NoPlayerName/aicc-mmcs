@@ -9,23 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
     public function up(): void
     {
-        Schema::connection('material-use')->create('tb_charging_head_jsh', function (Blueprint $table) {
+        Schema::connection('material-use')->create('tb_furnace_head_ace', function (Blueprint $table) {
             $table->id();
-            $table->string('plan_id_anchor')->index();
-            $table->smallInteger('charging')->nullable();
-            $table->tinyInteger('status')->nullable();
+            $table->string('furnace', 100)->nullable();
+            $table->date('date')->nullable();
+            $table->string('shift', 10)->nullable();
             $table->string('created_by')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::connection('material-use')->dropIfExists('tb_charging_head');
+        Schema::connection('material-use')->dropIfExists('tb_furnace_head_ace');
     }
 };

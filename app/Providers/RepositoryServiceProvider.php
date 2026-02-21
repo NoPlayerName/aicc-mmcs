@@ -4,10 +4,14 @@ namespace App\Providers;
 
 use App\Repositories\Master\Material\MaterialRepository;
 use App\Repositories\Master\Material\MaterialRepositoryInterface;
+use App\Repositories\Master\ProductAce\ProductRepositoryInterface;
+use App\Repositories\Master\ProductAce\ProductRepository;
 use App\Repositories\Master\ProductJsh\ModelRepository;
 use App\Repositories\Master\ProductJsh\ModelRepositoryInterface;
 use App\Repositories\MaterialUseJsh\MaterialUseJshRepository;
 use App\Repositories\MaterialUseJsh\MaterialUseJshRepositoryInterface;
+use App\Repositories\PlanProductionAce\PlanProdRepositoryAce;
+use App\Repositories\PlanProductionAce\PlanProdRepositoryAceInterface;
 use App\Repositories\PlanProductionJsh\PlanProdRepository;
 use App\Repositories\PlanProductionJsh\PlanProdRepositoryInterface;
 use App\Repositories\Report\Jsh\JshReportRepository;
@@ -27,6 +31,8 @@ class RepositoryServiceProvider extends ServiceProvider
             MaterialRepositoryInterface::class => MaterialRepository::class,
             JshReportRepositoryInterface::class => JshReportRepository::class,
             ModelRepositoryInterface::class => ModelRepository::class,
+            PlanProdRepositoryAceInterface::class => PlanProdRepositoryAce::class,
+            ProductRepositoryInterface::class => ProductRepository::class,
         ];
 
         foreach ($bindings as $interface => $implementation) {

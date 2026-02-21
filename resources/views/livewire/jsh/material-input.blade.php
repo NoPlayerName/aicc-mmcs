@@ -188,87 +188,114 @@
 </div>
 @push('scripts')
 <script>
-    $(document).on('livewire:navigated', () => {
-        // 1. Inisialisasi ulang Datepicker setelah wire:navigate
+    function initJshDatepicker() {
         $('[data-provide="datepicker"]').datepicker({
             format: "dd/mm/yyyy",
             autoclose: true
-        }).on('changeDate', function (e) {
-            // 2. Ambil nilai tanggal yang dipilih
+        }).off('changeDate.jshMaterialInput').on('changeDate.jshMaterialInput', function (e) {
             let selectedDate = e.format();
-            
-            // 3. Paksa set ke property Livewire
-            // Ini akan memicu lifecycle 'updatedDate' di Class PHP
             Livewire.dispatch('Date', {data: selectedDate});
         });
-        $('#shift').select2({
+    }
+
+    function initSelect2WithDispatch(selector, options, eventName, payloadBuilder) {
+        const $el = $(selector);
+        if (!$el.length) return;
+
+        if ($el.hasClass('select2-hidden-accessible')) {
+            $el.select2('destroy');
+        }
+
+        $el.select2(options)
+            .off('change.jshMaterialInput')
+            .on('change.jshMaterialInput', function () {
+                Livewire.dispatch(eventName, payloadBuilder($(this)));
+            });
+    }
+
+    function initJshSelects() {
+        initSelect2WithDispatch('#shift', {
             minimumResultsForSearch: Infinity
-        }).on('change', function (e) {
-            let Data = $(this).val()
-            Livewire.dispatch('Shift', {data: Data});
-        });
-        $('#rawMat-select2').select2({
+        }, 'Shift', ($el) => ({
+            data: $el.val()
+        }));
+
+        initSelect2WithDispatch('#rawMat-select2', {
             minimumResultsForSearch: 0
-        }).on('change', function (e) {
-           
-            let data = $(this).val();
-            let Name = $(this).find('option:selected').text();
-            Livewire.dispatch('rawMat', {rawMat: data, name: Name});
-        });
-        $('#Additive-select2').select2({
-           minimumResultsForSearch: 0
-        }).on('change', function (e) {
-            
-            let data = $(this).val();
-            let Name = $(this).find('option:selected').text();
-            Livewire.dispatch('additMat', {data: data, name: Name});
-        });
-        $('#Type-Adjust-select2').select2({
-        }).on('change', function (e) {
-            
-            let data = $(this).val();
-            Livewire.dispatch('typeAddjust', {data: data});
-        });
-        $('#Type-Tapping-select2').select2({
-        }).on('change', function (e) {
-            
-            let data = $(this).val();
-            Livewire.dispatch('typeTapping', {data: data});
-        });
-        Livewire.on('showFormInput', () => {
-            $('#modal-material-input').modal("show");
-        });
-        Livewire.on('showFormEdit', () => {
-            $('#modal-material-input').modal("show");
-        });
-        Livewire.on('showDetailCharge', () => {
-            $('#modal-detail-charging').modal("show");
-        });
-        Livewire.on('saved', () => {
-            $('#modal-material-input').modal("hide");
-        });
-        Livewire.on('loadMaterial', () => {
-            setTimeout(()=> {
-                $('#rawMat-select2').select2('destroy').select2(
-                    {minimumResultsForSearch: 0}
-                ).on('change', function (e) {
-                    let data = $(this).val();
-                    let Name = $(this).find('option:selected').text();
-                    Livewire.dispatch('rawMat', {rawMat: data, name: Name});
-                });
-            }, 100);
-        });
-        Livewire.on('loadAdditive', () => {
-            setTimeout(()=> {
-                $('#Additive-select2').select2('destroy').select2(
-                    {minimumResultsForSearch: 0}
-                ).on('change', function (e) {
-                    let data = $(this).val();
-                    let Name = $(this).find('option:selected').text();
-                     Livewire.dispatch('additMat', {data: data, name: Name});
-                });
-            }, 100);
-        });
-    })
+        }, 'rawMat', ($el) => ({
+            rawMat: $el.val(),
+            name: $el.find('option:selected').text()
+        }));
+
+        initSelect2WithDispatch('#Additive-select2', {
+            minimumResultsForSearch: 0
+        }, 'additMat', ($el) => ({
+            data: $el.val(),
+            name: $el.find('option:selected').text()
+        }));
+
+        initSelect2WithDispatch('#Type-Adjust-select2', {}, 'typeAddjust', ($el) => ({
+            data: $el.val()
+        }));
+
+        initSelect2WithDispatch('#Type-Tapping-select2', {}, 'typeTapping', ($el) => ({
+            data: $el.val()
+        }));
+    }
+
+    function bindJshMaterialInputHandlers() {
+        initJshDatepicker();
+        initJshSelects();
+
+        if (!window.__jshMaterialInputLivewireBound) {
+            window.__jshMaterialInputLivewireBound = true;
+
+            Livewire.on('showFormInput', () => {
+                $('#modal-material-input').modal('show');
+            });
+
+            Livewire.on('showFormEdit', () => {
+                $('#modal-material-input').modal('show');
+            });
+
+            Livewire.on('showDetailCharge', () => {
+                $('#modal-detail-charging').modal('show');
+            });
+
+            Livewire.on('saved', () => {
+                $('#modal-material-input').modal('hide');
+            });
+
+            Livewire.on('loadMaterial', () => {
+                setTimeout(() => {
+                    initSelect2WithDispatch('#rawMat-select2', {
+                        minimumResultsForSearch: 0
+                    }, 'rawMat', ($el) => ({
+                        rawMat: $el.val(),
+                        name: $el.find('option:selected').text()
+                    }));
+                }, 100);
+            });
+
+            Livewire.on('loadAdditive', () => {
+                setTimeout(() => {
+                    initSelect2WithDispatch('#Additive-select2', {
+                        minimumResultsForSearch: 0
+                    }, 'additMat', ($el) => ({
+                        data: $el.val(),
+                        name: $el.find('option:selected').text()
+                    }));
+                }, 100);
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        bindJshMaterialInputHandlers();
+    });
+
+    $(document).on('livewire:navigated', function () {
+        bindJshMaterialInputHandlers();
+    });
 </script>
 @endpush

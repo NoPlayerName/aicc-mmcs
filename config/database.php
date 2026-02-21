@@ -99,6 +99,25 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+        'kanban' => [
+            'driver' => 'mysql',
+            'url' => env('KANBAN_DB_URL'),
+            'host' => env('KANBAN_DB_HOST', '127.0.0.1'),
+            'port' => env('KANBAN_DB_PORT', '3306'),
+            'database' => env('KANBAN_DB_DATABASE', 'laravel'),
+            'username' => env('KANBAN_DB_USERNAME', 'root'),
+            'password' => env('KANBAN_DB_PASSWORD', ''),
+            'unix_socket' => env('KANBAN_DB_SOCKET', ''),
+            'charset' => env('KANBAN_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('KANBAN_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
 
         'material-use' => [
             'driver' => 'mysql',

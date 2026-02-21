@@ -52,13 +52,21 @@
                         </form> --}}
                     </div>
                     <div class="card-body">
-                        {{-- The whole world belongs to you. --}}
 
-                        <div id="accordion" class="custom-accordion">
+                        {{-- The whole world belongs to you. --}}
+                        <div class="row mb-2">
+                            <div class="col-sm-4">
+                                <button type="button" class="btn btn-primary mb-2" wire:click="addFurnace"><i
+                                        class="mdi mdi-plus mr-2"></i> Add
+                                    Furnace</button>
+                            </div>
+                        </div>
+                        @forelse ($furnace as $indexPlan => $item)
+                        <div id="accordion" class="custom-accordion" wire:key='{{ $indexPlan }}'>
                             <div class="card mb-1 shadow-none">
-                                <a href="#collapseOne" class="text-dark" data-toggle="collapse" aria-expanded="true"
-                                    aria-controls="collapseOne">
-                                    <div class="card-header" id="headingOne">
+                                <a href="#collapse{{ $indexPlan }}" class="text-dark" data-toggle="collapse"
+                                    aria-expanded="true" aria-controls="collapse{{ $indexPlan }}">
+                                    <div class="card-header" id="heading{{ $indexPlan }}">
                                         <div class="row">
                                             <div class="col-lg-8">
                                                 <div class="row">
@@ -67,19 +75,19 @@
                                                     <div class="col-lg-4">
                                                         <div>
                                                             <strong>
-                                                                Furnace : 1
+                                                                Furnace : {{ $item->furnace }}
                                                             </strong>
                                                         </div>
                                                         <div>
                                                             <strong>
-                                                                Process date: 17/12/2025
+                                                                Process date: {{ $item->date }}
                                                             </strong>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-4">
                                                         <div>
                                                             <strong>
-                                                                Shift : D
+                                                                Shift : {{ $item->shift }}
                                                             </strong>
                                                         </div>
                                                         <div>
@@ -111,10 +119,19 @@
                                     </div>
                                 </a>
 
-                                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                                    data-parent="#accordion">
+                                <div id="collapse{{ $indexPlan }}"
+                                    class="collapse {{ $openIndex === $indexPlan ? 'show' : '' }}"
+                                    aria-labelledby=" heading{{ $indexPlan }}" data-parent="#accordion">
                                     <div class="card-body">
-                                        <div class="table-responsive">
+                                        <div class="row mb-2">
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-primary mb-2"
+                                                    wire:click="addCharge({{ $item->id }}, {{ $indexPlan }})"><i
+                                                        class="mdi mdi-plus mr-2"></i> Add
+                                                    Charging </button>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive" wire:key='charging-{{ $indexPlan }}'>
                                             <table class="table table-striped mb-0">
 
                                                 <thead>
@@ -126,10 +143,11 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+                                                    @forelse ($item->chargings as $indexCharge => $charge)
                                                     <tr>
-                                                        <th>1</th>
-                                                        <td>1, 2, 3</td>
-                                                        <td>ES30</td>
+                                                        <th>{{ $charge->charging }}</th>
+                                                        <td>{{ $charge->lot ?? '-' }}</td>
+                                                        <td>{{ $charge->product->name ?? '-' }}</td>
                                                         <td>
                                                             <div>
                                                                 <button class="btn btn-info btn-sm waves-effect">
@@ -141,287 +159,130 @@
                                                                         title="Edit"></i>
                                                                 </button>
                                                                 <button class="btn btn-primary btn-sm waves-effect"
-                                                                    wire:click="Proccess">
+                                                                    wire:click="Proccess({{ $indexPlan }}, {{ $indexCharge }})">
                                                                     <i class="fas fa-cogs" data-toggle="tooltip"
                                                                         title="Proccess"></i>
                                                                 </button>
                                                             </div>
-
                                                         </td>
                                                     </tr>
+                                                    @empty
                                                     <tr>
-                                                        <th>2</th>
-                                                        <td>4, 5, 6</td>
-                                                        <td>EJ40</td>
-                                                        <td>
-                                                            <div>
-                                                                <button class="btn btn-info btn-sm waves-effect">
-                                                                    <i class="fas fa-eye" data-toggle="tooltip"
-                                                                        title="View"></i>
-                                                                </button>
-                                                                <button class="btn btn-warning btn-sm waves-effect">
-                                                                    <i class="fas fa-edit" data-toggle="tooltip"
-                                                                        title="Edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-primary btn-sm waves-effect">
-                                                                    <i class="fas fa-cogs" data-toggle="tooltip"
-                                                                        title="Proccess"></i>
-                                                                </button>
-                                                            </div>
-
+                                                        <td colspan="4" class="text-center text-muted py-3">
+                                                            No Charging Available
                                                         </td>
                                                     </tr>
-                                                    <tr>
-                                                        <th>3</th>
-                                                        <td>6, 7, 8</td>
-                                                        <td>ES30</td>
-                                                        <td>
-                                                            {{-- <div> --}}
-                                                                <button class="btn btn-info btn-sm waves-effect">
-                                                                    <i class="fas fa-eye" data-toggle="tooltip"
-                                                                        title="View"></i>
-                                                                </button>
-                                                                <button class="btn btn-warning btn-sm waves-effect">
-                                                                    <i class="fas fa-edit" data-toggle="tooltip"
-                                                                        title="Edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-primary btn-sm waves-effect">
-                                                                    <i class="fas fa-cogs" data-toggle="tooltip"
-                                                                        title="Proccess"></i>
-                                                                </button>
-                                                                {{--
-                                                            </div> --}}
+                                                    @endforelse
 
-                                                        </td>
-                                                    </tr>
+
                                                 </tbody>
                                             </table>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-1 shadow-none">
-                                <a href="#collapseTwo" class="text-dark collapsed" data-toggle="collapse"
-                                    aria-expanded="false" aria-controls="collapseTwo">
-                                    <div class="card-header" id="headingTwo">
-                                        <div class="row">
-                                            <div class="col-lg-8">
-                                                <div class="row">
-                                                    <div class="col-lg-4">
-                                                        <div>
-                                                            <strong>
-                                                                Furnace : 2
-                                                            </strong>
-                                                        </div>
-                                                        <div>
-                                                            <strong>
-                                                                Process date: 17/12/2025
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4">
-                                                        <div>
-                                                            <strong>
-                                                                Shift : D
-                                                            </strong>
-                                                        </div>
-                                                        <div>
-                                                            <strong>
-                                                                Total Raw Material : 800
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4">
-
-                                                        <div>
-                                                            <strong>
-                                                                Total Additive : 800
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <h6 class="mt-3">
-
-                                                    <i class="mdi mdi-minus float-right accor-plus-icon"></i>
-
-                                                </h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
-                                    data-parent="#accordion">
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped mb-0">
-
-                                                <thead>
-                                                    <tr>
-                                                        <th>Charging</th>
-                                                        <th>Lot</th>
-                                                        <th>Product</th>
-                                                        <th style="width: 150px;">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <th>1</th>
-                                                        <td>9, 10, 11</td>
-                                                        <td>ES30</td>
-                                                        <td>
-                                                            <div>
-                                                                <button class="btn btn-info btn-sm waves-effect">
-                                                                    <i class="fas fa-eye" data-toggle="tooltip"
-                                                                        title="View"></i>
-                                                                </button>
-                                                                <button class="btn btn-warning btn-sm waves-effect">
-                                                                    <i class="fas fa-edit" data-toggle="tooltip"
-                                                                        title="Edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-primary btn-sm waves-effect">
-                                                                    <i class="fas fa-cogs" data-toggle="tooltip"
-                                                                        title="Proccess"></i>
-                                                                </button>
-                                                            </div>
-
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>2</th>
-                                                        <td>12, 13, 14</td>
-                                                        <td>EJ40</td>
-                                                        <td>
-                                                            <div>
-                                                                <button class="btn btn-info btn-sm waves-effect">
-                                                                    <i class="fas fa-eye" data-toggle="tooltip"
-                                                                        title="View"></i>
-                                                                </button>
-                                                                <button class="btn btn-warning btn-sm waves-effect">
-                                                                    <i class="fas fa-edit" data-toggle="tooltip"
-                                                                        title="Edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-primary btn-sm waves-effect">
-                                                                    <i class="fas fa-cogs" data-toggle="tooltip"
-                                                                        title="Proccess"></i>
-                                                                </button>
-                                                            </div>
-
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>3</th>
-                                                        <td>15, 16, 17</td>
-                                                        <td>ES30</td>
-                                                        <td>
-                                                            {{-- <div> --}}
-                                                                <button class="btn btn-info btn-sm waves-effect">
-                                                                    <i class="fas fa-eye" data-toggle="tooltip"
-                                                                        title="View"></i>
-                                                                </button>
-                                                                <button class="btn btn-warning btn-sm waves-effect">
-                                                                    <i class="fas fa-edit" data-toggle="tooltip"
-                                                                        title="Edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-primary btn-sm waves-effect">
-                                                                    <i class="fas fa-cogs" data-toggle="tooltip"
-                                                                        title="Proccess"></i>
-                                                                </button>
-                                                                {{--
-                                                            </div> --}}
-
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-1 shadow-none">
-                                <a href="#collapseThree" class="text-dark collapsed" data-toggle="collapse"
-                                    aria-expanded="false" aria-controls="collapseThree">
-                                    <div class="card-header" id="headingThree">
-                                        <div class="row">
-                                            <div class="col-lg-8">
-                                                <div class="row">
-                                                    <div class="col-lg-4">
-                                                        <div>
-                                                            <strong>
-                                                                Furnace : 2
-                                                            </strong>
-                                                        </div>
-                                                        <div>
-                                                            <strong>
-                                                                Process date: 17/12/2025
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4">
-                                                        <div>
-                                                            <strong>
-                                                                Shift : D
-                                                            </strong>
-                                                        </div>
-                                                        <div>
-                                                            <strong>
-                                                                Total Raw Material : 800
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4">
-
-                                                        <div>
-                                                            <strong>
-                                                                Total Additive : 800
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <h6 class="mt-3">
-
-                                                    <i class="mdi mdi-minus float-right accor-plus-icon"></i>
-
-                                                </h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
-                                    data-parent="#accordion">
-                                    <div class="card-body">
-                                        Anim pariatur cliche reprehenderit, enim eiusmod high life
-                                        accusamus terry richardson ad squid. 3 wolf moon officia
-                                        aute, non cupidatat skateboard dolor brunch. Food truck
-                                        sunt aliqua put a bird on it squid single-origin coffee
-                                        nulla assumenda anderson cred nesciunt
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        @empty
+                        <div class="card">
+                            <div class="text-center py-5">
+                                <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                                <h5>Data Tidak ditemukan</h5>
+                            </div>
+                            @endforelse
 
 
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        {{-- form modal --}}
+        @livewire('ace.form-material-input')
     </div>
-    {{-- form modal --}}
-    @livewire('ace.form-material-input')
-</div>
-@push('scripts')
-<script>
-    $(document).on('livewire:navigated', () => {
-        Livewire.on('showFormInput', () => {
-            $('#modal-material-input').modal("show");
+    @push('scripts')
+    <script>
+        function initAceDatepicker() {
+        $('[data-provide="datepicker"]').datepicker({
+            format: "dd/mm/yyyy",
+            autoclose: true
+        }).off('changeDate.aceMaterialInput').on('changeDate.aceMaterialInput', function (e) {
+            let selectedDate = e.format();
+            Livewire.dispatch('Date', { data: selectedDate });
         });
-    })
-</script>
-@endpush
+    }
+
+    function initSelect2WithDispatch(selector, options, eventName, payloadBuilder) {
+        const $el = $(selector);
+        if (!$el.length) return;
+
+        if ($el.hasClass('select2-hidden-accessible')) {
+            $el.select2('destroy');
+        }
+
+        $el.select2(options)
+            .off('change.aceMaterialInput')
+            .on('change.aceMaterialInput', function () {
+                Livewire.dispatch(eventName, payloadBuilder($(this)));
+            });
+    }
+
+    function initAceSelect() {
+        initSelect2WithDispatch('#shift', {
+            minimumResultsForSearch: Infinity
+        }, 'Shift', ($el) => ({
+            data: $el.val()
+        }));
+
+         initSelect2WithDispatch('#selectLotMultiple', {
+            width: '100%',
+            placeholder: 'Choose Lots...',
+            allowClear: true,
+            dropdownParent: $('#modal-material-input'),
+            maximumSelectionLength: 3,
+        }, 'lotSelection', ($el) => ({
+            productId: $('#product-select2').val() ? Number($('#product-select2').val()) : null,
+            lotIds: ($el.val() || []).map(v => Number(v))
+        }));
+        initSelect2WithDispatch('#product-select2', {
+            width: '100%',
+            placeholder: 'Choose Product...',
+            allowClear: true,
+            dropdownParent: $('#modal-material-input'),
+            minimumResultsForSearch: 0,
+        }, 'productSelect', ($el) => ({
+            productId: $el.val() ? Number($el.val()) : null,
+            lotIds: ($('#selectLotMultiple').val() || []).map(v => Number(v))
+        }));
+    }
+
+    function bindAceMaterialInputHandlers() {
+        initAceDatepicker();
+        initAceSelect();
+
+        $('#modal-material-input')
+            .off('shown.bs.modal.aceMaterialInput')
+            .on('shown.bs.modal.aceMaterialInput', function () {
+                initAceSelect();
+            });
+
+        if (!window.__aceMaterialInputLivewireBound) {
+            window.__aceMaterialInputLivewireBound = true;
+
+            Livewire.on('showFormInput', () => {
+                $('#modal-material-input').modal('show');
+                setTimeout(() => {
+                    initAceSelect();
+                }, 100);
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        bindAceMaterialInputHandlers();
+    });
+
+    $(document).on('livewire:navigated', function () {
+        bindAceMaterialInputHandlers();
+    });
+    </script>
+    @endpush
