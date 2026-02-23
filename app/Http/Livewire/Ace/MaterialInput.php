@@ -37,10 +37,26 @@ class MaterialInput extends BaseLivewireComponent
         $Data['is_edit'] = false;
         $this->dispatch('FormInputMat', data: $Data)->to(FormMaterialInput::class);
     }
-
+    public function Edit($dataPlan, $dataCharge)
+    {
+        $this->openIndex = $dataPlan;
+        $Data = $this->furnace[$dataPlan]['chargings'][$dataCharge];
+        $Data['is_edit'] = true;
+        // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
+        $this->dispatch('FormUpdateMat', data: $Data)->to(FormMaterialInput::class);
+    }
+    public function Detail($dataPlan, $dataCharge)
+    {
+        $this->openIndex = $dataPlan;
+        $Data = $this->furnace[$dataPlan]['chargings'][$dataCharge];
+        // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
+        // $this->dispatch('DetailCharging', data: $Data)->to(DetailCharging::class);
+    }
+    #[On('loadDataFormInputMat')]
     public function load()
     {
         $Data = $this->furnace[$this->openIndex]['chargings'][$this->indexCharge];
+        $Data['is_edit'] = false;
         $this->dispatch('LoadFormInputMat', data: $Data)->to(FormMaterialInput::class);
     }
 

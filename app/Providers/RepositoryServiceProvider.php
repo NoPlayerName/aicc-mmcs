@@ -8,6 +8,8 @@ use App\Repositories\Master\ProductAce\ProductRepositoryInterface;
 use App\Repositories\Master\ProductAce\ProductRepository;
 use App\Repositories\Master\ProductJsh\ModelRepository;
 use App\Repositories\Master\ProductJsh\ModelRepositoryInterface;
+use App\Repositories\MaterialUseAce\MaterialUseAceReposiroty;
+use App\Repositories\MaterialUseAce\MaterialUseAceReposirotyInterface;
 use App\Repositories\MaterialUseJsh\MaterialUseJshRepository;
 use App\Repositories\MaterialUseJsh\MaterialUseJshRepositoryInterface;
 use App\Repositories\PlanProductionAce\PlanProdRepositoryAce;
@@ -33,6 +35,7 @@ class RepositoryServiceProvider extends ServiceProvider
             ModelRepositoryInterface::class => ModelRepository::class,
             PlanProdRepositoryAceInterface::class => PlanProdRepositoryAce::class,
             ProductRepositoryInterface::class => ProductRepository::class,
+            MaterialUseAceReposirotyInterface::class => MaterialUseAceReposiroty::class,
         ];
 
         foreach ($bindings as $interface => $implementation) {

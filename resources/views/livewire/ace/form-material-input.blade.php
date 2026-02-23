@@ -83,117 +83,26 @@
                         </li>
                     </ul>
 
-                    <div class="tab-content p-4 border border-top-0 rounded-bottom bg-white">
+                    <div wire:ignore class="tab-content p-4 border border-top-0 rounded-bottom bg-white">
 
-                        <div class="tab-pane active fade show" id="rawMaterial" role="tabpanel">
-                            <div class="row align-items-end g-3">
-                                <div class="col-md-5">
-                                    <label class="form-label font-weight-bold text-muted">Material Type</label>
-                                    <select
-                                        class="form-control form-control-lg select2-search-disable border-primary-soft">
-                                        <option>Select Material</option>
-                                        <option>Steel Scrap</option>
-                                        <option>Bricket</option>
-                                        <optgroup label="Return Scrap">
-                                            <option value="CA">RS ACE</option>
-                                            <option value="NV">AGARI</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label font-weight-bold text-muted">Weight (KG)</label>
-                                    <div class="input-group input-group-lg">
-                                        <input type="number" class="form-control" placeholder="0.00">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text bg-light font-weight-bold">kg</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-primary btn-lg btn-block shadow-sm">
-                                        <i class="fas fa-plus mr-1"></i> Add
-                                    </button>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label text-info font-weight-bold">Total Material</label>
-                                    <input
-                                        class="form-control form-control-lg bg-soft-info border-info text-dark font-weight-bold"
-                                        readonly value="0">
-                                </div>
-                            </div>
+                        <div class="tab-pane active fade show" id="rawMaterial" role="tabpanel"
+                            wire:key="rawMat-{{ $chargeId }}">
+
+                            @livewire('ace.raw-material', ['chargeId' => $chargeId, 'edit' => $edit])
+
                         </div>
 
-                        <div class="tab-pane fade" id="additive" role="tabpanel">
-                            <div class="row align-items-end g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label font-weight-bold text-muted">Additive Type</label>
-                                    <select class="form-control form-control-lg">
-                                        <option>Select Additive</option>
-                                        <option>Carbon G-8</option>
-                                        <option>Carbon SP-500</option>
-                                        <option>Fe.Si</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label font-weight-bold text-muted">Weight (KG)</label>
-                                    <input type="number" class="form-control form-control-lg" placeholder="0.00">
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-primary btn-lg btn-block shadow-sm">
-                                        <i class="fas fa-plus mr-1"></i> Add
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="tab-pane fade" id="additive" role="tabpanel" wire:key="Additive-{{ $chargeId }}">
+                            @livewire('ace.additive-material', ['chargeId' => $chargeId])
                         </div>
 
-                        <div class="tab-pane fade" id="kwh" role="tabpanel">
-                            <div class="row">
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label font-weight-bold text-muted">Charging Time</label>
-                                    <input class="form-control form-control-lg" type="time">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label font-weight-bold text-muted">KWH Start</label>
-                                    <input class="form-control form-control-lg" type="number" placeholder="0">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label font-weight-bold text-muted">KWH OK</label>
-                                    <input class="form-control form-control-lg" type="number" placeholder="0">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label font-weight-bold text-muted">Power (kW)</label>
-                                    <input class="form-control form-control-lg border-primary-soft" type="number"
-                                        placeholder="0">
-                                </div>
-                            </div>
+                        <div class="tab-pane fade" id="kwh" role="tabpanel" wire:key="kwh-{{ $chargeId }}">
+                            @livewire('ace.input-kwh', ['chargeId' => $chargeId, 'edit' => $edit])
                         </div>
 
-                        <div class="tab-pane fade" id="temptTapping" role="tabpanel">
-                            <div class="row align-items-end g-3">
-                                <div class="col-md-4">
-                                    <label class="form-label font-weight-bold text-muted">Temperature (°C)</label>
-                                    <div class="input-group input-group-lg">
-                                        <input type="number" class="form-control" placeholder="1000">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text bg-light text-danger"><i
-                                                    class="fas fa-thermometer-three-quarters"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-5">
-                                    <label class="form-label font-weight-bold text-muted">Type Tapping</label>
-                                    <select class="form-control form-control-lg">
-                                        <option>Select Type</option>
-                                        <option>Sample 1</option>
-                                        <option>Taping 1</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <button class="btn btn-primary btn-lg btn-block shadow-sm">
-                                        <i class="fas fa-plus mr-1"></i> Add Data
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="tab-pane fade" id="temptTapping" role="tabpanel"
+                            wire:key="temptTapping-{{ $chargeId }}">
+                            @livewire('ace.input-tempt-tapping', ['chargeId' => $chargeId, 'edit' => $edit])
                         </div>
 
                     </div>

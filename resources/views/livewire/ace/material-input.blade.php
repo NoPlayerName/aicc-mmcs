@@ -150,11 +150,13 @@
                                                         <td>{{ $charge->product->name ?? '-' }}</td>
                                                         <td>
                                                             <div>
-                                                                <button class="btn btn-info btn-sm waves-effect">
+                                                                <button class="btn btn-info btn-sm waves-effect"
+                                                                    wire:click='Detail({{ $indexPlan}}, {{ $indexCharge }})'>
                                                                     <i class="fas fa-eye" data-toggle="tooltip"
                                                                         title="View"></i>
                                                                 </button>
-                                                                <button class="btn btn-warning btn-sm waves-effect">
+                                                                <button class="btn btn-warning btn-sm waves-effect"
+                                                                    wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'>
                                                                     <i class="fas fa-edit" data-toggle="tooltip"
                                                                         title="Edit"></i>
                                                                 </button>
@@ -232,6 +234,12 @@
         }, 'Shift', ($el) => ({
             data: $el.val()
         }));
+         initSelect2WithDispatch('#rawMat-select2', {
+            minimumResultsForSearch: 0
+        }, 'rawMat', ($el) => ({
+            rawMat: $el.val(),
+            name: $el.find('option:selected').text()
+        }));
 
          initSelect2WithDispatch('#selectLotMultiple', {
             width: '100%',
@@ -267,11 +275,26 @@
 
         if (!window.__aceMaterialInputLivewireBound) {
             window.__aceMaterialInputLivewireBound = true;
+            
+             Livewire.on('showFormEdit', () => {
+                $('#modal-material-input').modal('show');
+            });
 
             Livewire.on('showFormInput', () => {
                 $('#modal-material-input').modal('show');
                 setTimeout(() => {
                     initAceSelect();
+                }, 100);
+            });
+
+            Livewire.on('loadMaterial', () => {
+                setTimeout(() => {
+                    initSelect2WithDispatch('#rawMat-select2', {
+                        minimumResultsForSearch: 0
+                    }, 'rawMat', ($el) => ({
+                        rawMat: $el.val(),
+                        name: $el.find('option:selected').text()
+                    }));
                 }, 100);
             });
         }

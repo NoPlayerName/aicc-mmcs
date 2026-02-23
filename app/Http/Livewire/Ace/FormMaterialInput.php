@@ -76,6 +76,29 @@ class FormMaterialInput extends Component
         $this->saveSelection();
     }
 
+    #[On('FormUpdateMat')]
+    public function showFormUpdate($data)
+    {
+        // dd($edit);
+        // dd($data);
+        // dd($id, $data);
+        $this->edit = $data['is_edit'];
+        $this->id = $data['plan_id_anchor'];
+        $this->chargeId = $data['id'];
+        $this->lot = $data['lot'] ?? '-';
+        $this->charging = $data['charging'] ?? '-';
+        $this->product = $data['product']['name'] ?? "-";
+
+        $this->dispatch('load-material-data', id: $this->chargeId, isEdit: $this->edit);
+
+        $this->dispatch('showFormEdit');
+    }
+    #[On('rawMat')]
+    public function changeRawMat($rawMat, $name)
+    {
+        $this->dispatch('RawMat', data: $rawMat, name: $name)->to(RawMaterial::class);
+    }
+
     public function saveSelection()
     {
         if (!$this->productSelect || empty($this->lots)) {
@@ -86,12 +109,11 @@ class FormMaterialInput extends Component
         if ($query['status']) {
             $this->dispatch('success', message: 'berhasil menyimpan lot dan product');
             $this->dispatch('loadFurnaceHead')->to(MaterialInput::class);
+            $this->dispatch('loadDataFormInputMat')->to(MaterialInput::class);
         } else {
             $this->dispatch('error', message: 'gagal menyimpan lot dan product');
         }
     }
-
-
 
     public function loadProduct()
     {
