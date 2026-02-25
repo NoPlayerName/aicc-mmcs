@@ -109,12 +109,9 @@
                 </div>
             </div>
 
-            <div class="modal-footer bg-light border-top">
-                <button type="button" class="btn btn-link text-muted font-weight-bold px-4"
-                    data-dismiss="modal">Discard</button>
-                <button type="submit" class="btn btn-primary px-5 shadow font-weight-bold">
-                    <i class="fas fa-save mr-2"></i>Save All Changes
-                </button>
+            <div class="modal-footer border-top bg-light text-right">
+                <small class="text-muted mr-auto">Please ensure all data is saved within each tab.</small>
+                <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

@@ -6,6 +6,7 @@ use App\Services\Master\ProductAce\ProductService;
 use App\Services\PlanProductionAce\PlanProductionAceService;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Renderless;
 
 class FormMaterialInput extends Component
 {
@@ -94,9 +95,29 @@ class FormMaterialInput extends Component
         $this->dispatch('showFormEdit');
     }
     #[On('rawMat')]
+    #[Renderless]
     public function changeRawMat($rawMat, $name)
     {
         $this->dispatch('RawMat', data: $rawMat, name: $name)->to(RawMaterial::class);
+    }
+    #[On('additMat')]
+    #[Renderless]
+    public function changeAdditiveMat($data, $name)
+    {
+        $this->dispatch('AdditiveMat', data: $data, name: $name)->to(AdditiveMaterial::class);
+    }
+
+    #[On('typeAddjust')]
+    #[Renderless]
+    public function changeTypeAddjust($data)
+    {
+        $this->dispatch('TypeAddjust', data: $data)->to(AdditiveMaterial::class);
+    }
+    #[On('typeTapping')]
+    #[Renderless]
+    public function changeTypeTapping($data)
+    {
+        $this->dispatch('TypeTapping', data: $data)->to(InputTemptTapping::class);
     }
 
     public function saveSelection()

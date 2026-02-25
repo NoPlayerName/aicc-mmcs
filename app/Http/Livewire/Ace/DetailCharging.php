@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Livewire\Jsh;
+namespace App\Http\Livewire\Ace;
 
-use App\Services\MaterialUseJsh\MaterialUseJshService;
+use App\Services\MaterialUseAce\MaterialUseAceService;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -22,13 +22,13 @@ class DetailCharging extends Component
     #[On('DetailCharging')]
     public function showForm($data)
     {
-        $this->id = $data['production_plan_id'];
-        $this->chargeId = $data['chargingHeadId'];
+        $this->id = $data['plan_id_anchor'];
+        $this->chargeId = $data['id'];
         $this->lot = $data['lot'] ?? '-';
         $this->charging = $data['charging'] ?? '-';
-        $this->product = $data['model_id'] ?? "-";
+        $this->product = $data['product']['name'] ?? "-";
 
-        $data = app(MaterialUseJshService::class)->getDetail($this->chargeId, $this->id);
+        $data = app(MaterialUseAceService::class)->getDetail($this->chargeId, $this->id);
         $this->rawMaterial = $data->rawMat ?? [];
         $this->additive = $data->additive ?? [];
         $this->kwh = $data->kwh ?? [];
@@ -40,6 +40,6 @@ class DetailCharging extends Component
     }
     public function render()
     {
-        return view('livewire.jsh.detail-charging');
+        return view('livewire.ace.detail-charging');
     }
 }

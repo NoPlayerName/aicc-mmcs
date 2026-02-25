@@ -3,10 +3,10 @@
         <div class="col-md-3">
             <label class="form-label font-weight-bold text-muted">Charging Time</label>
             <div class="input-group input-group-lg">
-                <input type="number" class="form-control @error('form.charge_time') is-invalid @enderror"
-                    placeholder="0" wire:model='form.charge_time'>
+                <input type="text" class="form-control @error('form.charge_time') is-invalid @enderror"
+                    placeholder="00:00:00" wire:model='form.charge_time'>
                 <div class="input-group-append">
-                    <span class="input-group-text bg-light small font-weight-bold">Min</span>
+                    <span class="input-group-text bg-light small font-weight-bold">Time</span>
                 </div>
             </div>
             @error('form.charge_time')
@@ -17,7 +17,7 @@
         <div class="col-md-3">
             <label class="form-label font-weight-bold text-muted">KWH Start Charge</label>
             <div class="input-group input-group-lg">
-                <input type="number" class="form-control @error('form.kwh_start_charge') is-invalid @enderror"
+                <input type="number" class="form-control @error('form.kwh_start_charge') is-invalid @enderror" min="0"
                     placeholder="0.0" wire:model='form.kwh_start_charge'>
                 <div class="input-group-append">
                     <span class="input-group-text bg-light small font-weight-bold">kWh</span>
@@ -31,7 +31,7 @@
         <div class="col-md-3">
             <label class="form-label font-weight-bold text-muted">KWH Ok Charge</label>
             <div class="input-group input-group-lg">
-                <input type="number" class="form-control @error('form.kwh_ok_charge') is-invalid @enderror"
+                <input type="number" class="form-control @error('form.kwh_ok_charge') is-invalid @enderror" min="0"
                     placeholder="0.0" wire:model='form.kwh_ok_charge'>
                 <div class="input-group-append">
                     <span class="input-group-text bg-light small font-weight-bold">kWh</span>
@@ -46,7 +46,7 @@
             <label class="form-label font-weight-bold text-muted">Power</label>
             <div class="input-group input-group-lg">
                 <input type="number" class="form-control @error('form.power') is-invalid @enderror" placeholder="0"
-                    wire:model='form.power'>
+                    min="0" wire:model='form.power'>
                 <div class="input-group-append">
                     <span class="input-group-text bg-light small font-weight-bold">kW</span>
                 </div>

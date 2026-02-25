@@ -70,26 +70,72 @@ class MaterialUseAceService
     }
     public function saveAdditiveMat($data)
     {
-        return $this->repository->saveAdditiveMat($data);
+        $newData = array_map(function ($item) {
+            unset($item['type_additive_text']);
+            unset($item['material_name']);
+            return $item;
+        }, $data);
+        return $this->repository->saveAdditiveMat($newData);
     }
     public function saveUpdateAdditiveMat($data)
     {
-        return $this->repository->saveUpdateAdditiveMat($data);
+        $user = Auth::user()->usr;
+        $now = now();
+        $update = array_map(function ($item) use ($now, $user) {
+            unset($item['type_additive_text']);
+            unset($item['material_name']);
+            unset($item['materialable']);
+            $item['updated_by'] = $user;
+            $item['updated_at'] = $now;
+            return $item;
+        }, $data);
+        return $this->repository->saveUpdateAdditiveMat($update);
     }
     public function saveKwh($data)
     {
-        return $this->repository->saveKwh($data);
+        $user = Auth::user()->usr;
+
+        $newData = array_merge($data, [
+            'created_by' => $user,
+            'created_at' => now(),
+        ]);
+        return $this->repository->saveKwh($newData);
     }
     public function UpdateKwh($data)
     {
-        return $this->repository->UpdateKwh($data);
+        $user = Auth::user()->usr;
+
+        $newData = array_merge($data, [
+            'updated_by' => $user,
+            'updated_at' => now(),
+        ]);
+        return $this->repository->UpdateKwh($newData);
     }
     public function saveTemptTapping($data)
     {
-        return $this->repository->saveTemptTapping($data);
+        unset($data['type_tapping_text']);
+        $newData = collect($data)->map(function ($item) {
+            // 1. Ubah array jadi collection agar bisa pakai forget()
+            $row = collect($item)->forget('type_tapping_text');
+
+            return $row->all();
+        })->all();
+        return $this->repository->saveTemptTapping($newData);
     }
     public function updateTemptTapping($data)
     {
-        return $this->repository->updateTemptTapping($data);
+        $user = Auth::user()->usr;
+        unset($data['type_tapping_text']);
+        $newData = collect($data)->map(function ($item) use ($user) {
+            // 1. Ubah array jadi collection agar bisa pakai forget()
+            $row = collect($item)->forget('type_tapping_text');
+
+            // 2. Tambahkan kolom baru
+            $row->put('updated_at', now());
+            $row->put('updated_by', $user);
+
+            return $row->all();
+        })->all();
+        return $this->repository->updateTemptTapping($newData);
     }
 }

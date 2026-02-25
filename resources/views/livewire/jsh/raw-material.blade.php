@@ -21,7 +21,7 @@
             <label class="form-label font-weight-bold">Weight (KG)</label>
             <div class="input-group input-group-lg">
                 <input type="number" class="form-control @error('weight') is-invalid @enderror" placeholder="0.00"
-                    wire:model="weight">
+                    min="0" wire:model="weight">
                 <div class="input-group-append">
                     <span class="input-group-text bg-light">kg</span>
                 </div>

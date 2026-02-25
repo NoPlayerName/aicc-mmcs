@@ -7,6 +7,7 @@ use App\Services\PlanProductionAce\PlanProductionAceService;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Renderless;
 
 class MaterialInput extends BaseLivewireComponent
 {
@@ -17,8 +18,44 @@ class MaterialInput extends BaseLivewireComponent
     public $indexCharge = null;
     public function mount()
     {
-        $this->mountBase();
+        $permissionAcces =  $this->mountBase();
+        if (!$permissionAcces) {
+            // $this->dispatch('error', message: 'You no have access to this menu!');
+            session()->flash('error', 'You no have access to this menu!');
+            return redirect()->route('dashboard');
+        }
         $this->loadFurnaceHead();
+    }
+    #[On('Date')]
+    // #[Renderless]
+    public function changeDate($data, $shift = null)
+    {
+        $this->date = $data;
+        if (!is_null($shift)) {
+            $this->shift = $shift;
+        }
+        if (!is_null($this->date) && !is_null($this->shift)) {
+            $this->changeFilter();
+        }
+    }
+    #[On('Shift')]
+    // #[Renderless]
+    public function changeShift($data, $date = null)
+    {
+        $this->shift = $data;
+        if (!is_null($date)) {
+            $this->date = $date;
+        }
+        if (!is_null($this->date) && !is_null($this->shift)) {
+            $this->changeFilter();
+        }
+    }
+    #[On('refreshData')]
+    public function changeFilter()
+    {
+        // dd($this->date, $this->shift);
+        $this->furnace = app(PlanProductionAceService::class)
+            ->getFurnaceHead($this->date, $this->shift) ?? collect();
     }
     public function toggleAccordion($index)
     {
@@ -50,7 +87,7 @@ class MaterialInput extends BaseLivewireComponent
         $this->openIndex = $dataPlan;
         $Data = $this->furnace[$dataPlan]['chargings'][$dataCharge];
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
-        // $this->dispatch('DetailCharging', data: $Data)->to(DetailCharging::class);
+        $this->dispatch('DetailCharging', data: $Data)->to(DetailCharging::class);
     }
     #[On('loadDataFormInputMat')]
     public function load()
