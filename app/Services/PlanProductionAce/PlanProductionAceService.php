@@ -4,6 +4,7 @@ namespace App\Services\PlanProductionAce;
 
 use App\Models\Ace\MaterialUse\FurnaceHeadAce;
 use App\Repositories\PlanProductionAce\PlanProdRepositoryAceInterface;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class PlanProductionAceService
@@ -13,6 +14,11 @@ class PlanProductionAceService
     public function __construct(PlanProdRepositoryAceInterface $planProdRepositoryAce)
     {
         $this->planProdRepositoryAce = $planProdRepositoryAce;
+    }
+
+    public function getPlanProd($date, $shift)
+    {
+        return $this->planProdRepositoryAce->getPlanProd($date, $shift);
     }
 
     public function generateFurnace()
@@ -70,8 +76,9 @@ class PlanProductionAceService
             'message' => "Furnace {$nextFurnace} berhasil ditambahkan.",
         ];
     }
-    public function getFurnaceHead()
+    public function getFurnaceHead($date = null, $shiftParam = null)
     {
+
         $currentDateTime = now();
         $hour = $currentDateTime->hour;
         $shift = ($hour >= 7 && $hour < 20) ? 'D' : 'N';
@@ -80,10 +87,16 @@ class PlanProductionAceService
         if ($shift === 'N' && $hour < 7) {
             $productionDate->subDay();
         }
+        if (!empty($date)) {
+            $parsedDate = Carbon::createFromFormat('d/m/Y', $date);
+            // dd($date, $productionDate, $shiftParam ?? $shift);
+        }
 
+        $dateValue = ($parsedDate ?? $productionDate)->format('Y-m-d');
+        // dd($date, $productionDate, $shiftParam ?? $shift);
         return $this->planProdRepositoryAce->getFurnaceHead(
-            $productionDate->format('Y-m-d'),
-            $shift
+            $dateValue,
+            $shiftParam ?? $shift
         );
     }
     public function generateCharging($idFurnace)

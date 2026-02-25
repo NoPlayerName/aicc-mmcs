@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class PlanProdRepositoryAce implements PlanProdRepositoryAceInterface
 {
+
     public function generateFurnace($request)
     {
         try {
@@ -20,8 +21,7 @@ class PlanProdRepositoryAce implements PlanProdRepositoryAceInterface
 
             DB::commit();
 
-            // return $furnaceHead;
-
+            return $furnaceHead;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error generating furnace head: ' . $e->getMessage(), [
@@ -35,12 +35,24 @@ class PlanProdRepositoryAce implements PlanProdRepositoryAceInterface
 
     public function getFurnaceHead($date, $shift)
     {
-        return FurnaceHeadAce::query()->with('chargings.product')
+        return FurnaceHeadAce::query()->with([
+            'chargings.product',
+            'chargings.rawMatUse',
+            'chargings.additMatUse',
+        ])
             ->whereDate('date', $date)
             ->where('shift', $shift)
             ->whereBetween('furnace', [6, 9])
             ->orderBy('furnace')
-            ->get();
+            ->get()->map(function ($furnace) {
+                $furnace->total_raw_material = $furnace->chargings->sum(function ($charging) {
+                    return $charging->rawMatUse->sum('weight');
+                });
+                $furnace->total_additive = $furnace->chargings->sum(function ($charging) {
+                    return $charging->additMatUse->sum('weight');
+                });
+                return $furnace;
+            });
     }
     public function getNextChargingNumber($planIdAnchor): int
     {
