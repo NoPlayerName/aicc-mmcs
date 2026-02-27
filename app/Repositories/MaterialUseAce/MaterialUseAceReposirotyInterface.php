@@ -20,4 +20,7 @@ interface MaterialUseAceReposirotyInterface
     public function UpdateKwh($data);
     public function saveTemptTapping($data);
     public function updateTemptTapping($data);
+    public function saveLadle($data);
+    public function saveLadleMat($data);
+    public function getLadleTransfer($date, $shift);
 }

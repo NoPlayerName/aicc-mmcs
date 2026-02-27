@@ -3,6 +3,7 @@
 namespace App\Services\MaterialUseAce;
 
 use App\Repositories\MaterialUseAce\MaterialUseAceReposirotyInterface;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class MaterialUseAceService
@@ -137,5 +138,47 @@ class MaterialUseAceService
             return $row->all();
         })->all();
         return $this->repository->updateTemptTapping($newData);
+    }
+
+    public function saveLadleTransfer($data)
+    {
+
+        $query = $this->repository->saveLadle($data['ladlehead']);
+        if ($query['status']) {
+            $data['ladleMat'] = array_map(function ($item) use ($query) {
+                $item['leadle_head_id'] = $query['ladleHeadId'];
+                unset($item['material_name']);
+                return $item;
+            }, $data['ladleMat']);
+            $querys = $this->repository->saveLadleMat($data['ladleMat']);
+            return $querys;
+        } else {
+            return [
+                'status' => false,
+            ];
+        }
+    }
+
+    public function getLadleTransfer($date = null, $shiftParam = null)
+    {
+
+        $currentDateTime = now();
+        $hour = $currentDateTime->hour;
+        $shift = ($hour >= 7 && $hour < 20) ? 'D' : 'N';
+
+        $productionDate = $currentDateTime->copy();
+        if ($shift === 'N' && $hour < 7) {
+            $productionDate->subDay();
+        }
+        if (!empty($date)) {
+            $parsedDate = Carbon::createFromFormat('d/m/Y', $date);
+            // dd($date, $productionDate, $shiftParam ?? $shift);
+        }
+
+        $dateValue = ($parsedDate ?? $productionDate)->format('Y-m-d');
+        return $this->repository->getLadleTransfer(
+            $dateValue,
+            $shiftParam ?? $shift
+        );
     }
 }
