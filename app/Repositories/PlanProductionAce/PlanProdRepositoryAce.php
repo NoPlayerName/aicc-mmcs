@@ -130,4 +130,16 @@ class PlanProdRepositoryAce implements PlanProdRepositoryAceInterface
             ];
         }
     }
+
+    public function getFurnace($date, $shift)
+    {
+        return FurnaceHeadAce::query()->with([
+            'chargings.product',
+        ])
+            ->whereDate('date', $date)
+            ->where('shift', $shift)
+            ->whereBetween('furnace', [6, 9])
+            ->orderBy('furnace')
+            ->get();
+    }
 }

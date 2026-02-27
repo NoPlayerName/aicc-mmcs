@@ -16,10 +16,10 @@ class PlanProductionAceService
         $this->planProdRepositoryAce = $planProdRepositoryAce;
     }
 
-    public function getPlanProd($date, $shift)
-    {
-        return $this->planProdRepositoryAce->getPlanProd($date, $shift);
-    }
+    // public function getPlanProd($date, $shift)
+    // {
+    //     return $this->planProdRepositoryAce->getPlanProd($date, $shift);
+    // }
 
     public function generateFurnace()
     {
@@ -65,7 +65,7 @@ class PlanProductionAceService
             'furnace' => $nextFurnace,
             'shift' => $shift,
             'date' => $productionDate->format('Y-m-d'),
-            'created_at' => $currentDateTime,
+            'created_at' => now(),
             'created_by' => Auth::user()?->usr,
         ];
 
@@ -116,5 +116,26 @@ class PlanProductionAceService
     {
         $lotIds = implode(', ', $lotIds);
         return $this->planProdRepositoryAce->saveSelection($id, $productId, $lotIds);
+    }
+    public function getFurnace($date = null, $shiftParam = null)
+    {
+        $currentDateTime = now();
+        $hour = $currentDateTime->hour;
+        $shift = ($hour >= 7 && $hour < 20) ? 'D' : 'N';
+
+        $productionDate = $currentDateTime->copy();
+        if ($shift === 'N' && $hour < 7) {
+            $productionDate->subDay();
+        }
+        if (!empty($date)) {
+            $parsedDate = Carbon::createFromFormat('d/m/Y', $date);
+        }
+
+        $dateValue = ($parsedDate ?? $productionDate)->format('Y-m-d');
+
+        return $this->planProdRepositoryAce->getFurnace(
+            $dateValue,
+            $shiftParam ?? $shift
+        );
     }
 }

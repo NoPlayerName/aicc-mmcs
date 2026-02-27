@@ -23,4 +23,9 @@ class FurnaceHeadAce extends BaseModelJsh
     {
         return $this->hasMany(ChargingHeadAce::class, 'plan_id_anchor', 'id');
     }
+
+    public function ladleTfHead()
+    {
+        return $this->hasOne(LadleTfHead::class, 'furnace_id', 'id');
+    }
 }

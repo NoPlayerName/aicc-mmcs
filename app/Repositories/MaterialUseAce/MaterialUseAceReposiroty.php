@@ -4,7 +4,10 @@ namespace App\Repositories\MaterialUseAce;
 
 use App\Enums\EnumTypeMat;
 use App\Models\Ace\MaterialUse\ChargingHeadAce;
+use App\Models\Ace\MaterialUse\FurnaceHeadAce;
+use App\Models\Ace\MaterialUse\Inoculant;
 use App\Models\Ace\MaterialUse\KwhAce;
+use App\Models\Ace\MaterialUse\LadleTfHead;
 use App\Models\Ace\MaterialUse\MaterialUsageAce;
 use App\Models\Ace\MaterialUse\TemptTappingAce;
 use Illuminate\Support\Facades\Log;
@@ -219,5 +222,68 @@ class MaterialUseAceReposiroty implements MaterialUseAceReposirotyInterface
             ]);
             return false;
         }
+    }
+
+    public function saveLadle($data)
+    {
+
+        try {
+            DB::beginTransaction();
+            $query = LadleTfHead::create($data);
+            $ladleHeadId = $query->id;
+            DB::commit();
+            return [
+                'ladleHeadId' => $ladleHeadId,
+                'status' => true,
+            ];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Save ladle fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return [
+                'status' => false,
+            ];
+        }
+    }
+    public function saveLadleMat($data)
+    {
+        try {
+            DB::beginTransaction();
+            Inoculant::insert($data);
+            DB::commit();
+            return [
+                'status' => true,
+            ];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Save inoculant mat fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return [
+                'status' => false,
+            ];
+        }
+    }
+
+    public function getLadleTransfer($date, $shift)
+    {
+        $data = LadleTfHead::with(['product', 'furnace', 'inoculant.materialable'])
+            ->whereHas('furnace', function ($query) use ($date, $shift) {
+                $query->where('date', $date)->where('shift', $shift);
+            })
+            ->get()
+            ->map(function ($item) {
+                $inoculants = $item->inoculant ?? collect();
+                $inoculants->map(function ($inoculant) {
+                    $inoculant->material_name = $inoculant->materialable?->material_name ?? $inoculant->material_id ?? '-';
+                    return $inoculant;
+                });
+
+                return $item;
+            });
+        return $data;
     }
 }
