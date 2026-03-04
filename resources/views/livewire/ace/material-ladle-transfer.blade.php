@@ -173,7 +173,7 @@
             delete select2Options.dropdownParent;
         }
 
-        if ($el.hasClass('select2-hidden-accessible')) {
+        if ($el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
             $el.select2('destroy');
         }
 
@@ -247,7 +247,7 @@
         }));
     }
 
-    function bindAceMaterialInputHandlers() {
+    function bindAceMaterialLadleTransferHandlers() {
         initDatepicker();
         initSelectLadleTf();
 
@@ -289,11 +289,25 @@
                     Livewire.dispatch('refreshLadleTransfer');
                 }
             });
+
+        $('#modal-ladle-transfer-detail')
+            .off('hide.bs.modal.aceMaterialInput hidden.bs.modal.aceMaterialInput')
+            .on('hide.bs.modal.aceMaterialInput', function () {
+                const activeElement = document.activeElement;
+                if (activeElement && this.contains(activeElement)) {
+                    activeElement.blur();
+                }
+            })
+            .on('hidden.bs.modal.aceMaterialInput', function () {
+                if (window.__aceLadleTransferDetailTrigger && window.__aceLadleTransferDetailTrigger.length) {
+                    window.__aceLadleTransferDetailTrigger.trigger('focus');
+                }
+            });
             
            
 
-        if (!window.__aceMaterialInputLivewireBound) {
-            window.__aceMaterialInputLivewireBound = true;
+        if (!window.__aceMaterialLadleTransferLivewireBound) {
+            window.__aceMaterialLadleTransferLivewireBound = true;
             
              Livewire.on('showFormEdit', () => {
                 // window.__aceInoculantTrigger = $('#btn-add-inoculant');
@@ -313,6 +327,7 @@
                         });
 
             Livewire.on('showLadleTransferDetailModal', () => {
+                window.__aceLadleTransferDetailTrigger = $(document.activeElement);
                 $('#modal-ladle-transfer-detail').modal('show');
             });
 
@@ -399,11 +414,13 @@
 
     // Penanganan modal agar lebih stabil saat navigasi
     $(document).ready(function () {
-        bindAceMaterialInputHandlers();
+        bindAceMaterialLadleTransferHandlers();
     });
 
-    $(document).on('livewire:navigated', function () {
-        bindAceMaterialInputHandlers();
-    });
+    $(document)
+        .off('livewire:navigated.aceMaterialLadleTransferPage')
+        .on('livewire:navigated.aceMaterialLadleTransferPage', function () {
+            bindAceMaterialLadleTransferHandlers();
+        });
 </script>
 @endpush

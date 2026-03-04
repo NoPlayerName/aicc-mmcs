@@ -233,7 +233,7 @@
         const $el = $(selector);
         if (!$el.length) return;
 
-        if ($el.hasClass('select2-hidden-accessible')) {
+        if ($el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
             $el.select2('destroy');
         }
 

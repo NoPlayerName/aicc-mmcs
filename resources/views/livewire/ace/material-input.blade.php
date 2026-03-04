@@ -123,12 +123,13 @@
         <div class="row">
             <div class="col-12">
                 @forelse ($furnace as $indexPlan => $item)
-                <div id="accordion" class="custom-accordion mb-3" wire:key='furnace-wrapper-{{ $item->id }}'>
+                <div id="accordion-{{ $item->id }}" class="custom-accordion mb-3"
+                    wire:key='furnace-wrapper-{{ $item->id }}'>
                     <div class="card shadow-none border-0 mb-0">
                         <div class="card-header p-0" id="heading{{ $indexPlan }}">
-                            <a href="#collapse{{ $indexPlan }}"
+                            <a href="#"
                                 class="accordion-button-custom text-dark {{ $openIndex === $indexPlan ? '' : 'collapsed' }}"
-                                data-toggle="collapse"
+                                wire:click.prevent="toggleAccordion({{ $indexPlan }})"
                                 aria-expanded="{{ $openIndex === $indexPlan ? 'true' : 'false' }}"
                                 aria-controls="collapse{{ $indexPlan }}">
 
@@ -176,7 +177,7 @@
 
                         <div id="collapse{{ $indexPlan }}"
                             class="collapse {{ $openIndex === $indexPlan ? 'show' : '' }}"
-                            aria-labelledby="heading{{ $indexPlan }}" data-parent="#accordion">
+                            aria-labelledby="heading{{ $indexPlan }}" data-parent="#accordion-{{ $item->id }}">
                             <div class="card-body border rounded-bottom bg-white">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="m-0 font-size-15"><i
@@ -227,9 +228,10 @@
                                             @empty
                                             <tr>
                                                 <td colspan="4" class="text-center py-4 text-muted small italic">
-                                                    <img src="assets/images/no-data.png" alt="" class="mb-2"
-                                                        style="height: 40px; opacity: 0.5; display: block; margin: 0 auto;">
-                                                    No charging data recorded for this furnace.
+                                                    <i class="fas fa-info-circle fa-4x text-muted mb-3 d-block"></i>
+                                                    <h5 class="text-dark font-weight-bold">Data Tidak ditemukan</h5>
+                                                    <p class="text-muted">Silahkan periksa filter tanggal atau shift
+                                                        Anda.</p>
                                                 </td>
                                             </tr>
                                             @endforelse
@@ -278,7 +280,7 @@
         const $el = $(selector);
         if (!$el.length) return;
 
-        if ($el.hasClass('select2-hidden-accessible')) {
+        if ($el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
             $el.select2('destroy');
         }
 
@@ -339,30 +341,58 @@
         }));
     }
 
-    function bindAceMaterialInputHandlers() {
+    function bindAceMaterialInputPageHandlers() {
         initAceDatepicker();
         initAceSelect();
 
         $('#modal-material-input')
-            .off('shown.bs.modal.aceMaterialInput')
+            .off('shown.bs.modal.aceMaterialInput hide.bs.modal.aceMaterialInput hidden.bs.modal.aceMaterialInput')
             .on('shown.bs.modal.aceMaterialInput', function () {
                 initAceSelect();
+            })
+            .on('hide.bs.modal.aceMaterialInput', function () {
+                const activeElement = document.activeElement;
+                if (activeElement && this.contains(activeElement)) {
+                    activeElement.blur();
+                }
+            })
+            .on('hidden.bs.modal.aceMaterialInput', function () {
+                if (window.__aceMaterialInputTrigger && window.__aceMaterialInputTrigger.length) {
+                    window.__aceMaterialInputTrigger.trigger('focus');
+                }
             });
 
-        if (!window.__aceMaterialInputLivewireBound) {
-            window.__aceMaterialInputLivewireBound = true;
+        $('#modal-detail-charging')
+            .off('hide.bs.modal.aceMaterialInput hidden.bs.modal.aceMaterialInput')
+            .on('hide.bs.modal.aceMaterialInput', function () {
+                const activeElement = document.activeElement;
+                if (activeElement && this.contains(activeElement)) {
+                    activeElement.blur();
+                }
+            })
+            .on('hidden.bs.modal.aceMaterialInput', function () {
+                if (window.__aceMaterialInputTrigger && window.__aceMaterialInputTrigger.length) {
+                    window.__aceMaterialInputTrigger.trigger('focus');
+                }
+            });
+
+        if (!window.__aceMaterialInputPageLivewireBound) {
+            window.__aceMaterialInputPageLivewireBound = true;
             
              Livewire.on('showFormEdit', () => {
+                window.__aceMaterialInputTrigger = $(document.activeElement);
                 $('#modal-material-input').modal('show');
             });
 
             Livewire.on('showFormInput', () => {
+                window.__aceMaterialInputTrigger = $(document.activeElement);
                 $('#modal-material-input').modal('show');
                 setTimeout(() => {
                     initAceSelect();
                 }, 100);
             });
              Livewire.on('showDetailCharge', () => {
+                window.__aceMaterialInputTrigger = $(document.activeElement);
                 $('#modal-detail-charging').modal('show');
             });
 
@@ -391,11 +421,13 @@
     }
 
     $(document).ready(function () {
-        bindAceMaterialInputHandlers();
+        bindAceMaterialInputPageHandlers();
     });
 
-    $(document).on('livewire:navigated', function () {
-        bindAceMaterialInputHandlers();
-    });
+    $(document)
+        .off('livewire:navigated.aceMaterialInputPage')
+        .on('livewire:navigated.aceMaterialInputPage', function () {
+            bindAceMaterialInputPageHandlers();
+        });
 </script>
 @endpush
