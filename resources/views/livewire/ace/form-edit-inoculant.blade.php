@@ -1,11 +1,11 @@
 <div wire:ignore.self class="modal fade" id="modal-inoculant-edit" tabindex="-1" role="dialog"
-    aria-labelledby="modal-inoculant-edit-label" aria-hidden="true">
+    aria-labelledby="modal-inoculant-edit-label" aria-hidden="true" wire:key="modal-inoculant-edit">
     <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width: 95vw;">
         <div class="modal-content shadow-lg border-0">
 
             <div class="modal-header bg-light border-bottom py-3">
-                <h5 class="modal-title h5 font-weight-bold text-dark mb-0" id="myExtraLargeModalLabel">
-                    <i class="fas fa-flask text-primary mr-2"></i>Inoculant & Ladle Input
+                <h5 class="modal-title h5 font-weight-bold text-dark mb-0" id="modal-inoculant-edit-label">
+                    <i class="fas fa-flask text-primary mr-2"></i>Update Inoculant & Ladle Input
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -22,7 +22,7 @@
                                         Source</label>
                                     <select
                                         class="form-control form-control-md select2-search-disable  @error('furnace') is-invalid @enderror"
-                                        id="selectFurnace">
+                                        id="selectFurnaceEdit">
                                         <option value="">Select</option>
                                         @foreach ($furnaces as $furnace)
                                         <option value="{{ $furnace['id'] }}">{{ $furnace['furnace'] }}</option>
@@ -40,7 +40,7 @@
                                     <label class="text-muted small text-uppercase font-weight-bold mb-1 d-block">Product
                                         Name</label>
                                     <select class="form-control form-control-md @error('product') is-invalid @enderror"
-                                        id="product-select2">
+                                        id="product-select2-edit">
                                         <option value="">Choose Product</option>
                                         @foreach ($products as $product)
                                         <option value="{{ $product['id'] }}">{{ $product['name'] }}</option>
@@ -108,8 +108,8 @@
                                     <div class="custom-control custom-checkbox mb-2">
                                         <input type="checkbox"
                                             class="custom-control-input  @error('weighingStatus') is-invalid @enderror"
-                                            id="timbangan" wire:model='weighingStatus'>
-                                        <label class="custom-control-label text-dark" for="timbangan">Timbangan
+                                            id="timbangan-edit" wire:model='weighingStatus'>
+                                        <label class="custom-control-label text-dark" for="timbangan-edit">Timbangan
                                             OK</label>
                                         @error('weighingStatus')
                                         <small class="text-danger position-absolute">{{ $message }}</small>
@@ -118,8 +118,8 @@
                                     <div class="custom-control custom-checkbox mb-2">
                                         <input type="checkbox"
                                             class="custom-control-input  @error('moltStatusConvy') is-invalid @enderror"
-                                            id="conveyor" wire:model='moltStatusConvy'>
-                                        <label class="custom-control-label text-dark" for="conveyor">Mat turun ke
+                                            id="conveyor-edit" wire:model='moltStatusConvy'>
+                                        <label class="custom-control-label text-dark" for="conveyor-edit">Mat turun ke
                                             Conveyor</label>
                                         @error('moltStatusConvy')
                                         <small class="text-danger position-absolute">{{ $message }}</small>
@@ -128,8 +128,8 @@
                                     <div class="custom-control custom-checkbox mb-2">
                                         <input type="checkbox"
                                             class="custom-control-input  @error('moltLadleStatus') is-invalid @enderror"
-                                            id="ladle" wire:model='moltLadleStatus'>
-                                        <label class="custom-control-label text-dark" for="ladle">Mat turun ke
+                                            id="ladle-edit" wire:model='moltLadleStatus'>
+                                        <label class="custom-control-label text-dark" for="ladle-edit">Mat turun ke
                                             Ladle</label>
                                         @error('moltLadleStatus')
                                         <small class="text-danger position-absolute">{{ $message }}</small>
@@ -138,8 +138,9 @@
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox"
                                             class="custom-control-input  @error('treatmentStatus') is-invalid @enderror"
-                                            id="treatment" wire:model='treatmentStatus'>
-                                        <label class="custom-control-label text-dark" for="treatment">Treatment &gt; 10
+                                            id="treatment-edit" wire:model='treatmentStatus'>
+                                        <label class="custom-control-label text-dark" for="treatment-edit">Treatment
+                                            &gt; 10
                                             detik</label>
                                         @error('treatmentStatus')
                                         <small class="text-danger position-absolute">{{ $message }}</small>
@@ -163,7 +164,7 @@
                                                 Material</label>
                                             <select
                                                 class="form-control select2-search-disable  @error('material') is-invalid @enderror"
-                                                id="material" wire:model='material'>
+                                                id="material-edit" wire:model='material'>
                                                 <option value="">Select Material</option>
                                                 @foreach($inoculant as $item)
                                                 <option value="{{ $item['material_code'] }}">{{ $item['material_name']

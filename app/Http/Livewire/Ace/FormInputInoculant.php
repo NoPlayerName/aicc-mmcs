@@ -137,6 +137,7 @@ class FormInputInoculant extends Component
             $this->dispatch('resetProduct');
             $this->dispatch('resetFurnace');
             $this->dispatch('savedInoculant');
+            $this->dispatch('loadInoculant');
         } else {
             $this->dispatch('error', message: 'Data inoculant gagal disimpan');
         }

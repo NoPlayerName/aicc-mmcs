@@ -1,5 +1,5 @@
 <div wire:ignore.self class="modal fade" id="modal-inoculant-input" tabindex="-1" role="dialog"
-    aria-labelledby="modal-inoculant-input-label" aria-hidden="true">
+    aria-labelledby="modal-inoculant-input-label" aria-hidden="true" wire:key="modal-inoculant-input">
     <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width: 95vw;">
         <div class="modal-content shadow-lg border-0">
 

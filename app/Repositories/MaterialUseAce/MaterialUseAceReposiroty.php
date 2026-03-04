@@ -268,15 +268,44 @@ class MaterialUseAceReposiroty implements MaterialUseAceReposirotyInterface
         }
     }
 
+    public function updateLadleTransfer($id, $ladleHead, $ladleMat)
+    {
+        DB::beginTransaction();
+        try {
+            LadleTfHead::where('id', $id)->update($ladleHead);
+
+            Inoculant::where('leadle_head_id', $id)->delete();
+            if (!empty($ladleMat)) {
+                Inoculant::insert($ladleMat);
+            }
+
+            DB::commit();
+            return [
+                'status' => true,
+            ];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Update ladle transfer fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return [
+                'status' => false,
+            ];
+        }
+    }
+
     public function getLadleTransfer($date, $shift)
     {
-        $data = LadleTfHead::with(['product', 'furnace', 'inoculant.materialable'])
+        // dd($date, $shift);
+
+        $data = LadleTfHead::with(['product', 'furnace', 'inoculants.materialable'])
             ->whereHas('furnace', function ($query) use ($date, $shift) {
                 $query->where('date', $date)->where('shift', $shift);
             })
             ->get()
             ->map(function ($item) {
-                $inoculants = $item->inoculant ?? collect();
+                $inoculants = $item->inoculants ?? collect();
                 $inoculants->map(function ($inoculant) {
                     $inoculant->material_name = $inoculant->materialable?->material_name ?? $inoculant->material_id ?? '-';
                     return $inoculant;
@@ -285,5 +314,17 @@ class MaterialUseAceReposiroty implements MaterialUseAceReposirotyInterface
                 return $item;
             });
         return $data;
+
+
+        // $query = FurnaceHeadAce::with(['ladleTfHead.inoculants.materialable', 'ladleTfHead.product'])->where('date', $date)->where('shift', $shift)->get()->map(function ($item) {
+        //     $inoculants = $item->inoculants ?? collect();
+        //     $inoculants->map(function ($inoculant) {
+        //         $inoculant->material_name = $inoculant->materialable?->material_name ?? $inoculant->material_id ?? '-';
+        //         return $inoculant;
+        //     });
+
+        //     return $item;
+        // });;
+        // return $query;
     }
 }

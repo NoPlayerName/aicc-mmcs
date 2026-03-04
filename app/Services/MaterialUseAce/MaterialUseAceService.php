@@ -159,6 +159,18 @@ class MaterialUseAceService
         }
     }
 
+    public function updateLadleTransfer($id, $data)
+    {
+        $ladleMat = array_map(function ($item) use ($id) {
+            unset($item['id']);
+            unset($item['material_name']);
+            $item['leadle_head_id'] = $id;
+            return $item;
+        }, $data['ladleMat']);
+
+        return $this->repository->updateLadleTransfer($id, $data['ladlehead'], $ladleMat);
+    }
+
     public function getLadleTransfer($date = null, $shiftParam = null)
     {
 

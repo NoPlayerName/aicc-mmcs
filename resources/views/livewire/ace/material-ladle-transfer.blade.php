@@ -45,8 +45,9 @@
                         <div class="form-group mb-0">
                             <label class="font-weight-bold"><i class="mdi mdi-calendar mr-1"></i>Select
                                 Date</label>
-                            <input type="text" class="form-control form-control-md" data-provide="datepicker"
-                                data-date-format="dd/mm/yyyy" data-date-autoclose="true" placeholder="Choose Date">
+                            <input type="text" id="ladle-transfer-date" class="form-control form-control-md"
+                                data-provide="datepicker" data-date-format="dd/mm/yyyy" data-date-autoclose="true"
+                                placeholder="Choose Date">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -86,8 +87,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($data as $index => $item)
-                                    <tr wire:key="item-{{ $index }}">
+                                    @forelse ($dataLadle as $index => $item)
+                                    <tr wire:key="ladle-row-{{ $item->id }}">
                                         <th class="px-4">
                                             <span class="avatar-xs d-inline-block mr-2">
                                                 <span
@@ -100,12 +101,11 @@
                                         <td class="font-weight-medium">{{ $item->product?->name ?? '-' }}</td>
                                         <td class="text-right px-4">
                                             <div class="btn-group-action">
-                                                <button class="btn btn-info btn-sm waves-effect"
-                                                    wire:click="editShow('${data}')">
+                                                <button type="button" class="btn btn-info btn-sm waves-effect">
                                                     <i class="fas fa-eye" data-toggle="tooltip" title="View"></i>
                                                 </button>
                                                 <button class="btn btn-warning btn-sm waves-effect"
-                                                    wire:click="editShow('${data}')">
+                                                    wire:click="showFormEdit({{ $item->id }})">
                                                     <i class="fas fa-edit" data-toggle="tooltip" title="Edit"></i>
                                                 </button>
                                             </div>
@@ -113,7 +113,7 @@
                                     </tr>
 
                                     @empty
-                                    <tr wire:key="empty" class="bg-light">
+                                    <tr wire:key="empty-row" class="bg-light">
                                         <td colspan="4" class="text-center text-muted py-4">
                                             <i class="mdi mdi-database-off mdi-48px"></i>
                                             <p class="mb-0 mt-2">No data available for the selected date and shift.</p>
@@ -131,13 +131,30 @@
     </div>
 
     {{-- form modal --}}
-    @livewire('ace.form-input-inoculant')
 </div>
+<livewire:ace.form-input-inoculant :key="'ace-form-input-inoculant'" />
+<livewire:ace.form-edit-inoculant :key="'ace-form-edit-inoculant'" />
 
 @push('scripts')
 <script>
+    window.__aceEditInoculantSync = window.__aceEditInoculantSync || { furnace: null, product: null };
+
+    function applyEditInoculantSync() {
+        const sync = window.__aceEditInoculantSync || {};
+
+        const $furnace = $('#selectFurnaceEdit');
+        if ($furnace.length) {
+            $furnace.val(sync.furnace ?? '').trigger('change');
+        }
+
+        const $product = $('#product-select2-edit');
+        if ($product.length) {
+            $product.val(sync.product ?? '').trigger('change');
+        }
+    }
+
     function initDatepicker() {
-        $('[data-provide="datepicker"]').datepicker({
+        $('#ladle-transfer-date').datepicker({
             format: "dd/mm/yyyy",
             autoclose: true
         }).off('changeDate.aceMaterialInput').on('changeDate.aceMaterialInput', function (e) {
@@ -169,7 +186,7 @@
             minimumResultsForSearch: Infinity
         }, 'Shift', ($el) => ({
             data: $el.val(),
-             date: $('[data-provide="datepicker"]').val() || null
+             date: $('#ladle-transfer-date').val() || null
         }));
          initSelect2WithDispatch('#selectFurnace', {
             minimumResultsForSearch: Infinity
@@ -180,6 +197,14 @@
           initSelect2WithDispatch('#material', {
             minimumResultsForSearch: 0
         }, 'materialSelect', ($el) => ({
+            data: $el.val(),
+            name: $el.find('option:selected').text()
+        }));
+
+        initSelect2WithDispatch('#material-edit', {
+            minimumResultsForSearch: 0,
+            dropdownParent: $('#modal-inoculant-edit'),
+        }, 'materialSelectEdit', ($el) => ({
             data: $el.val(),
             name: $el.find('option:selected').text()
         }));
@@ -200,6 +225,23 @@
             minimumResultsForSearch: 0,
         }, 'productSelect', ($el) => ({
             productId: $el.val() ? Number($el.val()) : null,
+        }));
+
+        initSelect2WithDispatch('#product-select2-edit', {
+            width: '100%',
+            placeholder: 'Choose Product...',
+            allowClear: true,
+            dropdownParent: $('#modal-inoculant-edit'),
+            minimumResultsForSearch: 0,
+        }, 'productSelectEdit', ($el) => ({
+            productId: $el.val() ? Number($el.val()) : null,
+        }));
+
+        initSelect2WithDispatch('#selectFurnaceEdit', {
+            minimumResultsForSearch: Infinity,
+            dropdownParent: $('#modal-inoculant-edit'),
+        }, 'selectFurnaceEdit', ($el) => ({
+            furnace: $el.val(),
         }));
     }
 
@@ -223,6 +265,28 @@
                     window.__aceInoculantTrigger.trigger('focus');
                 }
             });
+
+        $('#modal-inoculant-edit')
+            .off('shown.bs.modal.aceMaterialInput hide.bs.modal.aceMaterialInput hidden.bs.modal.aceMaterialInput')
+            .on('shown.bs.modal.aceMaterialInput', function () {
+                initSelectLadleTf();
+                applyEditInoculantSync();
+            })
+            .on('hide.bs.modal.aceMaterialInput', function () {
+                const activeElement = document.activeElement;
+                if (activeElement && this.contains(activeElement)) {
+                    activeElement.blur();
+                }
+            })
+            .on('hidden.bs.modal.aceMaterialInput', function () {
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css('padding-right', '');
+
+                if (window.__aceRefreshAfterEditSave) {
+                    window.__aceRefreshAfterEditSave = false;
+                    Livewire.dispatch('refreshLadleTransfer');
+                }
+            });
             
            
 
@@ -230,19 +294,32 @@
             window.__aceMaterialInputLivewireBound = true;
             
              Livewire.on('showFormEdit', () => {
-                window.__aceInoculantTrigger = $('#btn-add-inoculant');
-                $('#modal-inoculant-input').modal('show');
+                // window.__aceInoculantTrigger = $('#btn-add-inoculant');
+                $('#modal-inoculant-edit').modal('show');
+            });
+
+            Livewire.on('syncEditInoculantSelect', ({ furnace, product }) => {
+                window.__aceEditInoculantSync = {
+                    furnace: furnace ?? null,
+                    product: product ?? null,
+                };
+                applyEditInoculantSync();
             });
             Livewire.on('savedInoculant', () => {
                             $('#modal-inoculant-input').modal('hide');
+                            $('#modal-inoculant-edit').modal('hide');
                         });
-            Livewire.on('showFormInput', () => {
-                window.__aceInoculantTrigger = $('#btn-add-inoculant');
-                $('#modal-inoculant-input').modal('show');
-                setTimeout(() => {
-                    initSelectLadleTf();
-                }, 100);
+
+            Livewire.on('refreshLadleTransferClient', () => {
+                window.__aceRefreshAfterEditSave = true;
             });
+            // Livewire.on('showFormInput', () => {
+            //     window.__aceInoculantTrigger = $('#btn-add-inoculant');
+            //     $('#modal-inoculant-input').modal('show');
+            //     setTimeout(() => {
+            //         initSelectLadleTf();
+            //     }, 100);
+            // });
 
              Livewire.on('showFormInoculant', () => {
             window.__aceInoculantTrigger = $('#btn-add-inoculant');
@@ -273,6 +350,16 @@
 
             Livewire.on('resetMaterialSelect', () => {
                 const $material = $('#material');
+                if (!$material.length) return;
+
+                if ($material.hasClass('select2-hidden-accessible')) {
+                    $material.val('').trigger('change');
+                    return;
+                }
+                $material.val('');
+            });
+            Livewire.on('resetMaterialSelectUpdate', () => {
+                const $material = $('#material-edit');
                 if (!$material.length) return;
 
                 if ($material.hasClass('select2-hidden-accessible')) {

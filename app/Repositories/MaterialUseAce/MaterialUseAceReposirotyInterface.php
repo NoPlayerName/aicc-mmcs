@@ -22,5 +22,6 @@ interface MaterialUseAceReposirotyInterface
     public function updateTemptTapping($data);
     public function saveLadle($data);
     public function saveLadleMat($data);
+    public function updateLadleTransfer($id, $ladleHead, $ladleMat);
     public function getLadleTransfer($date, $shift);
 }
