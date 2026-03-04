@@ -101,7 +101,8 @@
                                         <td class="font-weight-medium">{{ $item->product?->name ?? '-' }}</td>
                                         <td class="text-right px-4">
                                             <div class="btn-group-action">
-                                                <button type="button" class="btn btn-info btn-sm waves-effect">
+                                                <button type="button" class="btn btn-info btn-sm waves-effect"
+                                                    wire:click="showFormDetail({{ $item->id }})">
                                                     <i class="fas fa-eye" data-toggle="tooltip" title="View"></i>
                                                 </button>
                                                 <button class="btn btn-warning btn-sm waves-effect"
@@ -134,6 +135,7 @@
 </div>
 <livewire:ace.form-input-inoculant :key="'ace-form-input-inoculant'" />
 <livewire:ace.form-edit-inoculant :key="'ace-form-edit-inoculant'" />
+<livewire:ace.ladle-transfer-detail :key="'ace-ladle-transfer-detail'" />
 
 @push('scripts')
 <script>
@@ -309,6 +311,10 @@
                             $('#modal-inoculant-input').modal('hide');
                             $('#modal-inoculant-edit').modal('hide');
                         });
+
+            Livewire.on('showLadleTransferDetailModal', () => {
+                $('#modal-ladle-transfer-detail').modal('show');
+            });
 
             Livewire.on('refreshLadleTransferClient', () => {
                 window.__aceRefreshAfterEditSave = true;

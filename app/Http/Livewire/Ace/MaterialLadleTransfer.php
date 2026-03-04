@@ -65,6 +65,12 @@ class MaterialLadleTransfer extends BaseLivewireComponent
         $this->dispatch('showFormEdit', id: (int) $id);
     }
 
+    #[Renderless]
+    public function showFormDetail($id)
+    {
+        $this->dispatch('showLadleTransferDetail', id: (int) $id);
+    }
+
     #[On('loadInoculant')]
     public function loadData()
     {
