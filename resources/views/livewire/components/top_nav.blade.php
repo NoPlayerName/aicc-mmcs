@@ -63,9 +63,10 @@
                             <i class="ri-file-chart-line mr-2"></i>ACE Report <div class="arrow-down"></div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="topnav-layout">
-                            <a href="#report/asakai-finishing" class="dropdown-item">Melting Report JSH</a>
-                            <a href="#report/asakai-finishing" class="dropdown-item">Melting Report ACE</a>
-                            <a href="#report/asakai-finishing" class="dropdown-item">Ladle Transfer Report</a>
+                            <a href="{{ route('ace.report.total-furnace-report') }}" class="dropdown-item">All
+                                Furnace</a>
+                            <a href="{{ route('ace.report.furnace-report') }}" class="dropdown-item">Furnace</a>
+                            <a href="{{ route('ace.report.product-report') }}" class="dropdown-item">Product</a>
                         </div>
                     </li>
 

@@ -28,8 +28,10 @@ Route::middleware('auth:web')->group(function () {
     Route::prefix('ace')->name('ace.')->group(function () {
         Route::get('/material-input', AceMaterialInput::class)->name('material-input-ace.index');
         Route::get('/ladle-transfer', MaterialLadleTransfer::class)->name('ladle-transfer.index');
-        Route::prefix('report')->group(function () {
-            Route::get('/total-furnace',);
+        Route::prefix('report')->name('report.')->group(function () {
+            Route::get('/total-furnace',)->name('total-furnace-report');;
+            Route::get('/furnace-report',)->name('furnace-report');;
+            Route::get('/product-report',)->name('product-report');;
         });
     });
     // });

@@ -229,9 +229,9 @@
                                             <tr>
                                                 <td colspan="4" class="text-center py-4 text-muted small italic">
                                                     <i class="fas fa-info-circle fa-4x text-muted mb-3 d-block"></i>
-                                                    <h5 class="text-dark font-weight-bold">Data Tidak ditemukan</h5>
-                                                    <p class="text-muted">Silahkan periksa filter tanggal atau shift
-                                                        Anda.</p>
+                                                    <h5 class="text-dark font-weight-bold">No charging data recorded for
+                                                        this furnace.</h5>
+
                                                 </td>
                                             </tr>
                                             @endforelse
@@ -246,9 +246,9 @@
                 <div class="card shadow-sm border-dashed">
                     <div class="card-body text-center py-5">
                         <div class="avatar-lg mx-auto mb-4">
-                            <span class="avatar-title bg-soft-primary rounded-circle text-primary font-size-24">
-                                <i class="mdi mdi-database-off"></i>
-                            </span>
+
+                            <i class="fas fa-info-circle fa-4x text-muted mb-3 d-block"></i>
+
                         </div>
                         <h5 class="text-dark">Data Tidak Ditemukan</h5>
                         <p class="text-muted mx-auto w-50">Silahkan pilih tanggal dan shift lain atau tambahkan furnace
