@@ -54,7 +54,7 @@
                         <div class="form-group mb-0">
                             <label class="font-weight-bold"><i class="mdi mdi-clock-outline mr-1"></i>Select
                                 Shift</label>
-                            <select class="form-control form-control-md select2-search-disable" id="shift">
+                            <select class="form-control form-control-md" id="ace-ladle-shift">
                                 <option value="">Select</option>
                                 <option value="D">D </option>
                                 <option value="S">S </option>
@@ -141,6 +141,35 @@
 <script>
     window.__aceEditInoculantSync = window.__aceEditInoculantSync || { furnace: null, product: null };
 
+    function cleanupLadleSelect2ById(id) {
+        if (!id) return;
+
+        const $el = $(`#${id}`);
+        if ($el.length && $el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
+            $el.select2('destroy');
+        }
+
+        $el.next('.select2-container').remove();
+        $(`#select2-${id}-container`).closest('.select2-container').remove();
+        $(`[aria-labelledby="select2-${id}-container"]`).closest('.select2-container').remove();
+    }
+
+    function cleanupLadleSelect2Artifacts() {
+        [
+            'ace-ladle-shift',
+            'selectFurnace',
+            'material',
+            'material-edit',
+            'Type-Adjust-select2',
+            'Type-Tapping-select2',
+            'product-select2',
+            'product-select2-edit',
+            'selectFurnaceEdit',
+            'rawMat-select2',
+            'Additive-select2'
+        ].forEach(cleanupLadleSelect2ById);
+    }
+
     function applyEditInoculantSync() {
         const sync = window.__aceEditInoculantSync || {};
 
@@ -161,16 +190,26 @@
             autoclose: true
         }).off('changeDate.aceMaterialInput').on('changeDate.aceMaterialInput', function (e) {
             let selectedDate = e.format();
-            Livewire.dispatch('Date', { data: selectedDate, shift: $('#shift').val() || null });
+            Livewire.dispatch('Date', { data: selectedDate, shift: $('#ace-ladle-shift').val() || null });
         });
     }
-      function initSelect2WithDispatch(selector, options, eventName, payloadBuilder) {
-        const $el = $(selector);
+      function initSelect2WithDispatch(selector, options, eventName, payloadBuilder, rootSelector = null) {
+        const $root = rootSelector ? $(rootSelector) : $(document);
+        const $el = $root.find(selector).first();
         if (!$el.length) return;
 
         const select2Options = { ...(options || {}) };
         if (select2Options.dropdownParent && !select2Options.dropdownParent.length) {
             delete select2Options.dropdownParent;
+        }
+
+        const elementId = $el.attr('id');
+        if (elementId) {
+            $(`.select2-container:has([id="select2-${elementId}-container"])`).remove();
+        }
+
+        if (!$el.hasClass('select2-hidden-accessible')) {
+            $el.next('.select2-container').remove();
         }
 
         if ($el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
@@ -184,7 +223,7 @@
             });
     }
     function initSelectLadleTf() {
-        initSelect2WithDispatch('#shift', {
+        initSelect2WithDispatch('#ace-ladle-shift', {
             minimumResultsForSearch: Infinity
         }, 'Shift', ($el) => ({
             data: $el.val(),
@@ -195,13 +234,13 @@
         }, 'selectFurnace', ($el) => ({
             furnace: $el.val(),
             // name: $el.find('option:selected').text()
-        }));
+        }), '#modal-inoculant-input');
           initSelect2WithDispatch('#material', {
             minimumResultsForSearch: 0
         }, 'materialSelect', ($el) => ({
             data: $el.val(),
             name: $el.find('option:selected').text()
-        }));
+        }), '#modal-inoculant-input');
 
         initSelect2WithDispatch('#material-edit', {
             minimumResultsForSearch: 0,
@@ -209,15 +248,15 @@
         }, 'materialSelectEdit', ($el) => ({
             data: $el.val(),
             name: $el.find('option:selected').text()
-        }));
+        }), '#modal-inoculant-edit');
         
         initSelect2WithDispatch('#Type-Adjust-select2', {}, 'typeAddjust', ($el) => ({
             data: $el.val()
-        }));
+        }), '#modal-inoculant-input');
 
          initSelect2WithDispatch('#Type-Tapping-select2', {}, 'typeTapping', ($el) => ({
             data: $el.val()
-        }));
+        }), '#modal-inoculant-input');
 
         initSelect2WithDispatch('#product-select2', {
             width: '100%',
@@ -227,7 +266,7 @@
             minimumResultsForSearch: 0,
         }, 'productSelect', ($el) => ({
             productId: $el.val() ? Number($el.val()) : null,
-        }));
+        }), '#modal-inoculant-input');
 
         initSelect2WithDispatch('#product-select2-edit', {
             width: '100%',
@@ -237,17 +276,18 @@
             minimumResultsForSearch: 0,
         }, 'productSelectEdit', ($el) => ({
             productId: $el.val() ? Number($el.val()) : null,
-        }));
+        }), '#modal-inoculant-edit');
 
         initSelect2WithDispatch('#selectFurnaceEdit', {
             minimumResultsForSearch: Infinity,
             dropdownParent: $('#modal-inoculant-edit'),
         }, 'selectFurnaceEdit', ($el) => ({
             furnace: $el.val(),
-        }));
+        }), '#modal-inoculant-edit');
     }
 
     function bindAceMaterialLadleTransferHandlers() {
+        cleanupLadleSelect2Artifacts();
         initDatepicker();
         initSelectLadleTf();
 
@@ -370,7 +410,7 @@
             });
 
             Livewire.on('resetMaterialSelect', () => {
-                const $material = $('#material');
+                const $material = $('#modal-inoculant-input').find('#material').first();
                 if (!$material.length) return;
 
                 if ($material.hasClass('select2-hidden-accessible')) {
@@ -380,7 +420,7 @@
                 $material.val('');
             });
             Livewire.on('resetMaterialSelectUpdate', () => {
-                const $material = $('#material-edit');
+                const $material = $('#modal-inoculant-edit').find('#material-edit').first();
                 if (!$material.length) return;
 
                 if ($material.hasClass('select2-hidden-accessible')) {
@@ -390,7 +430,7 @@
                 $material.val('');
             });
             Livewire.on('resetFurnace', () => {
-                const $material = $('#selectFurnace');
+                const $material = $('#modal-inoculant-input').find('#selectFurnace').first();
                 if (!$material.length) return;
 
                 if ($material.hasClass('select2-hidden-accessible')) {
@@ -400,7 +440,7 @@
                 $material.val('');
             });
             Livewire.on('resetProduct', () => {
-                const $material = $('#product-select2');
+                const $material = $('#modal-inoculant-input').find('#product-select2').first();
                 if (!$material.length) return;
 
                 if ($material.hasClass('select2-hidden-accessible')) {
@@ -412,15 +452,29 @@
         }
     }
 
-    // Penanganan modal agar lebih stabil saat navigasi
-    $(document).ready(function () {
+    function enterAceMaterialLadleTransferPage() {
+        const pageKey = `${window.location.pathname}${window.location.search}`;
+        if (window.__aceMaterialLadleTransferInitKey === pageKey) {
+            return;
+        }
+
+        window.__aceMaterialLadleTransferInitKey = pageKey;
         bindAceMaterialLadleTransferHandlers();
-    });
+    }
+
+    $(document)
+        .off('livewire:navigating.aceMaterialLadleTransferPage')
+        .on('livewire:navigating.aceMaterialLadleTransferPage', function () {
+            window.__aceMaterialLadleTransferInitKey = null;
+            cleanupLadleSelect2Artifacts();
+        });
 
     $(document)
         .off('livewire:navigated.aceMaterialLadleTransferPage')
         .on('livewire:navigated.aceMaterialLadleTransferPage', function () {
-            bindAceMaterialLadleTransferHandlers();
+            enterAceMaterialLadleTransferPage();
         });
+
+    enterAceMaterialLadleTransferPage();
 </script>
 @endpush

@@ -100,12 +100,14 @@
                                 <div class="form-group mb-0">
                                     <label class="font-weight-bold"><i class="mdi mdi-clock-outline mr-1"></i>Select
                                         Shift</label>
-                                    <select class="form-control form-control-lg select2-search-disable" id="shift">
-                                        <option value="">Select</option>
-                                        <option value="D">D </option>
-                                        <option value="S">S </option>
-                                        <option value="N">N </option>
-                                    </select>
+                                    <div wire:ignore>
+                                        <select class="form-control form-control-lg" id="ace-material-shift">
+                                            <option value="">Select</option>
+                                            <option value="D">D </option>
+                                            <option value="S">S </option>
+                                            <option value="N">N </option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6 text-md-right">
@@ -266,25 +268,57 @@
 </div>
 @push('scripts')
 <script>
+    function cleanupSelect2ById(id) {
+        if (!id) return;
+
+        const $el = $(`#${id}`);
+        if ($el.length && $el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
+            $el.select2('destroy');
+        }
+
+        $el.next('.select2-container').remove();
+        $(`#select2-${id}-container`).closest('.select2-container').remove();
+        $(`[aria-labelledby="select2-${id}-container"]`).closest('.select2-container').remove();
+    }
+
+    function cleanupAceSelect2Artifacts() {
+        [
+            'ace-material-shift',
+            'rawMat-select2',
+            'Additive-select2',
+            'Type-Adjust-select2',
+            'Type-Tapping-select2',
+            'selectLotMultiple',
+            'product-select2'
+        ].forEach(cleanupSelect2ById);
+    }
+
     function initAceDatepicker() {
         $('[data-provide="datepicker"]').datepicker({
             format: "dd/mm/yyyy",
             autoclose: true
         }).off('changeDate.aceMaterialInput').on('changeDate.aceMaterialInput', function (e) {
             let selectedDate = e.format();
-            Livewire.dispatch('Date', { data: selectedDate, shift: $('#shift').val() || null });
+            Livewire.dispatch('Date', { data: selectedDate, shift: $('#ace-material-shift').val() || null });
         });
     }
 
-    function initSelect2WithDispatch(selector, options, eventName, payloadBuilder) {
-        const $el = $(selector);
+    function initSelect2WithDispatch(selector, options, eventName, payloadBuilder, rootSelector = null) {
+        const $root = rootSelector ? $(rootSelector) : $(document);
+        const $el = $root.find(selector).first();
         if (!$el.length) return;
 
-        if ($el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
-            $el.select2('destroy');
+        const select2Options = { ...(options || {}) };
+        if (select2Options.dropdownParent && !select2Options.dropdownParent.length) {
+            delete select2Options.dropdownParent;
         }
 
-        $el.select2(options)
+        const elementId = $el.attr('id');
+        if (elementId) {
+            cleanupSelect2ById(elementId);
+        }
+
+        $el.select2(select2Options)
             .off('change.aceMaterialInput')
             .on('change.aceMaterialInput', function () {
                 Livewire.dispatch(eventName, payloadBuilder($(this)));
@@ -292,7 +326,7 @@
     }
 
     function initAceSelect() {
-        initSelect2WithDispatch('#shift', {
+        initSelect2WithDispatch('#ace-material-shift', {
             minimumResultsForSearch: Infinity
         }, 'Shift', ($el) => ({
             data: $el.val(),
@@ -303,21 +337,21 @@
         }, 'rawMat', ($el) => ({
             rawMat: $el.val(),
             name: $el.find('option:selected').text()
-        }));
+        }), '#modal-material-input');
           initSelect2WithDispatch('#Additive-select2', {
             minimumResultsForSearch: 0
         }, 'additMat', ($el) => ({
             data: $el.val(),
             name: $el.find('option:selected').text()
-        }));
+        }), '#modal-material-input');
         
         initSelect2WithDispatch('#Type-Adjust-select2', {}, 'typeAddjust', ($el) => ({
             data: $el.val()
-        }));
+        }), '#modal-material-input');
 
          initSelect2WithDispatch('#Type-Tapping-select2', {}, 'typeTapping', ($el) => ({
             data: $el.val()
-        }));
+        }), '#modal-material-input');
 
          initSelect2WithDispatch('#selectLotMultiple', {
             width: '100%',
@@ -326,9 +360,9 @@
             dropdownParent: $('#modal-material-input'),
             maximumSelectionLength: 3,
         }, 'lotSelection', ($el) => ({
-            productId: $('#product-select2').val() ? Number($('#product-select2').val()) : null,
+            productId: $('#modal-material-input').find('#product-select2').val() ? Number($('#modal-material-input').find('#product-select2').val()) : null,
             lotIds: ($el.val() || []).map(v => Number(v))
-        }));
+        }), '#modal-material-input');
         initSelect2WithDispatch('#product-select2', {
             width: '100%',
             placeholder: 'Choose Product...',
@@ -337,11 +371,12 @@
             minimumResultsForSearch: 0,
         }, 'productSelect', ($el) => ({
             productId: $el.val() ? Number($el.val()) : null,
-            lotIds: ($('#selectLotMultiple').val() || []).map(v => Number(v))
-        }));
+            lotIds: ($('#modal-material-input').find('#selectLotMultiple').val() || []).map(v => Number(v))
+        }), '#modal-material-input');
     }
 
     function bindAceMaterialInputPageHandlers() {
+        cleanupAceSelect2Artifacts();
         initAceDatepicker();
         initAceSelect();
 
@@ -387,9 +422,6 @@
             Livewire.on('showFormInput', () => {
                 window.__aceMaterialInputTrigger = $(document.activeElement);
                 $('#modal-material-input').modal('show');
-                setTimeout(() => {
-                    initAceSelect();
-                }, 100);
             });
              Livewire.on('showDetailCharge', () => {
                 window.__aceMaterialInputTrigger = $(document.activeElement);
@@ -403,7 +435,7 @@
                     }, 'rawMat', ($el) => ({
                         rawMat: $el.val(),
                         name: $el.find('option:selected').text()
-                    }));
+                    }), '#modal-material-input');
                 }, 100);
             });
 
@@ -414,20 +446,35 @@
                     }, 'additMat', ($el) => ({
                         data: $el.val(),
                         name: $el.find('option:selected').text()
-                    }));
+                    }), '#modal-material-input');
                 }, 100);
             });
         }
     }
 
-    $(document).ready(function () {
+    function enterAceMaterialInputPage() {
+        const pageKey = `${window.location.pathname}${window.location.search}`;
+        if (window.__aceMaterialInputInitKey === pageKey) {
+            return;
+        }
+
+        window.__aceMaterialInputInitKey = pageKey;
         bindAceMaterialInputPageHandlers();
-    });
+    }
+
+    $(document)
+        .off('livewire:navigating.aceMaterialInputPage')
+        .on('livewire:navigating.aceMaterialInputPage', function () {
+            window.__aceMaterialInputInitKey = null;
+            cleanupAceSelect2Artifacts();
+        });
 
     $(document)
         .off('livewire:navigated.aceMaterialInputPage')
         .on('livewire:navigated.aceMaterialInputPage', function () {
-            bindAceMaterialInputPageHandlers();
+            enterAceMaterialInputPage();
         });
+
+    enterAceMaterialInputPage();
 </script>
 @endpush

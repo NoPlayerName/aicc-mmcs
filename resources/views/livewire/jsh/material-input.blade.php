@@ -99,12 +99,14 @@
                         <div class="form-group mb-0">
                             <label class="font-weight-bold"><i class="mdi mdi-clock-outline mr-1"></i>Select
                                 Shift</label>
-                            <select class="form-control form-control-lg select2-search-disable" id="shift">
-                                <option value="">Select</option>
-                                <option value="D">D </option>
-                                <option value="S">S </option>
-                                <option value="N">N </option>
-                            </select>
+                            <div wire:ignore>
+                                <select class="form-control form-control-lg" id="jsh-material-shift">
+                                    <option value="">Select</option>
+                                    <option value="D">D </option>
+                                    <option value="S">S </option>
+                                    <option value="N">N </option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -219,6 +221,29 @@
 </div>
 @push('scripts')
 <script>
+    function cleanupSelect2ById(id) {
+        if (!id) return;
+
+        const $el = $(`#${id}`);
+        if ($el.length && $el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
+            $el.select2('destroy');
+        }
+
+        $el.next('.select2-container').remove();
+        $(`#select2-${id}-container`).closest('.select2-container').remove();
+        $(`[aria-labelledby="select2-${id}-container"]`).closest('.select2-container').remove();
+    }
+
+    function cleanupJshSelect2Artifacts() {
+        [
+            'jsh-material-shift',
+            'rawMat-select2',
+            'Additive-select2',
+            'Type-Adjust-select2',
+            'Type-Tapping-select2'
+        ].forEach(cleanupSelect2ById);
+    }
+
     function initJshDatepicker() {
         $('[data-provide="datepicker"]').datepicker({
             format: "dd/mm/yyyy",
@@ -233,11 +258,17 @@
         const $el = $(selector);
         if (!$el.length) return;
 
-        if ($el.hasClass('select2-hidden-accessible') && $el.data('select2')) {
-            $el.select2('destroy');
+        const select2Options = { ...(options || {}) };
+        if (select2Options.dropdownParent && !select2Options.dropdownParent.length) {
+            delete select2Options.dropdownParent;
         }
 
-        $el.select2(options)
+        const elementId = $el.attr('id');
+        if (elementId) {
+            cleanupSelect2ById(elementId);
+        }
+
+        $el.select2(select2Options)
             .off('change.jshMaterialInput')
             .on('change.jshMaterialInput', function () {
                 Livewire.dispatch(eventName, payloadBuilder($(this)));
@@ -245,7 +276,7 @@
     }
 
     function initJshSelects() {
-        initSelect2WithDispatch('#shift', {
+        initSelect2WithDispatch('#jsh-material-shift', {
             minimumResultsForSearch: Infinity
         }, 'Shift', ($el) => ({
             data: $el.val()
@@ -275,6 +306,7 @@
     }
 
     function bindJshMaterialInputHandlers() {
+        cleanupJshSelect2Artifacts();
         initJshDatepicker();
         initJshSelects();
 
@@ -321,12 +353,29 @@
         }
     }
 
-    $(document).ready(function () {
-        bindJshMaterialInputHandlers();
-    });
+    function enterJshMaterialInputPage() {
+        const pageKey = `${window.location.pathname}${window.location.search}`;
+        if (window.__jshMaterialInputInitKey === pageKey) {
+            return;
+        }
 
-    $(document).on('livewire:navigated', function () {
+        window.__jshMaterialInputInitKey = pageKey;
         bindJshMaterialInputHandlers();
-    });
+    }
+
+    $(document)
+        .off('livewire:navigating.jshMaterialInput')
+        .on('livewire:navigating.jshMaterialInput', function () {
+            window.__jshMaterialInputInitKey = null;
+            cleanupJshSelect2Artifacts();
+        });
+
+    $(document)
+        .off('livewire:navigated.jshMaterialInput')
+        .on('livewire:navigated.jshMaterialInput', function () {
+            enterJshMaterialInputPage();
+        });
+
+    enterJshMaterialInputPage();
 </script>
 @endpush
