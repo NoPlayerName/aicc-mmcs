@@ -16,6 +16,8 @@ use App\Repositories\PlanProductionAce\PlanProdRepositoryAce;
 use App\Repositories\PlanProductionAce\PlanProdRepositoryAceInterface;
 use App\Repositories\PlanProductionJsh\PlanProdRepository;
 use App\Repositories\PlanProductionJsh\PlanProdRepositoryInterface;
+use App\Repositories\Report\Ace\AceReportRepository;
+use App\Repositories\Report\Ace\AceReportRepositoryInterface;
 use App\Repositories\Report\Jsh\JshReportRepository;
 use App\Repositories\Report\Jsh\JshReportRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
             MaterialUseJshRepositoryInterface::class => MaterialUseJshRepository::class,
             MaterialRepositoryInterface::class => MaterialRepository::class,
             JshReportRepositoryInterface::class => JshReportRepository::class,
+            AceReportRepositoryInterface::class => AceReportRepository::class,
             ModelRepositoryInterface::class => ModelRepository::class,
             PlanProdRepositoryAceInterface::class => PlanProdRepositoryAce::class,
             ProductRepositoryInterface::class => ProductRepository::class,
