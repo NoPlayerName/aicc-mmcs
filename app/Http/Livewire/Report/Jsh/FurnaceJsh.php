@@ -9,6 +9,7 @@ use App\Http\Livewire\BaseLivewireComponent;
 use App\Services\Report\JshReportService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
 use Livewire\Attributes\On;
@@ -88,13 +89,14 @@ class FurnaceJsh extends BaseLivewireComponent
             $type = ($this->activeTab === 'raw-material') ? EnumTypeMat::RawMaterial->value : EnumTypeMat::Additive->value;
 
             // 3. Ambil data material
-            $this->data = app(JshReportService::class)->reportFurnace($this->startDate, $this->endDate, $type, $this->shift, $this->furnace);
+            $materialData = app(JshReportService::class)->reportFurnace($this->startDate, $this->endDate, $type, $this->shift, $this->furnace);
+            $this->data = ($materialData instanceof Collection) ? $materialData : collect();
 
             // 4. Ambil data KWH dan Temperature Tapping (always fetch regardless of activeTab)
             $reportData = app(JshReportService::class)->reportFurnaceWithKwhTapping($this->startDate, $this->endDate, $type, $this->shift, $this->furnace);
             // dd($this->data, $reportData);
-            $this->kwhData = $reportData['kwh'];
-            $this->tappingData = $reportData['tapping'];
+            $this->kwhData = is_array($reportData) ? ($reportData['kwh'] ?? []) : [];
+            $this->tappingData = is_array($reportData) ? ($reportData['tapping'] ?? []) : [];
 
             $this->hasSearched = true;
         } catch (\Exception $e) {

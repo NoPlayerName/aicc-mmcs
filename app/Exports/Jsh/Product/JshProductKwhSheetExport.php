@@ -1,29 +1,29 @@
 <?php
 
-namespace App\Exports\Jsh\Furnace;
+namespace App\Exports\Jsh\Product;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping, WithTitle, ShouldAutoSize, WithStyles
+class JshProductKwhSheetExport implements FromCollection, WithHeadings, WithMapping, WithTitle, ShouldAutoSize, WithStyles
 {
     protected $data;
     protected $shift;
-    protected $furnace;
+    protected $product;
 
-    public function __construct($data, $shift, $furnace)
+    public function __construct($data, $shift, $product)
     {
         $this->data = $data;
         $this->shift = $shift;
-        $this->furnace = $furnace;
+        $this->product = $product;
     }
 
     public function collection()
@@ -33,22 +33,26 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
 
     public function title(): string
     {
-        return 'Temperature Tapping';
+        return 'KWH';
     }
 
     public function headings(): array
     {
+        $productName = collect($this->data)->first()['product_name'] ?? '-';
+
         return [
-            ['Shift: ' . ($this->shift ?: 'D & N')],
-            ['Furnace: ' . ($this->furnace ?: '-')],
+            ['Shift: ' . ($this->shift ?: 'D, S & N')],
+            ['Product: ' . $productName],
             [],
             [
                 'Date',
                 'Charging',
                 'Lot',
                 'Furnace',
-                'Temperature',
-                'Type Tapping',
+                'Charge Time',
+                'KWH Start Charge',
+                'KWH Ok Charge',
+                'Power',
             ],
         ];
     }
@@ -60,8 +64,10 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
             $row['charging'] ?? '-',
             $row['lot'] ?? '-',
             $row['plan_furnace'] ?? '-',
-            $row['temperatur'] ?? 0,
-            $row['type_tapping'] ?? '-',
+            $row['charge_time'] ?? '-',
+            $row['kwh_start_charge'] ?? 0,
+            $row['kwh_ok_charge'] ?? 0,
+            $row['power'] ?? 0,
         ];
     }
 
@@ -69,22 +75,15 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
     {
         $highestRow = $sheet->getHighestRow();
 
-        // Header styling
-        $sheet->getStyle('A1:F2')->applyFromArray([
+        $sheet->getStyle('A1:H2')->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
-            // 'fill' => [
-            //     'fillType' => Fill::FILL_SOLID,
-            //     'startColor' => ['rgb' => 'D3D3D3'],
-            // ],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
 
-        // Heading styling
-        $sheet->getStyle('A4:F4')->applyFromArray([
-            'font' => ['bold' => true,  'size' => 11],
+        $sheet->getStyle('A4:H4')->applyFromArray([
+            'font' => ['bold' => true, 'size' => 11],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                // 'startColor' => ['rgb' => '366092'],
             ],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
             'borders' => [
@@ -95,24 +94,15 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
             ],
         ]);
 
-        // Data borders
-        $sheet->getStyle('A5:F' . $highestRow)->applyFromArray([
+        $sheet->getStyle('A5:H' . $highestRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => 'CCCCCC'],
+                    'color' => ['rgb' => '000000'],
                 ],
             ],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
-
-        // Set column width
-        $sheet->getColumnDimension('A')->setWidth(15);
-        $sheet->getColumnDimension('B')->setWidth(20);
-        $sheet->getColumnDimension('C')->setWidth(20);
-        $sheet->getColumnDimension('D')->setWidth(20);
-        $sheet->getColumnDimension('E')->setWidth(20);
-        $sheet->getColumnDimension('F')->setWidth(20);
 
         return [];
     }

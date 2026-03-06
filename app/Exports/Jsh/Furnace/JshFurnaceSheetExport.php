@@ -48,31 +48,41 @@ class JshFurnaceSheetExport implements FromCollection, WithHeadings, WithMapping
     {
         $isAdditive = ($this->type === EnumTypeMat::Additive->value);
 
-        $row1 = ['Shift: ' . ($this->shift ?: 'D & N')];
+        $row1 = ['Shift: ' . ($this->shift ?: 'D, S & N')];
         $row2 = ['Furnace: ' . ($this->furnace ?: '-')];
-        $row3 = ['Material Name'];
-        $row4 = [''];
+        $row3 = ['Material Name', 'Charging', 'Lot'];
+        $row4 = ['', '', ''];
+
         foreach ($this->dateRange as $date) {
             $formattedDate = \Carbon\Carbon::parse($date)->format('d/m/Y');
             if ($isAdditive) {
-                // Tambah 2 kolom untuk Additive
                 $row3[] = $formattedDate;
                 $row3[] = '';
                 $row4[] = 'P.ADJ';
                 $row4[] = 'ADJ';
             } else {
-                // Tambah 1 kolom untuk Raw Material
                 $row3[] = $formattedDate;
-                $row4[] = '';
             }
         }
+
         $row3[] = 'Subtotal';
+
+        if ($isAdditive) {
+            $row4[] = '';
+            return [
+                $row1,
+                $row2,
+                [],
+                $row3,
+                $row4,
+            ];
+        }
+
         return [
             $row1,
             $row2,
             [],
             $row3,
-            $row4
         ];
     }
 
@@ -81,20 +91,19 @@ class JshFurnaceSheetExport implements FromCollection, WithHeadings, WithMapping
         $isAdditive = ($this->type === EnumTypeMat::Additive->value);
         $mapped = [
             $row->material_name,
+            $row->charging ?? '-',
+            $row->lot ?? '-',
         ];
 
         foreach ($this->dateRange as $date) {
             $dateKey = str_replace('-', '_', $date);
             if ($isAdditive) {
-                // Untuk Additive, kita harus mengirim 2 nilai (P.ADJ dan ADJ)
-                // Menggunakan alias yang sudah kita buat di Repository
                 $preAlias = 'pre_date_' . $dateKey;
                 $adjAlias = 'date_' . $dateKey;
 
-                $mapped[] = $row->$preAlias ?? 0; // Masuk ke kolom P.ADJ
-                $mapped[] = $row->$adjAlias ?? 0; // Masuk ke kolom ADJ
+                $mapped[] = $row->$preAlias ?? 0;
+                $mapped[] = $row->$adjAlias ?? 0;
             } else {
-                // Untuk Raw Material, tetap 1 nilai saja
                 $alias = 'date_' . $dateKey;
                 $mapped[] = $row->$alias ?? 0;
             }
@@ -109,31 +118,29 @@ class JshFurnaceSheetExport implements FromCollection, WithHeadings, WithMapping
         $lastCol = $sheet->getHighestColumn();
         $lastRow = $sheet->getHighestRow();
 
-        // 1. Logika Merging Dinamis untuk Additive
         if ($isAdditive) {
-            $columnIndex = 2; // Mulai dari kolom B (Material Name adalah kolom A)
+            $sheet->mergeCells('A4:A5');
+            $sheet->mergeCells('B4:B5');
+            $sheet->mergeCells('C4:C5');
+            $sheet->mergeCells("{$lastCol}4:{$lastCol}5");
+
+            $columnIndex = 4;
 
             foreach ($this->dateRange as $date) {
-                // Konversi indeks ke huruf kolom (2 -> B, 3 -> C, dst)
                 $startCol = Coordinate::stringFromColumnIndex($columnIndex);
                 $endCol = Coordinate::stringFromColumnIndex($columnIndex + 1);
-
-                // Gabungkan baris ke-3 (Tanggal) untuk dua kolom (P.ADJ & ADJ)
                 $sheet->mergeCells("{$startCol}4:{$endCol}4");
-
-                // Loncat 2 kolom untuk tanggal berikutnya
                 $columnIndex += 2;
             }
         }
 
-        // 2. Styling Header dan Tabel
         $styleArray = [
-            // Baris 1: Informasi Shift
             1 => [
                 'font' => ['bold' => true, 'size' => 12],
             ],
-            2 => ['font' => ['bold' => true, 'size' => 12]],
-            // Baris 3 & 4: Header Tabel
+            2 => [
+                'font' => ['bold' => true, 'size' => 12],
+            ],
             'A4:' . $lastCol . ($isAdditive ? '5' : '4') => [
                 'font' => ['bold' => true],
                 'alignment' => [
@@ -141,12 +148,11 @@ class JshFurnaceSheetExport implements FromCollection, WithHeadings, WithMapping
                     'vertical' => Alignment::VERTICAL_CENTER,
                 ],
                 'fill' => [
-                    'fillType' => Fill::FILL_SOLID, // Dark background seperti di web
+                    'fillType' => Fill::FILL_SOLID,
                 ],
             ],
         ];
 
-        // 3. Menambahkan Border ke seluruh data
         $sheet->getStyle("A4:{$lastCol}{$lastRow}")->applyFromArray([
             'borders' => [
                 'allBorders' => [

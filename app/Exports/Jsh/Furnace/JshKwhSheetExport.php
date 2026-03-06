@@ -44,6 +44,9 @@ class JshKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
             [],
             [
                 'Date',
+                'Charging',
+                'Lot',
+                'Furnace',
                 'Charge Time',
                 'KWH Start Charge',
                 'KWH Ok Charge',
@@ -56,6 +59,9 @@ class JshKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
     {
         return [
             \Carbon\Carbon::parse($row['date'])->format('d/m/Y'),
+            $row['charging'] ?? '-',
+            $row['lot'] ?? '-',
+            $row['plan_furnace'] ?? '-',
             $row['charge_time'] ?? '-',
             $row['kwh_start_charge'] ?? 0,
             $row['kwh_ok_charge'] ?? 0,
@@ -68,7 +74,7 @@ class JshKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
         $highestRow = $sheet->getHighestRow();
 
         // Header styling
-        $sheet->getStyle('A1:E2')->applyFromArray([
+        $sheet->getStyle('A1:H2')->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
             // 'fill' => [
             //     'fillType' => Fill::FILL_SOLID,
@@ -78,7 +84,7 @@ class JshKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
         ]);
 
         // Heading styling
-        $sheet->getStyle('A4:E4')->applyFromArray([
+        $sheet->getStyle('A4:H4')->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -94,7 +100,7 @@ class JshKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
         ]);
 
         // Data borders
-        $sheet->getStyle('A5:E' . $highestRow)->applyFromArray([
+        $sheet->getStyle('A5:H' . $highestRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -109,7 +115,10 @@ class JshKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
         $sheet->getColumnDimension('B')->setWidth(20);
         $sheet->getColumnDimension('C')->setWidth(20);
         $sheet->getColumnDimension('D')->setWidth(20);
-        $sheet->getColumnDimension('E')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(20);
+        $sheet->getColumnDimension('G')->setWidth(15);
+        $sheet->getColumnDimension('H')->setWidth(15);
 
         return [];
     }
