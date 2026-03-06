@@ -8,6 +8,7 @@ use App\Http\Livewire\Invetory\StockForm;
 use App\Http\Livewire\Invetory\StockTable;
 use App\Http\Livewire\Jsh\MaterialInput;
 use App\Http\Livewire\Report\Ace\AllFurnaceAce;
+use App\Http\Livewire\Report\Ace\FurnaceAce;
 use App\Http\Livewire\Report\Jsh\AllFurnaceJsh;
 use App\Http\Livewire\Report\Jsh\FurnaceJsh;
 use App\Http\Livewire\Report\Jsh\ProductJsh;
@@ -31,7 +32,7 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/ladle-transfer', MaterialLadleTransfer::class)->name('ladle-transfer.index');
         Route::prefix('report')->name('report.')->group(function () {
             Route::get('/total-furnace', AllFurnaceAce::class)->name('total-furnace-report');
-            Route::get('/furnace-report',)->name('furnace-report');;
+            Route::get('/furnace-report', FurnaceAce::class)->name('furnace-report');
             Route::get('/product-report',)->name('product-report');;
         });
     });
