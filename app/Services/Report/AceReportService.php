@@ -53,4 +53,36 @@ class AceReportService
         $data = $this->report->reportFurnaceWithKwhTapping($newStartDate, $newEndDate, $type, $shift, $furnace);
         return $data;
     }
+
+    public function reportProduct($startDate, $endDate, $type, $shift, $product)
+    {
+        $newStartDate = Carbon::createFromFormat('d/m/Y', $startDate)->format('Y-m-d');
+        $newEndDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
+        $data = $this->report->reportProduct($newStartDate, $newEndDate, $type, $shift, $product);
+        return $data;
+    }
+
+    public function getKwhDataByProduct($startDate, $endDate, $shift, $product)
+    {
+        $newStartDate = Carbon::createFromFormat('d/m/Y', $startDate)->format('Y-m-d');
+        $newEndDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
+        $data = $this->report->getKwhDataByProduct($newStartDate, $newEndDate, $shift, $product);
+        return $data;
+    }
+
+    public function getTappingDataByProduct($startDate, $endDate, $shift, $product)
+    {
+        $newStartDate = Carbon::createFromFormat('d/m/Y', $startDate)->format('Y-m-d');
+        $newEndDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
+        $data = $this->report->getTappingDataByProduct($newStartDate, $newEndDate, $shift, $product);
+        return $data;
+    }
+
+    public function reportProductWithKwhTapping($startDate, $endDate, $type, $shift, $product)
+    {
+        $newStartDate = Carbon::createFromFormat('d/m/Y', $startDate)->format('Y-m-d');
+        $newEndDate = Carbon::createFromFormat('d/m/Y', $endDate)->format('Y-m-d');
+        $data = $this->report->reportProductWithKwhTapping($newStartDate, $newEndDate, $type, $shift, $product);
+        return $data;
+    }
 }

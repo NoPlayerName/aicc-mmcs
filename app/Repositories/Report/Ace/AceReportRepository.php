@@ -287,4 +287,228 @@ class AceReportRepository implements AceReportRepositoryInterface
             'tapping' => $tappingData,
         ];
     }
+
+    public function reportProduct($startDate, $endDate, $type, $shift, $product)
+    {
+        try {
+            $plans = FurnaceHeadAce::with(['chargings' => function ($query) use ($product) {
+                $query->where('model_id', $product)
+                    ->with(['rawMatUse.materialable', 'additMatUse.materialable', 'product']);
+            }])->whereBetween('date', [$startDate, $endDate])
+                ->when($shift, function ($query) use ($shift) {
+                    return $query->where('shift', $shift);
+                })
+                ->get();
+
+            return $plans->flatMap(function ($plan) use ($type) {
+                return $plan->chargings->flatMap(function ($head) use ($plan, $type) {
+                    $usages = ($type === EnumTypeMat::RawMaterial->value) ? $head->rawMatUse : $head->additMatUse;
+                    return $usages->map(function ($usage) use ($plan, $head) {
+                        return [
+                            'material_id' => $usage->materialable_id,
+                            'material_name' => $usage->materialable?->material_name,
+                            'charging_id' => $head->id,
+                            'charging' => $head->charging,
+                            'lot' => $head->lot ?? '-',
+                            'product_name' => $head->product?->name ?? '-',
+                            'date' => $plan->date,
+                            'weight' => (float) $usage->weight,
+                            'type_adj' => $usage->type_additive,
+                        ];
+                    });
+                });
+            })->groupBy(fn($item) => $item['material_id'] . '|' . $item['charging_id'] . '|' . ($item['lot'] ?? '-'))
+                ->map(function ($items) use ($type) {
+                    $row = [
+                        'material_id' => $items->first()['material_id'] ?? '-',
+                        'material_name' => $items->first()['material_name'] ?? '-',
+                        'charging' => $items->first()['charging'] ?? '-',
+                        'lot' => $items->first()['lot'] ?? '-',
+                        'product_name' => $items->first()['product_name'] ?? '-',
+                    ];
+                    $total = 0;
+
+                    foreach ($items->groupBy('date') as $date => $usageGroup) {
+                        $dateKey = str_replace('-', '_', $date);
+
+                        if ($type === EnumTypeMat::Additive->value) {
+                            $preWeight = $usageGroup->where('type_adj', 1)->sum('weight');
+                            $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
+
+                            $row['pre_date_' . $dateKey] = $preWeight;
+                            $row['date_' . $dateKey] = $adjWeight;
+                        } else {
+                            $row['date_' . $dateKey] = $usageGroup->sum('weight');
+                        }
+
+                        $total += $usageGroup->sum('weight');
+                    }
+
+                    $row['subtotal'] = $total;
+                    return (object) $row;
+                })
+                ->sort(function ($a, $b) {
+                    $chargingCompare = ((int) ($a->charging ?? 0)) <=> ((int) ($b->charging ?? 0));
+                    if ($chargingCompare !== 0) {
+                        return $chargingCompare;
+                    }
+
+                    $lotCompare = strcmp((string) ($a->lot ?? ''), (string) ($b->lot ?? ''));
+                    if ($lotCompare !== 0) {
+                        return $lotCompare;
+                    }
+
+                    $materialCompare = strcmp((string) ($a->material_name ?? ''), (string) ($b->material_name ?? ''));
+                    if ($materialCompare !== 0) {
+                        return $materialCompare;
+                    }
+
+                    return 0;
+                })
+                ->values();
+        } catch (\Throwable $th) {
+            Log::error('Generate report product fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
+
+    public function getKwhDataByProduct($startDate, $endDate, $shift, $product)
+    {
+        $plans = FurnaceHeadAce::with(['chargings' => function ($query) use ($product) {
+            $query->where('model_id', $product)
+                ->with(['Kwh', 'product']);
+        }])->whereBetween('date', [$startDate, $endDate])
+            ->when($shift, function ($query) use ($shift) {
+                return $query->where('shift', $shift);
+            })
+            ->get();
+
+        $kwhList = [];
+        foreach ($plans as $plan) {
+            foreach ($plan->chargings as $head) {
+                if ($head->Kwh->isNotEmpty()) {
+                    foreach ($head->Kwh as $kwh) {
+                        $kwhList[] = [
+                            'date' => $plan->date,
+                            'plan_furnace' => $plan->furnace,
+                            'product_name' => $head->product?->name ?? '-',
+                            'charging_id' => $head->id,
+                            'charging' => $head->charging,
+                            'lot' => $head->lot ?? '-',
+                            'charge_time' => $kwh->charge_time ?? '-',
+                            'kwh_start_charge' => $kwh->kwh_start_charge ?? 0,
+                            'kwh_ok_charge' => $kwh->kwh_ok_charge ?? 0,
+                            'power' => $kwh->power ?? 0,
+                        ];
+                    }
+                } else {
+                    $kwhList[] = [
+                        'date' => $plan->date,
+                        'plan_furnace' => $plan->furnace,
+                        'product_name' => $head->product?->name ?? '-',
+                        'charging_id' => $head->id,
+                        'charging' => $head->charging,
+                        'lot' => $head->lot ?? '-',
+                        'charge_time' => '-',
+                        'kwh_start_charge' => 0,
+                        'kwh_ok_charge' => 0,
+                        'power' => 0,
+                    ];
+                }
+            }
+        }
+
+        return collect($kwhList)
+            ->sort(function ($a, $b) {
+                $dateCompare = strcmp((string) ($a['date'] ?? ''), (string) ($b['date'] ?? ''));
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $chargingCompare = ((int) ($a['charging'] ?? 0)) <=> ((int) ($b['charging'] ?? 0));
+                if ($chargingCompare !== 0) {
+                    return $chargingCompare;
+                }
+
+                return strcmp((string) ($a['lot'] ?? ''), (string) ($b['lot'] ?? ''));
+            })
+            ->values()
+            ->toArray();
+    }
+
+    public function getTappingDataByProduct($startDate, $endDate, $shift, $product)
+    {
+        $plans = FurnaceHeadAce::with(['chargings' => function ($query) use ($product) {
+            $query->where('model_id', $product)
+                ->with(['TemptTapping', 'product']);
+        }])->whereBetween('date', [$startDate, $endDate])
+            ->when($shift, function ($query) use ($shift) {
+                return $query->where('shift', $shift);
+            })
+            ->get();
+
+        $tappingList = [];
+        foreach ($plans as $plan) {
+            foreach ($plan->chargings as $head) {
+                if ($head->TemptTapping->isNotEmpty()) {
+                    foreach ($head->TemptTapping as $tapping) {
+                        $tappingList[] = [
+                            'date' => $plan->date,
+                            'plan_furnace' => $plan->furnace,
+                            'product_name' => $head->product?->name ?? '-',
+                            'charging_id' => $head->id,
+                            'charging' => $head->charging,
+                            'lot' => $head->lot ?? '-',
+                            'temperatur' => ($tapping->temperatur ?? 0),
+                            'type_tapping' => $tapping->type_tapping?->text() ?? '-',
+                        ];
+                    }
+                } else {
+                    $tappingList[] = [
+                        'date' => $plan->date,
+                        'plan_furnace' => $plan->furnace,
+                        'product_name' => $head->product?->name ?? '-',
+                        'charging_id' => $head->id,
+                        'charging' => $head->charging,
+                        'lot' => $head->lot ?? '-',
+                        'temperatur' => 0,
+                        'type_tapping' => '-',
+                    ];
+                }
+            }
+        }
+
+        return collect($tappingList)
+            ->sort(function ($a, $b) {
+                $dateCompare = strcmp((string) ($a['date'] ?? ''), (string) ($b['date'] ?? ''));
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $chargingCompare = ((int) ($a['charging'] ?? 0)) <=> ((int) ($b['charging'] ?? 0));
+                if ($chargingCompare !== 0) {
+                    return $chargingCompare;
+                }
+
+                return strcmp((string) ($a['lot'] ?? ''), (string) ($b['lot'] ?? ''));
+            })
+            ->values()
+            ->toArray();
+    }
+
+    public function reportProductWithKwhTapping($startDate, $endDate, $type, $shift, $product)
+    {
+        $materialData = $this->reportProduct($startDate, $endDate, $type, $shift, $product);
+        $kwhData = $this->getKwhDataByProduct($startDate, $endDate, $shift, $product);
+        $tappingData = $this->getTappingDataByProduct($startDate, $endDate, $shift, $product);
+
+        return [
+            'materials' => $materialData,
+            'kwh' => $kwhData,
+            'tapping' => $tappingData,
+        ];
+    }
 }
