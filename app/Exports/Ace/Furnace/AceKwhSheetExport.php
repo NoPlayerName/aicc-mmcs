@@ -44,6 +44,8 @@ class AceKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
             [],
             [
                 'Date',
+                'Charging',
+                'Lot',
                 'Charge Time',
                 'KWH Start Charge',
                 'KWH Ok Charge',
@@ -56,6 +58,8 @@ class AceKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
     {
         return [
             \Carbon\Carbon::parse($row['date'])->format('d/m/Y'),
+            $row['charging'] ?? '-',
+            $row['lot'] ?? '-',
             $row['charge_time'] ?? '-',
             $row['kwh_start_charge'] ?? 0,
             $row['kwh_ok_charge'] ?? 0,
@@ -67,12 +71,12 @@ class AceKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
     {
         $highestRow = $sheet->getHighestRow();
 
-        $sheet->getStyle('A1:E2')->applyFromArray([
+        $sheet->getStyle('A1:G2')->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
 
-        $sheet->getStyle('A4:E4')->applyFromArray([
+        $sheet->getStyle('A4:G4')->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -86,7 +90,7 @@ class AceKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
             ],
         ]);
 
-        $sheet->getStyle('A5:E' . $highestRow)->applyFromArray([
+        $sheet->getStyle('A5:G' . $highestRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -97,10 +101,12 @@ class AceKwhSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
         ]);
 
         $sheet->getColumnDimension('A')->setWidth(15);
-        $sheet->getColumnDimension('B')->setWidth(20);
-        $sheet->getColumnDimension('C')->setWidth(20);
+        $sheet->getColumnDimension('B')->setWidth(12);
+        $sheet->getColumnDimension('C')->setWidth(18);
         $sheet->getColumnDimension('D')->setWidth(20);
-        $sheet->getColumnDimension('E')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(20);
+        $sheet->getColumnDimension('G')->setWidth(15);
 
         return [];
     }

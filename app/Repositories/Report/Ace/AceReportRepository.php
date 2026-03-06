@@ -126,6 +126,24 @@ class AceReportRepository implements AceReportRepositoryInterface
                     $row['subtotal'] = $total;
                     return (object) $row;
                 })
+                ->sort(function ($a, $b) {
+                    $dateCompare = strcmp((string) ($a->date ?? ''), (string) ($b->date ?? ''));
+                    if ($dateCompare !== 0) {
+                        return $dateCompare;
+                    }
+
+                    $chargingCompare = ((int) ($a->charging ?? 0)) <=> ((int) ($b->charging ?? 0));
+                    if ($chargingCompare !== 0) {
+                        return $chargingCompare;
+                    }
+
+                    $materialCompare = strcmp((string) ($a->material_name ?? ''), (string) ($b->material_name ?? ''));
+                    if ($materialCompare !== 0) {
+                        return $materialCompare;
+                    }
+
+                    return strcmp((string) ($a->lot ?? ''), (string) ($b->lot ?? ''));
+                })
                 ->values();
         } catch (\Throwable $th) {
             Log::error('Generate report furnace fail', [
@@ -140,10 +158,7 @@ class AceReportRepository implements AceReportRepositoryInterface
     {
         $plans = FurnaceHeadAce::with(['chargings' => function ($query) {
             $query->with(['Kwh']);
-        }])->whereBetween('date', [$startDate, $endDate])
-            ->when($shift, function ($query) use ($shift) {
-                return $query->where('shift', $shift);
-            })->where('furnace', $furnace)
+        }])->whereBetween('date', [$startDate, $endDate])->where('shift', $shift)->where('furnace', $furnace)
             ->get();
 
         $kwhList = [];
@@ -179,17 +194,33 @@ class AceReportRepository implements AceReportRepositoryInterface
             }
         }
 
-        return $kwhList;
+        return collect($kwhList)
+            ->sort(function ($a, $b) {
+                $dateCompare = strcmp((string) ($a['date'] ?? ''), (string) ($b['date'] ?? ''));
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $chargingCompare = ((int) ($a['charging'] ?? 0)) <=> ((int) ($b['charging'] ?? 0));
+                if ($chargingCompare !== 0) {
+                    return $chargingCompare;
+                }
+
+                $lotCompare = strcmp((string) ($a['lot'] ?? ''), (string) ($b['lot'] ?? ''));
+                if ($lotCompare !== 0) {
+                    return $lotCompare;
+                }
+
+                return 0;
+            })
+            ->values()
+            ->toArray();
     }
 
     public function getTappingData($startDate, $endDate, $shift, $furnace)
     {
         $plans = FurnaceHeadAce::with(['chargings.TemptTapping'])
-            ->whereBetween('date', [$startDate, $endDate])
-            ->when($shift, function ($query) use ($shift) {
-                return $query->where('shift', $shift);
-            })
-            ->where('furnace', $furnace)
+            ->whereBetween('date', [$startDate, $endDate])->where('shift', $shift)->where('furnace', $furnace)
             ->get();
 
         $tappingList = [];
@@ -221,7 +252,27 @@ class AceReportRepository implements AceReportRepositoryInterface
             }
         }
 
-        return $tappingList;
+        return collect($tappingList)
+            ->sort(function ($a, $b) {
+                $dateCompare = strcmp((string) ($a['date'] ?? ''), (string) ($b['date'] ?? ''));
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $chargingCompare = ((int) ($a['charging'] ?? 0)) <=> ((int) ($b['charging'] ?? 0));
+                if ($chargingCompare !== 0) {
+                    return $chargingCompare;
+                }
+
+                $lotCompare = strcmp((string) ($a['lot'] ?? ''), (string) ($b['lot'] ?? ''));
+                if ($lotCompare !== 0) {
+                    return $lotCompare;
+                }
+
+                return 0;
+            })
+            ->values()
+            ->toArray();
     }
 
     public function reportFurnaceWithKwhTapping($startDate, $endDate, $type, $shift, $furnace)
