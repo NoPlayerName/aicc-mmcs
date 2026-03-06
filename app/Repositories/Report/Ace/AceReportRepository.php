@@ -82,10 +82,13 @@ class AceReportRepository implements AceReportRepositoryInterface
             return $plans->flatMap(function ($plan) use ($type) {
                 return $plan->chargings->flatMap(function ($head) use ($plan, $type) {
                     $usages = ($type === EnumTypeMat::RawMaterial->value) ? $head->rawMatUse : $head->additMatUse;
-                    return $usages->map(function ($usage) use ($plan) {
+                    return $usages->map(function ($usage) use ($plan, $head) {
                         return [
                             'material_id' => $usage->materialable_id,
                             'material_name' => $usage->materialable?->material_name,
+                            'charging_id' => $head->id,
+                            'charging' => $head->charging,
+                            'lot' => $head->lot ?? '-',
                             'plan_furnace' => $plan->furnace,
                             'date' => $plan->date,
                             'weight' => (float) $usage->weight,
@@ -93,11 +96,13 @@ class AceReportRepository implements AceReportRepositoryInterface
                         ];
                     });
                 });
-            })->groupBy('material_id')
-                ->map(function ($items, $materialId) use ($type) {
+            })->groupBy(fn($item) => $item['material_id'] . '|' . $item['charging_id'] . '|' . ($item['lot'] ?? '-'))
+                ->map(function ($items) use ($type) {
                     $row = [
-                        'material_id' => $materialId,
+                        'material_id' => $items->first()['material_id'] ?? '-',
                         'material_name' => $items->first()['material_name'] ?? '-',
+                        'charging' => $items->first()['charging'] ?? '-',
+                        'lot' => $items->first()['lot'] ?? '-',
                         'plan_furnace' => $items->first()['plan_furnace'] ?? '-',
                     ];
                     $total = 0;

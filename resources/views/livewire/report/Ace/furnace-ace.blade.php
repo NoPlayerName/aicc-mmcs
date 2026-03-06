@@ -145,6 +145,8 @@
                                         <thead class="table-dark">
                                             <tr>
                                                 <th rowspan="2" class="sticky-col-head">Material Name</th>
+                                                <th rowspan="2">Charging</th>
+                                                <th rowspan="2">Lot</th>
                                                 <th colspan="{{ count($dateRange) }}">
                                                     <div>Actual Usage (Kg)</div>
                                                     @if(!empty($data) && $data->first())
@@ -165,6 +167,8 @@
                                             @forelse($data as $row)
                                             <tr>
                                                 <td class="text-start sticky-col">{{ $row->material_name }}</td>
+                                                <td>{{ $row->charging ?? '-' }}</td>
+                                                <td>{{ $row->lot ?? '-' }}</td>
                                                 @foreach($dateRange as $date)
                                                 @php $dateKey = str_replace('-', '_', $date); $alias = 'date_' .
                                                 $dateKey; @endphp
@@ -175,7 +179,7 @@
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="{{ count($dateRange) + 2 }}" class="text-center py-3">No
+                                                <td colspan="{{ count($dateRange) + 4 }}" class="text-center py-3">No
                                                     data available</td>
                                             </tr>
                                             @endforelse
@@ -191,6 +195,8 @@
                                         <thead class="table-dark">
                                             <tr>
                                                 <th rowspan="3" class="sticky-col-head">Material Name</th>
+                                                <th rowspan="3">Charging</th>
+                                                <th rowspan="3">Lot</th>
                                                 <th colspan="{{ count($dateRange) * 2 }}">
                                                     <div>Actual Usage (Kg)</div>
                                                     @if(!empty($data) && $data->first())
@@ -217,6 +223,8 @@
                                             @forelse($data as $row)
                                             <tr>
                                                 <td class="text-start sticky-col">{{ $row->material_name }}</td>
+                                                <td>{{ $row->charging ?? '-' }}</td>
+                                                <td>{{ $row->lot ?? '-' }}</td>
                                                 @foreach($dateRange as $date)
                                                 @php
                                                 $dateKey = str_replace('-', '_', $date);
@@ -232,7 +240,7 @@
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="{{ count($dateRange) * 2 + 2 }}" class="text-center py-3">
+                                                <td colspan="{{ count($dateRange) * 2 + 4 }}" class="text-center py-3">
                                                     No data available</td>
                                             </tr>
                                             @endforelse

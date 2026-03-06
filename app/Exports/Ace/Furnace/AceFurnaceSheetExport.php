@@ -50,8 +50,8 @@ class AceFurnaceSheetExport implements FromCollection, WithHeadings, WithMapping
 
         $row1 = ['Shift: ' . ($this->shift ?: 'D, S & N')];
         $row2 = ['Furnace: ' . ($this->furnace ?: '-')];
-        $row3 = ['Material Name'];
-        $row4 = [''];
+        $row3 = ['Material Name', 'Charging', 'Lot'];
+        $row4 = ['', '', ''];
 
         foreach ($this->dateRange as $date) {
             $formattedDate = \Carbon\Carbon::parse($date)->format('d/m/Y');
@@ -82,6 +82,8 @@ class AceFurnaceSheetExport implements FromCollection, WithHeadings, WithMapping
         $isAdditive = ($this->type === EnumTypeMat::Additive->value);
         $mapped = [
             $row->material_name,
+            $row->charging ?? '-',
+            $row->lot ?? '-',
         ];
 
         foreach ($this->dateRange as $date) {
@@ -109,7 +111,7 @@ class AceFurnaceSheetExport implements FromCollection, WithHeadings, WithMapping
         $lastRow = $sheet->getHighestRow();
 
         if ($isAdditive) {
-            $columnIndex = 2;
+            $columnIndex = 4;
             foreach ($this->dateRange as $date) {
                 $startCol = Coordinate::stringFromColumnIndex($columnIndex);
                 $endCol = Coordinate::stringFromColumnIndex($columnIndex + 1);
