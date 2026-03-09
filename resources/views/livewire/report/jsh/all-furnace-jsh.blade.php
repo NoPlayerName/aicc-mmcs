@@ -99,7 +99,6 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                @php $dateKey = str_replace('-', '_', $date); @endphp
                                 <a class="nav-link {{ $activeTab == 'additive' ? 'active' : '' }}" data-toggle="tab"
                                     href="#additive" role="tab" wire:click.prevent="$set('activeTab', 'additive')">
                                     <span class="d-none d-sm-block">

@@ -44,31 +44,51 @@
                             <i class="ri-file-chart-line mr-2"></i> Transaction Adjust
                         </a>
                     </li>
-
+                    @if ($this->canView('/jsh/report/total-furnace', 'can_access') ||
+                    $this->canView('/jsh/report/furnace-report', 'can_access') ||
+                    $this->canView('/jsh/report/product-report', 'can_access'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-layout" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="ri-file-chart-line mr-2"></i>JSH Report <div class="arrow-down"></div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="topnav-layout">
+                            @if ($this->canView('/jsh/report/total-furnace', 'can_access'))
                             <a href="{{ route('jsh.report.total-furnace-report') }}" class="dropdown-item">All
                                 Furnace</a>
+                            @endif
+                            @if ($this->canView('/jsh/report/furnace-report', 'can_access'))
                             <a href="{{ route('jsh.report.furnace-report') }}" class="dropdown-item">Furnace</a>
+                            @endif
+                            @if ($this->canView('/jsh/report/product-report', 'can_access'))
                             <a href="{{ route('jsh.report.product-report') }}" class="dropdown-item">Product</a>
+                            @endif
                         </div>
                     </li>
+                    @endif
+
+                    @if ($this->canView('/ace/report/total-furnace', 'can_access') ||
+                    $this->canView('/ace/report/furnace-report', 'can_access') ||
+                    $this->canView('/ace/report/product-report', 'can_access'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-layout" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="ri-file-chart-line mr-2"></i>ACE Report <div class="arrow-down"></div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="topnav-layout">
+                            @if ($this->canView('/ace/report/total-furnace', 'can_access'))
                             <a href="{{ route('ace.report.total-furnace-report') }}" class="dropdown-item">All
                                 Furnace</a>
+                            @endif
+                            @if ($this->canView('/ace/report/furnace-report', 'can_access'))
                             <a href="{{ route('ace.report.furnace-report') }}" class="dropdown-item">Furnace</a>
+                            @endif
+                            @if ($this->canView('/ace/report/product-report', 'can_access'))
                             <a href="{{ route('ace.report.product-report') }}" class="dropdown-item">Product</a>
+                            @endif
                         </div>
                     </li>
+                    @endif
 
 
 
