@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Ace;
 
 use App\Services\Master\Material\MaterialService;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -68,6 +69,13 @@ class MaterialAdjust extends Component
         ];
 
         $this->reset(['material_id', 'qty_adjust', 'note']);
+        $this->dispatch('resetAceAdjustMaterialSelect');
+    }
+
+    #[On('aceAdjustMaterialSelected')]
+    public function setMaterial($materialId)
+    {
+        $this->material_id = $materialId;
     }
 
     public function removeDraft($index)

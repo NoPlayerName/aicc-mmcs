@@ -54,14 +54,18 @@
 
                     <div class="col-md-4">
                         <label class="font-weight-bold">Material</label>
-                        <select class="form-control @error('material_id') is-invalid @enderror"
-                            wire:model="material_id">
-                            <option value="">Select Material</option>
-                            @foreach ($materials as $material)
-                            <option value="{{ $material['material_code'] }}">[{{ $material['material_type'] }}] {{
-                                $material['material_name'] }} ({{ $material['material_code'] }})</option>
-                            @endforeach
-                        </select>
+                        <div wire:ignore>
+                            <select class="form-control @error('material_id') is-invalid @enderror"
+                                id="ace-adjust-material-select2">
+                                <option value="">Select Material</option>
+                                @foreach ($materials as $material)
+                                <option value="{{ $material['material_code'] }}"
+                                    @selected($material_id===$material['material_code'])>[{{ $material['material_type']
+                                    }}] {{
+                                    $material['material_name'] }} ({{ $material['material_code'] }})</option>
+                                @endforeach
+                            </select>
+                        </div>
                         @error('material_id')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
@@ -147,3 +151,38 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    function initAceAdjustMaterialSelect2() {
+        const $select = $('#ace-adjust-material-select2');
+        if (!$select.length) return;
+
+        if ($select.hasClass('select2-hidden-accessible')) {
+            $select.select2('destroy');
+        }
+
+        $select.select2({
+            width: '100%',
+            placeholder: 'Select Material',
+            allowClear: true
+        }).off('change.aceAdjust').on('change.aceAdjust', function () {
+            Livewire.dispatch('aceAdjustMaterialSelected', { materialId: $(this).val() || '' });
+        });
+    }
+
+    $(document).on('livewire:navigated', function () {
+        initAceAdjustMaterialSelect2();
+
+        if (!window.__aceAdjustSelectBound) {
+            window.__aceAdjustSelectBound = true;
+            Livewire.on('resetAceAdjustMaterialSelect', () => {
+                const $select = $('#ace-adjust-material-select2');
+                if ($select.length) {
+                    $select.val('').trigger('change.select2');
+                }
+            });
+        }
+    });
+</script>
+@endpush
