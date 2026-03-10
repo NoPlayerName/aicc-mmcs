@@ -40,8 +40,13 @@
                     @endif
 
                     <li class="nav-item">
-                        <a class="nav-link" href="#" wire:navigate>
-                            <i class="ri-file-chart-line mr-2"></i> Transaction Adjust
+                        <a class="nav-link" href="{{ route('jsh.material-adjust.index') }}" wire:navigate>
+                            <i class="ri-file-chart-line mr-2"></i> JSH Material Adjust
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('ace.material-adjust-ace.index') }}" wire:navigate>
+                            <i class="ri-file-chart-line mr-2"></i> ACE Material Adjust
                         </a>
                     </li>
                     @if ($this->canView('/jsh/report/total-furnace', 'can_access') ||
@@ -63,6 +68,8 @@
                             @if ($this->canView('/jsh/report/product-report', 'can_access'))
                             <a href="{{ route('jsh.report.product-report') }}" class="dropdown-item">Product</a>
                             @endif
+                            <a href="{{ route('jsh.report.material-adjust-report') }}" class="dropdown-item"
+                                wire:navigate>Material Adjust Report</a>
                         </div>
                     </li>
                     @endif
@@ -86,6 +93,8 @@
                             @if ($this->canView('/ace/report/product-report', 'can_access'))
                             <a href="{{ route('ace.report.product-report') }}" class="dropdown-item">Product</a>
                             @endif
+                            <a href="{{ route('ace.report.material-adjust-report') }}" class="dropdown-item"
+                                wire:navigate>Material Adjust Report</a>
                         </div>
                     </li>
                     @endif
