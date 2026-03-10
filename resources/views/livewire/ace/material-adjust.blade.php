@@ -1,3 +1,29 @@
+@push('style')
+<style>
+    body[data-layout-mode="dark"] .thead-light th {
+        background-color: #32394e !important;
+        border-color: #3a4258 !important;
+        color: #e9edf4 !important;
+    }
+
+    body[data-layout-mode="dark"] .table,
+    body[data-layout-mode="dark"] .table td,
+    body[data-layout-mode="dark"] .table th,
+    body[data-layout-mode="dark"] .card-body,
+    body[data-layout-mode="dark"] h5 {
+        color: #e9edf4 !important;
+    }
+
+    body[data-layout-mode="dark"] .table-hover tbody tr:hover {
+        background-color: #32394e !important;
+    }
+
+    body[data-layout-mode="dark"] .text-muted {
+        color: #a6b0cf !important;
+    }
+</style>
+@endpush
+
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">

@@ -66,6 +66,49 @@
             border-left: 1px solid #eff2f7 !important;
         }
     }
+
+    body[data-layout-mode="dark"] .custom-accordion .card,
+    body[data-layout-mode="dark"] .accordion-button-custom,
+    body[data-layout-mode="dark"] .accordion-button-custom[aria-expanded="true"],
+    body[data-layout-mode="dark"] .card-body.border-top,
+    body[data-layout-mode="dark"] .card-body.border-top.bg-white {
+        background-color: #2a3042 !important;
+        border-color: #3a4258 !important;
+        color: #e9edf4 !important;
+    }
+
+    body[data-layout-mode="dark"] .accordion-button-custom:hover {
+        background-color: #32394e !important;
+    }
+
+    body[data-layout-mode="dark"] .info-label,
+    body[data-layout-mode="dark"] .text-muted {
+        color: #a6b0cf !important;
+    }
+
+    body[data-layout-mode="dark"] .info-value,
+    body[data-layout-mode="dark"] .text-dark,
+    body[data-layout-mode="dark"] .table,
+    body[data-layout-mode="dark"] .table td,
+    body[data-layout-mode="dark"] .table th,
+    body[data-layout-mode="dark"] h5 {
+        color: #e9edf4 !important;
+    }
+
+    body[data-layout-mode="dark"] .thead-light th {
+        background-color: #32394e !important;
+        border-color: #3a4258 !important;
+        color: #e9edf4 !important;
+    }
+
+    body[data-layout-mode="dark"] .table-hover tbody tr:hover {
+        background-color: #32394e !important;
+    }
+
+    body[data-layout-mode="dark"] .badge-light {
+        background-color: #3a4258 !important;
+        color: #e9edf4 !important;
+    }
 </style>
 @endpush
 
