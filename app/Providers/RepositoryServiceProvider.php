@@ -10,6 +10,8 @@ use App\Repositories\Master\ProductJsh\ModelRepository;
 use App\Repositories\Master\ProductJsh\ModelRepositoryInterface;
 use App\Repositories\MaterialUseAce\MaterialUseAceReposiroty;
 use App\Repositories\MaterialUseAce\MaterialUseAceReposirotyInterface;
+use App\Repositories\MaterialUseJsh\MaterialAdjustJshRepository;
+use App\Repositories\MaterialUseJsh\MaterialAdjustJshRepositoryInterface;
 use App\Repositories\MaterialUseJsh\MaterialUseJshRepository;
 use App\Repositories\MaterialUseJsh\MaterialUseJshRepositoryInterface;
 use App\Repositories\PlanProductionAce\PlanProdRepositoryAce;
@@ -32,6 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $bindings = [
             PlanProdRepositoryInterface::class => PlanProdRepository::class,
             MaterialUseJshRepositoryInterface::class => MaterialUseJshRepository::class,
+            MaterialAdjustJshRepositoryInterface::class => MaterialAdjustJshRepository::class,
             MaterialRepositoryInterface::class => MaterialRepository::class,
             JshReportRepositoryInterface::class => JshReportRepository::class,
             AceReportRepositoryInterface::class => AceReportRepository::class,

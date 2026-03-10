@@ -43,7 +43,7 @@
         <div class="card shadow-sm mb-4 border-0">
             <div class="card-body">
                 <div class="row align-items-end">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="font-weight-bold">Tanggal Transaksi</label>
                         <input type="date" class="form-control @error('transaction_date') is-invalid @enderror"
                             wire:model="transaction_date">
@@ -52,7 +52,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="font-weight-bold">Material</label>
                         <div wire:ignore>
                             <select class="form-control @error('material_id') is-invalid @enderror"
@@ -72,15 +72,30 @@
                     </div>
 
                     <div class="col-md-2">
+                        <label class="font-weight-bold">Usage Tercatat (kg)</label>
+                        <input type="number" class="form-control" wire:model="usage_reference_qty" readonly>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="font-weight-bold">Stock Opname (kg)</label>
+                        <input type="number" step="0.001"
+                            class="form-control @error('stock_opname_qty') is-invalid @enderror"
+                            wire:model="stock_opname_qty" placeholder="Qty fisik">
+                        @error('stock_opname_qty')
+                        <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-1">
                         <label class="font-weight-bold">Qty Adjust (kg)</label>
                         <input type="number" step="0.001" class="form-control @error('qty_adjust') is-invalid @enderror"
-                            wire:model="qty_adjust" placeholder="contoh: -25.500 / 10.000">
+                            wire:model="qty_adjust" readonly>
                         @error('qty_adjust')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="font-weight-bold">Note</label>
                         <input type="text" class="form-control @error('note') is-invalid @enderror" wire:model="note"
                             placeholder="Alasan adjustment">
@@ -116,6 +131,8 @@
                                 <th>Tanggal</th>
                                 <th>Material</th>
                                 <th>Tipe</th>
+                                <th class="text-right">Usage (kg)</th>
+                                <th class="text-right">Stock Opname (kg)</th>
                                 <th class="text-right">Qty Adjust (kg)</th>
                                 <th>Note</th>
                                 <th class="text-center">Action</th>
@@ -127,6 +144,8 @@
                                 <td>{{ $item['transaction_date'] }}</td>
                                 <td>{{ $item['material_name'] }} ({{ $item['material_id'] }})</td>
                                 <td>{{ $item['material_type'] }}</td>
+                                <td class="text-right">{{ number_format($item['usage_reference_qty'], 3) }}</td>
+                                <td class="text-right">{{ number_format($item['stock_opname_qty'], 3) }}</td>
                                 <td
                                     class="text-right font-weight-bold {{ $item['qty_adjust'] < 0 ? 'text-danger' : 'text-success' }}">
                                     {{ number_format($item['qty_adjust'], 3) }}
@@ -141,7 +160,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">Belum ada draft adjust.</td>
+                                <td colspan="8" class="text-center py-4 text-muted">Belum ada draft adjust.</td>
                             </tr>
                             @endforelse
                         </tbody>
