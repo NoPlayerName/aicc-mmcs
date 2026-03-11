@@ -167,8 +167,17 @@ class MaterialAdjustReportAce extends BaseLivewireComponent
         $rows = app(MaterialAdjustAceService::class)
             ->getReport($start, $end, $this->material ?: null);
 
+        // Build full date range for pivot columns
+        $dateRange = $this->dateRange;
+        if (empty($dateRange)) {
+            $period = \Carbon\CarbonPeriod::create($start, $end);
+            foreach ($period as $date) {
+                $dateRange[] = $date->format('Y-m-d');
+            }
+        }
+
         $fileName = 'ACE_Material_Adjust_Report_' . now()->format('Ymd_His') . '.xlsx';
-        return Excel::download(new AceMaterialAdjustMultiSheetExport($rows), $fileName);
+        return Excel::download(new AceMaterialAdjustMultiSheetExport($rows, $dateRange), $fileName);
     }
 
     #[Title('ACE Material Adjust Report')]

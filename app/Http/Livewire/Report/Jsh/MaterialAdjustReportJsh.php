@@ -167,8 +167,17 @@ class MaterialAdjustReportJsh extends BaseLivewireComponent
         $rows = app(MaterialAdjustJshService::class)
             ->getReport($start, $end, $this->material ?: null);
 
+        // Build full date range for pivot columns
+        $dateRange = $this->dateRange;
+        if (empty($dateRange)) {
+            $period = \Carbon\CarbonPeriod::create($start, $end);
+            foreach ($period as $date) {
+                $dateRange[] = $date->format('Y-m-d');
+            }
+        }
+
         $fileName = 'JSH_Material_Adjust_Report_' . now()->format('Ymd_His') . '.xlsx';
-        return Excel::download(new JshMaterialAdjustMultiSheetExport($rows), $fileName);
+        return Excel::download(new JshMaterialAdjustMultiSheetExport($rows, $dateRange), $fileName);
     }
 
     #[Title('JSH Material Adjust Report')]

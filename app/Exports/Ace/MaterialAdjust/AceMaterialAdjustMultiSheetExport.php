@@ -6,11 +6,13 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class AceMaterialAdjustMultiSheetExport implements WithMultipleSheets
 {
-    protected $rows;
+    protected array $rows;
+    protected array $dateRange;
 
-    public function __construct(array $rows)
+    public function __construct(array $rows, array $dateRange)
     {
         $this->rows = $rows;
+        $this->dateRange = $dateRange;
     }
 
     public function sheets(): array
@@ -26,8 +28,8 @@ class AceMaterialAdjustMultiSheetExport implements WithMultipleSheets
             ->toArray();
 
         return [
-            new AceMaterialAdjustSheetExport($rawRows, 'Raw Material'),
-            new AceMaterialAdjustSheetExport($additiveRows, 'Additive'),
+            new AceMaterialAdjustSheetExport($rawRows, $this->dateRange, 'Raw Material'),
+            new AceMaterialAdjustSheetExport($additiveRows, $this->dateRange, 'Additive'),
         ];
     }
 }

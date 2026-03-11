@@ -6,11 +6,13 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class JshMaterialAdjustMultiSheetExport implements WithMultipleSheets
 {
-    protected $rows;
+    protected array $rows;
+    protected array $dateRange;
 
-    public function __construct(array $rows)
+    public function __construct(array $rows, array $dateRange)
     {
         $this->rows = $rows;
+        $this->dateRange = $dateRange;
     }
 
     public function sheets(): array
@@ -26,8 +28,8 @@ class JshMaterialAdjustMultiSheetExport implements WithMultipleSheets
             ->toArray();
 
         return [
-            new JshMaterialAdjustSheetExport($rawRows, 'Raw Material'),
-            new JshMaterialAdjustSheetExport($additiveRows, 'Additive'),
+            new JshMaterialAdjustSheetExport($rawRows, $this->dateRange, 'Raw Material'),
+            new JshMaterialAdjustSheetExport($additiveRows, $this->dateRange, 'Additive'),
         ];
     }
 }
