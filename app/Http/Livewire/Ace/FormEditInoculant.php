@@ -178,7 +178,7 @@ class FormEditInoculant extends Component
 
     public function loadSelectAdditive()
     {
-        $data = app(MaterialService::class)->getAdditive();
+        $data = app(MaterialService::class)->getInoculant();
         $this->inoculant = collect($data)->toArray();
     }
 

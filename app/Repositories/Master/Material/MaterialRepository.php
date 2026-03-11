@@ -13,6 +13,11 @@ class MaterialRepository implements MaterialRepositoryInterface
         $data = TbMaterial::where('is_for_mmcs', '2')->get();
         return $data;
     }
+    public function getInoculant()
+    {
+        $data = TbMaterial::where('is_for_mmcs', '3')->get();
+        return $data;
+    }
 
     public function getRawMat()
     {

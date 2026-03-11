@@ -19,6 +19,11 @@ class MaterialService
         $data = $this->Material->getAditive();
         return $data;
     }
+    public function getInoculant()
+    {
+        $data = $this->Material->getInoculant();
+        return $data;
+    }
 
     public function getRawMat()
     {
