@@ -193,4 +193,9 @@ class MaterialUseAceService
             $shiftParam ?? $shift
         );
     }
+
+    public function getLadleTransferReport(?string $startDate, ?string $endDate, ?string $shift = null)
+    {
+        return $this->repository->getLadleTransferReport($startDate, $endDate, $shift);
+    }
 }

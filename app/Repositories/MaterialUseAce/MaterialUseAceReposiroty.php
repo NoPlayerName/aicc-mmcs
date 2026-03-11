@@ -10,6 +10,7 @@ use App\Models\Ace\MaterialUse\KwhAce;
 use App\Models\Ace\MaterialUse\LadleTfHead;
 use App\Models\Ace\MaterialUse\MaterialUsageAce;
 use App\Models\Ace\MaterialUse\TemptTappingAce;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -326,5 +327,65 @@ class MaterialUseAceReposiroty implements MaterialUseAceReposirotyInterface
         //     return $item;
         // });;
         // return $query;
+    }
+
+    public function getLadleTransferReport(?string $startDate, ?string $endDate, ?string $shift = null)
+    {
+        $query = LadleTfHead::with(['product', 'furnace', 'inoculants.materialable'])
+            ->whereHas('furnace', function ($builder) use ($startDate, $endDate, $shift) {
+                if (!empty($startDate) && !empty($endDate)) {
+                    $builder->whereBetween('date', [$startDate, $endDate]);
+                }
+
+                if (!empty($shift)) {
+                    $builder->where('shift', $shift);
+                }
+            })
+            ->get();
+
+        return $query
+            ->map(function ($item) {
+                $inoculants = collect($item->inoculants ?? [])->map(function ($inoculant) {
+                    $weight = (float) ($inoculant->weight ?? 0);
+                    $materialName = $inoculant->materialable?->material_name ?? $inoculant->material_id ?? '-';
+
+                    return [
+                        'material_id' => $inoculant->material_id,
+                        'material_name' => $materialName,
+                        'weight' => $weight,
+                        'display' => $materialName . ' (' . rtrim(rtrim(number_format($weight, 3, '.', ''), '0'), '.') . ' kg)',
+                    ];
+                })->values();
+
+                $transactionDate = $item->furnace?->date;
+
+                return [
+                    'id' => $item->id,
+                    'transaction_date' => $transactionDate ? Carbon::parse($transactionDate)->format('Y-m-d') : null,
+                    'shift' => $item->furnace?->shift ?? '-',
+                    'furnace' => $item->furnace?->furnace ?? '-',
+                    'lot' => $item->lot ?? '-',
+                    'product' => $item->product?->name ?? '-',
+                    'molten_weight' => (float) ($item->molten_weight ?? 0),
+                    'ladle_molten_temp' => (float) ($item->ladle_molten_temp ?? 0),
+                    'weighing_status' => (bool) $item->weighing_status,
+                    'conveyor_drop_status' => (bool) $item->conveyor_drop_status,
+                    'ladle_drop_status' => (bool) $item->ladle_drop_status,
+                    'treatment_duration_check' => (bool) $item->treatment_duration_check,
+                    'inoculant_count' => $inoculants->count(),
+                    'total_inoculant_weight' => (float) $inoculants->sum('weight'),
+                    'inoculants' => $inoculants->toArray(),
+                    'inoculant_summary' => $inoculants->pluck('display')->implode(', '),
+                    'created_by' => $item->created_by ?? '-',
+                ];
+            })
+            ->sortBy([
+                ['transaction_date', 'asc'],
+                ['shift', 'asc'],
+                ['furnace', 'asc'],
+                ['lot', 'asc'],
+            ])
+            ->values()
+            ->toArray();
     }
 }

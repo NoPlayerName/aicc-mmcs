@@ -11,6 +11,7 @@ use App\Http\Livewire\Jsh\MaterialInput;
 use App\Http\Livewire\Jsh\MaterialAdjust as JshMaterialAdjust;
 use App\Http\Livewire\Report\Ace\AllFurnaceAce;
 use App\Http\Livewire\Report\Ace\FurnaceAce;
+use App\Http\Livewire\Report\Ace\LadleTransferReport;
 use App\Http\Livewire\Report\Ace\MaterialAdjustReportAce;
 use App\Http\Livewire\Report\Ace\ProductAce;
 use App\Http\Livewire\Report\Jsh\AllFurnaceJsh;
@@ -43,6 +44,7 @@ Route::middleware('auth:web')->group(function () {
             Route::get('/furnace-report', FurnaceAce::class)->name('furnace-report');
             Route::get('/product-report', ProductAce::class)->name('product-report');
             Route::get('/material-adjust-report', MaterialAdjustReportAce::class)->name('material-adjust-report');
+            Route::get('/ladle-transfer-report', LadleTransferReport::class)->name('ladle-transfer-report');
         });
     });
     // });

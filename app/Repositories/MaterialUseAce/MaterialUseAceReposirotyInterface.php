@@ -24,4 +24,5 @@ interface MaterialUseAceReposirotyInterface
     public function saveLadleMat($data);
     public function updateLadleTransfer($id, $ladleHead, $ladleMat);
     public function getLadleTransfer($date, $shift);
+    public function getLadleTransferReport(?string $startDate, ?string $endDate, ?string $shift = null);
 }

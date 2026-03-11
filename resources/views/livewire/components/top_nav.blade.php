@@ -76,7 +76,8 @@
 
                     @if ($this->canView('/ace/report/total-furnace', 'can_access') ||
                     $this->canView('/ace/report/furnace-report', 'can_access') ||
-                    $this->canView('/ace/report/product-report', 'can_access'))
+                    $this->canView('/ace/report/product-report', 'can_access') ||
+                    $this->canView('/ace/report/ladle-transfer-report', 'can_access'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-layout" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -93,6 +94,8 @@
                             @if ($this->canView('/ace/report/product-report', 'can_access'))
                             <a href="{{ route('ace.report.product-report') }}" class="dropdown-item">Product</a>
                             @endif
+                            <a href="{{ route('ace.report.ladle-transfer-report') }}" class="dropdown-item"
+                                wire:navigate>Ladle Transfer Report</a>
                             <a href="{{ route('ace.report.material-adjust-report') }}" class="dropdown-item"
                                 wire:navigate>Material Adjust Report</a>
                         </div>
