@@ -73,8 +73,8 @@
 
                     <div class="col-md-2">
                         <label class="font-weight-bold">Qty Adjust (kg)</label>
-                        <input type="number" step="0.001" class="form-control @error('qty_adjust') is-invalid @enderror"
-                            wire:model="qty_adjust" placeholder="contoh: -25.500 / 10.000">
+                        <input type="number" step="0" class="form-control @error('qty_adjust') is-invalid @enderror"
+                            wire:model="qty_adjust" placeholder="input qty adjust">
                         @error('qty_adjust')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
@@ -129,7 +129,7 @@
                                 <td>{{ $item['material_type'] }}</td>
                                 <td
                                     class="text-right font-weight-bold {{ $item['qty_adjust'] < 0 ? 'text-danger' : 'text-success' }}">
-                                    {{ number_format($item['qty_adjust'], 3) }}
+                                    {{ rtrim(rtrim(number_format((float) $item['qty_adjust'], 3, '.', ''), '0'), '.') }}
                                 </td>
                                 <td>{{ $item['note'] ?: '-' }}</td>
                                 <td class="text-center">

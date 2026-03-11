@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Ace;
 
 use App\Services\Master\Material\MaterialService;
+use App\Services\MaterialUseAce\MaterialAdjustAceService;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -87,13 +88,16 @@ class MaterialAdjust extends Component
 
     public function saveAdjust()
     {
-        if (empty($this->draftAdjust)) {
-            $this->dispatch('error', message: 'Draft adjust masih kosong.');
+        $result = app(MaterialAdjustAceService::class)->saveAdjust($this->draftAdjust);
+
+        if (!$result['status']) {
+            $this->dispatch('error', message: $result['message']);
             return;
         }
 
-        $count = count($this->draftAdjust);
-        $this->dispatch('success', message: "UI draft adjust siap ({$count} item). Backend simpan belum diaktifkan.");
+        $this->reset(['draftAdjust', 'material_id', 'qty_adjust', 'note']);
+        $this->dispatch('resetAceAdjustMaterialSelect');
+        $this->dispatch('success', message: $result['message']);
     }
 
     #[Title('ACE Material Adjust')]
