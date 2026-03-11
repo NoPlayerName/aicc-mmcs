@@ -19,7 +19,6 @@ return new class extends Migration
             $table->decimal('qty_adjust', 14, 3);
             $table->text('note')->nullable();
             $table->string('created_by')->nullable();
-            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['transaction_date', 'materialable_id'], 'idx_adjust_ace_date_material');
