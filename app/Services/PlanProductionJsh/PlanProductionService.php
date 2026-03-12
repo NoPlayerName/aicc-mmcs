@@ -24,6 +24,9 @@ class PlanProductionService
 
     public function getPlanProd($date, $shift)
     {
+        if (empty($date) || empty($shift)) {
+            return null;
+        }
         $tanggal = Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
         // dd($tanggal);
         // dd($this->PlanProduction->generateData($tanggal, $shift));
