@@ -14,7 +14,6 @@ class ChargingHead extends BaseModelJsh
         'plan_id_anchor',
         'charging',
         'lot',
-        'model_id',
         'created_by',
         'created_at',
         'updated_at',

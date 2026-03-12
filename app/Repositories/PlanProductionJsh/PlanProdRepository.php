@@ -24,14 +24,19 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                 ->where('shift', $shift)
                 ->orderBy('plan_furnace')
                 ->get();
-            $planIds = $plans->pluck('production_plan_id');
-            $existingInputs = ChargingHead::whereIn('plan_id_anchor', $planIds)
-                ->select('id', 'plan_id_anchor', 'charging', 'status')
-                ->get()
-                ->keyBy('plan_id_anchor');
             if ($plans->isEmpty()) {
                 return collect();
             }
+            $planIds = $plans->pluck('production_plan_id');
+            $existingInputs = ChargingHead::query()
+                ->with([
+                    'rawMatUse',   // ->sum('weight')
+                    'additMatUse', // ->sum('weight')
+                ])->whereIn('plan_id_anchor', $planIds)
+                ->select('id', 'plan_id_anchor', 'charging', 'status')
+                ->get()
+                ->keyBy('plan_id_anchor');
+
             $data = $plans
                 ->groupBy('plan_furnace')
                 ->map(function ($group) use ($existingInputs) {
@@ -42,6 +47,8 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                             $firstItem = $items->first();
                             $anchorId = $firstItem->production_plan_id;
                             $charge = $existingInputs->get($anchorId);
+                            $totalRaw = (float) ($charge?->rawMatUse?->sum('weight') ?? 0);
+                            $totalAdditive = (float) ($charge?->additMatUse?->sum('weight') ?? 0);
                             // dd($charge);
                             return [
                                 'production_plan_id' => $firstItem->production_plan_id,
@@ -49,6 +56,8 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                                 'charging' => $charge ? $charge->charging : null,
                                 'lot'         => $items->pluck('lot')->implode(', '),
                                 'model_id'       => $firstItem->models?->model,
+                                'total_raw_material'  => $totalRaw,
+                                'total_additive'      => $totalAdditive,
                             ];
                         })
                         ->values();
@@ -59,6 +68,8 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                         'shift'  =>  $firstGroup->shift ?? '-',
                         'model_id' =>  $firstGroup->models?->model ?? '-',
                         'chargings' => $chargings, // 🔥 charging DI DALAM prodplan
+                        'total_raw_material'  => (float) $chargings->sum('total_raw_material'),
+                        'total_additive'      => (float) $chargings->sum('total_additive'),
                     ];
                 })
                 ->values();

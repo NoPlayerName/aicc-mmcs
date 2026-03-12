@@ -3,6 +3,7 @@
     .table-responsive {
         max-height: 600px;
         overflow-y: auto;
+        overflow-x: auto;
     }
 
     .sticky-col {
@@ -10,6 +11,8 @@
         left: 0;
         background-color: white !important;
         z-index: 1;
+        min-width: 180px;
+        width: 180px;
     }
 
     .sticky-col-head {
@@ -17,6 +20,73 @@
         left: 0;
         background-color: rgb(37, 37, 37) !important;
         z-index: 1;
+        min-width: 180px;
+        width: 180px;
+    }
+
+    .sticky-col-charging {
+        position: sticky;
+        left: 180px;
+        background-color: white !important;
+        z-index: 1;
+        min-width: 90px;
+        width: 90px;
+    }
+
+    .sticky-col-lot {
+        position: sticky;
+        left: 270px;
+        background-color: white !important;
+        z-index: 1;
+        min-width: 120px;
+        width: 120px;
+    }
+
+    .sticky-col-head-charging {
+        position: sticky;
+        left: 180px;
+        background-color: rgb(37, 37, 37) !important;
+        z-index: 1;
+        min-width: 90px;
+        width: 90px;
+    }
+
+    .sticky-col-head-lot {
+        position: sticky;
+        left: 270px;
+        background-color: rgb(37, 37, 37) !important;
+        z-index: 1;
+        min-width: 120px;
+        width: 120px;
+    }
+
+    .sticky-col-kwh-charging,
+    .sticky-col-kwh-charging-head {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+    }
+
+    .sticky-col-kwh-lot,
+    .sticky-col-kwh-lot-head {
+        position: sticky;
+        left: 90px;
+        z-index: 2;
+    }
+
+    .sticky-col-kwh-charging {
+        background-color: white !important;
+        min-width: 90px;
+    }
+
+    .sticky-col-kwh-lot {
+        background-color: white !important;
+        min-width: 120px;
+    }
+
+    .sticky-col-kwh-charging-head,
+    .sticky-col-kwh-lot-head {
+        background-color: rgb(37, 37, 37) !important;
     }
 </style>
 @endpush
@@ -118,55 +188,135 @@
                                     </span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ $activeTab == 'kwh' ? 'active' : '' }}" data-toggle="tab"
+                                    href="#kwh" role="tab" wire:click.prevent="$set('activeTab', 'kwh')">
+                                    <span class="d-none d-sm-block">
+                                        <p>KWH</p>
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ $activeTab == 'tapping' ? 'active' : '' }}" data-toggle="tab"
+                                    href="#tapping" role="tab" wire:click.prevent="$set('activeTab', 'tapping')">
+                                    <span class="d-none d-sm-block">
+                                        <p>Temperature Tapping</p>
+                                    </span>
+                                </a>
+                            </li>
                         </ul>
 
                         <div class="tab-content p-3 text-muted">
                             @if($hasSearched)
-                            <div class="tab-pane active" id="rawMaterial" role="tabpanel">
+                            <div class="tab-pane {{ $activeTab == 'raw-material' ? 'active' : '' }}" id="rawMaterial"
+                                role="tabpanel">
                                 <div class="table-responsive">
                                     <table class="table table-bordered text-center align-middle">
                                         <thead class="table-dark">
                                             <tr>
-                                                <th rowspan="{{ $activeTab === 'additive' ? 3 : 2 }}"
-                                                    class="sticky-col-head ">Material Name</th>
-                                                {{-- Colspan dikali 2 jika Additive untuk menampung P.ADJ dan ADJ --}}
-                                                <th
-                                                    colspan="{{ $activeTab === 'additive' ? count($dateRange) * 2 : count($dateRange) }}">
+                                                <th rowspan="2" class="sticky-col-head">Material Name</th>
+                                                <th rowspan="2" class="sticky-col-head-charging">Charging</th>
+                                                <th rowspan="2" class="sticky-col-head-lot">Lot</th>
+                                                <th colspan="{{ count($dateRange) }}">
                                                     <div>Actual Usage (Kg)</div>
-                                                    @if(!empty($data) && $data->first())
+                                                    @if(!empty($data) && is_object($data) && method_exists($data,
+                                                    'first') && $data->first())
                                                     <span class="badge badge-soft-light text-warning fw-bold">
                                                         {{ $data->first()->product_name ?? '-' }}
                                                     </span>
                                                     @endif
                                                 </th>
-                                                <th rowspan="{{ $activeTab === 'additive' ? 3 : 2 }}">Subtotal</th>
+                                                <th rowspan="2">Subtotal</th>
                                             </tr>
                                             <tr>
                                                 @foreach($dateRange as $date)
-                                                <th colspan="{{ $activeTab === 'additive' ? 2 : 1 }}">
-                                                    {{ \Carbon\Carbon::parse($date)->format('d/m') }}
-                                                </th>
+                                                <th>{{ \Carbon\Carbon::parse($date)->format('d/m') }}</th>
                                                 @endforeach
                                             </tr>
-                                            {{-- Baris ketiga hanya untuk Additive --}}
-                                            @if($activeTab === 'additive')
+                                        </thead>
+                                        <tbody>
+                                            @php $prevCharging = null; @endphp
+                                            @forelse($data as $row)
+                                            @php
+                                            $currentCharging = $row->charging ?? '-';
+                                            $rowClass = ($prevCharging !== null && $prevCharging != $currentCharging) ?
+                                            'table-secondary' : '';
+                                            $prevCharging = $currentCharging;
+                                            @endphp
+                                            <tr class="{{ $rowClass }}">
+                                                <td class="text-start sticky-col">{{ $row->material_name }}</td>
+                                                <td class="sticky-col-charging">{{ $row->charging ?? '-' }}</td>
+                                                <td class="sticky-col-lot">{{ $row->lot ?? '-' }}</td>
+                                                @foreach($dateRange as $date)
+                                                @php $dateKey = str_replace('-', '_', $date); @endphp
+                                                @php $alias = 'date_' . $dateKey; @endphp
+                                                <td>{{ isset($row->$alias) && $row->$alias > 0 ?
+                                                    number_format($row->$alias, 0) : '-' }}</td>
+                                                @endforeach
+                                                <td class="fw-bold bg-light">{{ number_format($row->subtotal, 0) }}</td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td class="text-start sticky-col">No data available</td>
+                                                <td class="sticky-col-charging">-</td>
+                                                <td class="sticky-col-lot">-</td>
+                                                <td colspan="{{ count($dateRange) + 1 }}" class="text-center py-3">-
+                                                </td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane {{ $activeTab == 'additive' ? 'active' : '' }}" id="additive"
+                                role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="3" class="sticky-col-head">Material Name</th>
+                                                <th rowspan="3" class="sticky-col-head-charging">Charging</th>
+                                                <th rowspan="3" class="sticky-col-head-lot">Lot</th>
+                                                <th colspan="{{ count($dateRange) * 2 }}">
+                                                    <div>Actual Usage (Kg)</div>
+                                                    @if(!empty($data) && is_object($data) && method_exists($data,
+                                                    'first') && $data->first())
+                                                    <span class="badge badge-soft-light text-warning fw-bold">
+                                                        {{ $data->first()->product_name ?? '-' }}
+                                                    </span>
+                                                    @endif
+                                                </th>
+                                                <th rowspan="3">Subtotal</th>
+                                            </tr>
+                                            <tr>
+                                                @foreach($dateRange as $date)
+                                                <th colspan="2">{{ \Carbon\Carbon::parse($date)->format('d/m') }}</th>
+                                                @endforeach
+                                            </tr>
                                             <tr>
                                                 @foreach($dateRange as $date)
                                                 <th style="font-size: 10px;" class="bg-secondary">P.ADJ</th>
                                                 <th style="font-size: 10px;" class="bg-info">ADJ</th>
                                                 @endforeach
                                             </tr>
-                                            @endif
                                         </thead>
                                         <tbody>
-                                            @foreach($data as $row)
-                                            <tr>
+                                            @php $prevCharging = null; @endphp
+                                            @forelse($data as $row)
+                                            @php
+                                            $currentCharging = $row->charging ?? '-';
+                                            $rowClass = ($prevCharging !== null && $prevCharging != $currentCharging) ?
+                                            'table-secondary' : '';
+                                            $prevCharging = $currentCharging;
+                                            @endphp
+                                            <tr class="{{ $rowClass }}">
                                                 <td class="text-start sticky-col">{{ $row->material_name }}</td>
+                                                <td class="sticky-col-charging">{{ $row->charging ?? '-' }}</td>
+                                                <td class="sticky-col-lot">{{ $row->lot ?? '-' }}</td>
                                                 @foreach($dateRange as $date)
-                                                @php $dateKey = str_replace('-', '_', $date); @endphp
-
-                                                @if($activeTab === 'additive')
                                                 @php
+                                                $dateKey = str_replace('-', '_', $date);
                                                 $preAlias = 'pre_date_' . $dateKey;
                                                 $adjAlias = 'date_' . $dateKey;
                                                 @endphp
@@ -174,15 +324,91 @@
                                                     number_format($row->$preAlias, 0) : '-' }}</td>
                                                 <td>{{ isset($row->$adjAlias) && $row->$adjAlias > 0 ?
                                                     number_format($row->$adjAlias, 0) : '-' }}</td>
-                                                @else
-                                                @php $alias = 'date_' . $dateKey; @endphp
-                                                <td>{{ isset($row->$alias) && $row->$alias > 0 ?
-                                                    number_format($row->$alias, 0) : '-' }}</td>
-                                                @endif
                                                 @endforeach
                                                 <td class="fw-bold bg-light">{{ number_format($row->subtotal, 0) }}</td>
                                             </tr>
-                                            @endforeach
+                                            @empty
+                                            <tr>
+                                                <td class="text-start sticky-col">No data available</td>
+                                                <td class="sticky-col-charging">-</td>
+                                                <td class="sticky-col-lot">-</td>
+                                                <td colspan="{{ (count($dateRange) * 2) + 1 }}"
+                                                    class="text-center py-3">-</td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane {{ $activeTab == 'kwh' ? 'active' : '' }}" id="kwh" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th class="sticky-col-kwh-charging-head">Charging</th>
+                                                <th class="sticky-col-kwh-lot-head">Lot</th>
+                                                <th>Date</th>
+                                                <th>Furnace</th>
+                                                <th>Charge Time (hour)</th>
+                                                <th>KWH Start Charge</th>
+                                                <th>KWH Ok Charge</th>
+                                                <th>Power (KW)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($kwhData as $kwh)
+                                            <tr>
+                                                <td class="sticky-col-kwh-charging">{{ $kwh['charging'] ?? '-' }}</td>
+                                                <td class="sticky-col-kwh-lot">{{ $kwh['lot'] ?? '-' }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($kwh['date'])->format('d/m/Y') }}</td>
+                                                <td>{{ $kwh['plan_furnace'] ?? '-' }}</td>
+                                                <td>{{ $kwh['charge_time'] ?? '-' }}</td>
+                                                <td>{{ $kwh['kwh_start_charge'] ?? 0 }}</td>
+                                                <td>{{ $kwh['kwh_ok_charge'] ?? 0 }}</td>
+                                                <td>{{ $kwh['power'] ?? 0 }}</td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="8" class="text-center py-3">No KWH data available</td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane {{ $activeTab == 'tapping' ? 'active' : '' }}" id="tapping"
+                                role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered text-center align-middle">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th class="sticky-col-kwh-charging-head">Charging</th>
+                                                <th class="sticky-col-kwh-lot-head">Lot</th>
+                                                <th>Date</th>
+                                                <th>Furnace</th>
+                                                <th>Temperature (°C)</th>
+                                                <th>Type Tapping</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($tappingData as $tapping)
+                                            <tr>
+                                                <td class="sticky-col-kwh-charging">{{ $tapping['charging'] ?? '-' }}
+                                                </td>
+                                                <td class="sticky-col-kwh-lot">{{ $tapping['lot'] ?? '-' }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($tapping['date'])->format('d/m/Y') }}</td>
+                                                <td>{{ $tapping['plan_furnace'] ?? '-' }}</td>
+                                                <td>{{ $tapping['temperatur'] ?? 0 }}</td>
+                                                <td>{{ $tapping['type_tapping'] ?? '-' }}</td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center py-3">No Temperature Tapping data
+                                                    available</td>
+                                            </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>

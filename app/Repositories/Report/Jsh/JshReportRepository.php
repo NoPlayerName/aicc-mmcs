@@ -10,116 +10,150 @@ class JshReportRepository implements JshReportRepositoryInterface
 {
     public function reportTotalFurnace($startDate, $endDate, $type, $shift)
     {
-        $plans = ProdPlan::with(['chargingHeads' => function ($query) {
-            $query->with(['rawMatUse.materialable', 'additMatUse.materialable']);
-        }])->whereBetween('plan_process_date', [$startDate, $endDate])
-            ->when($shift, function ($query) use ($shift) {
-                return $query->where('shift', $shift);
-            })
-            ->get();
+        try {
+            $plans = ProdPlan::with(['chargingHeads' => function ($query) {
+                $query->with(['rawMatUse.materialable', 'additMatUse.materialable']);
+            }])->whereBetween('plan_process_date', [$startDate, $endDate])
+                ->where('shift', $shift)
+                ->get();
 
-        return $plans->flatMap(function ($plan) use ($type) {
-            return $plan->chargingHeads->flatMap(function ($head) use ($plan, $type) {
-                $usages = ($type === EnumTypeMat::RawMaterial->value) ? $head->rawMatUse : $head->additMatUse;
-                return $usages->map(function ($usage) use ($plan) {
-                    return [
-                        'material_id' => $usage->materialable_id,
-                        'material_name' => $usage->materialable?->material_name,
-                        'date' => $plan->plan_process_date,
-                        'weight' => (float) $usage->weight,
-                        'type_adj' => $usage->type_additive,
-                    ];
+            return $plans->flatMap(function ($plan) use ($type) {
+                return $plan->chargingHeads->flatMap(function ($head) use ($plan, $type) {
+                    $usages = ($type === EnumTypeMat::RawMaterial->value) ? $head->rawMatUse : $head->additMatUse;
+                    return $usages->map(function ($usage) use ($plan) {
+                        return [
+                            'material_id' => $usage->materialable_id,
+                            'material_name' => $usage->materialable?->material_name,
+                            'date' => $plan->plan_process_date,
+                            'weight' => (float) $usage->weight,
+                            'type_adj' => $usage->type_additive,
+                        ];
+                    });
                 });
-            });
-        })->groupBy('material_id')
-            ->map(function ($items, $materialId) use ($type) {
-                $row = [
-                    'material_id' => $materialId,
-                    'material_name' => $items->first()['material_name'] ?? '-'
-                ];
-                $total = 0;
+            })->groupBy('material_id')
+                ->map(function ($items, $materialId) use ($type) {
+                    $row = [
+                        'material_id' => $materialId,
+                        'material_name' => $items->first()['material_name'] ?? '-'
+                    ];
+                    $total = 0;
 
-                // Grouping per tanggal untuk kolom horizontal
-                foreach ($items->groupBy('date') as $date => $usageGroup) {
-                    $dateKey = str_replace('-', '_', $date);
+                    foreach ($items->groupBy('date') as $date => $usageGroup) {
+                        $dateKey = str_replace('-', '_', $date);
 
-                    if ($type === EnumTypeMat::Additive->value) {
-                        // Logika khusus Additive
-                        $preWeight = $usageGroup->where('type_adj', 1)->sum('weight');
-                        $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
+                        if ($type === EnumTypeMat::Additive->value) {
+                            $preWeight = $usageGroup->where('type_adj', 1)->sum('weight');
+                            $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
 
-                        $row['pre_date_' . $dateKey] = $preWeight;
-                        $row['date_' . $dateKey]     = $adjWeight;
-                    } else {
-                        // Logika Raw Material (Tanpa P.ADJ)
-                        $row['date_' . $dateKey] = $usageGroup->sum('weight');
+                            $row['pre_date_' . $dateKey] = $preWeight;
+                            $row['date_' . $dateKey] = $adjWeight;
+                        } else {
+                            $row['date_' . $dateKey] = $usageGroup->sum('weight');
+                        }
+
+                        $total += $usageGroup->sum('weight');
                     }
 
-                    $total += $usageGroup->sum('weight');
-                }
-
-                $row['subtotal'] = $total;
-                return (object) $row;
-            })
-            ->values();
+                    $row['subtotal'] = $total;
+                    return (object) $row;
+                })
+                ->values();
+        } catch (\Throwable $th) {
+            Log::error('Generate report all furnace fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
     }
 
     public function reportFurnace($startDate, $endDate, $type, $shift, $furnace)
     {
-        $plans = ProdPlan::with(['chargingHeads' => function ($query) {
-            $query->with(['rawMatUse.materialable', 'additMatUse.materialable']);
-        }])->whereBetween('plan_process_date', [$startDate, $endDate])
-            ->when($shift, function ($query) use ($shift) {
-                return $query->where('shift', $shift);
-            })->where('plan_furnace', $furnace)
-            ->get();
+        try {
+            $plans = ProdPlan::with(['chargingHeads' => function ($query) {
+                $query->with(['rawMatUse.materialable', 'additMatUse.materialable']);
+            }])->whereBetween('plan_process_date', [$startDate, $endDate])
+                ->when($shift, function ($query) use ($shift) {
+                    return $query->where('shift', $shift);
+                })
+                ->where('plan_furnace', $furnace)
+                ->get();
 
-        return $plans->flatMap(function ($plan) use ($type) {
-            return $plan->chargingHeads->flatMap(function ($head) use ($plan, $type) {
-                $usages = ($type === EnumTypeMat::RawMaterial->value) ? $head->rawMatUse : $head->additMatUse;
-                return $usages->map(function ($usage) use ($plan) {
-                    return [
-                        'material_id' => $usage->materialable_id,
-                        'material_name' => $usage->materialable?->material_name,
-                        'plan_furnace' => $plan->plan_furnace,
-                        'date' => $plan->plan_process_date,
-                        'weight' => (float) $usage->weight,
-                        'type_adj' => $usage->type_additive,
-                    ];
+            $planLotMap = $this->buildLotMapFromPlans($plans);
+
+            return $plans->flatMap(function ($plan) use ($type, $planLotMap) {
+                return $plan->chargingHeads->flatMap(function ($head) use ($plan, $type, $planLotMap) {
+                    $usages = ($type === EnumTypeMat::RawMaterial->value) ? $head->rawMatUse : $head->additMatUse;
+                    return $usages->map(function ($usage) use ($plan, $head, $planLotMap) {
+                        return [
+                            'material_id' => $usage->materialable_id,
+                            'material_name' => $usage->materialable?->material_name,
+                            'charging_id' => $head->id,
+                            'charging' => $head->charging,
+                            'lot' => $this->resolveLotByPlanMap($plan, $planLotMap, $head),
+                            'plan_furnace' => $plan->plan_furnace,
+                            'date' => $plan->plan_process_date,
+                            'weight' => (float) $usage->weight,
+                            'type_adj' => $usage->type_additive,
+                        ];
+                    });
                 });
-            });
-        })->groupBy('material_id')
-            ->map(function ($items, $materialId) use ($type) {
-                $row = [
-                    'material_id' => $materialId,
-                    'material_name' => $items->first()['material_name'] ?? '-',
-                    'plan_furnace' => $items->first()['plan_furnace'] ?? '-',
-                ];
-                $total = 0;
+            })->groupBy(fn($item) => $item['material_id'] . '|' . $item['charging_id'] . '|' . ($item['lot'] ?? '-'))
+                ->map(function ($items) use ($type) {
+                    $row = [
+                        'material_id' => $items->first()['material_id'] ?? '-',
+                        'material_name' => $items->first()['material_name'] ?? '-',
+                        'charging' => $items->first()['charging'] ?? '-',
+                        'lot' => $items->first()['lot'] ?? '-',
+                        'plan_furnace' => $items->first()['plan_furnace'] ?? '-',
+                    ];
+                    $total = 0;
 
-                // Grouping per tanggal untuk kolom horizontal
-                foreach ($items->groupBy('date') as $date => $usageGroup) {
-                    $dateKey = str_replace('-', '_', $date);
+                    foreach ($items->groupBy('date') as $date => $usageGroup) {
+                        $dateKey = str_replace('-', '_', $date);
 
-                    if ($type === EnumTypeMat::Additive->value) {
-                        // Logika khusus Additive
-                        $preWeight = $usageGroup->where('type_adj', 1)->sum('weight');
-                        $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
+                        if ($type === EnumTypeMat::Additive->value) {
+                            $preWeight = $usageGroup->where('type_adj', 1)->sum('weight');
+                            $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
 
-                        $row['pre_date_' . $dateKey] = $preWeight;
-                        $row['date_' . $dateKey]     = $adjWeight;
-                    } else {
-                        // Logika Raw Material (Tanpa P.ADJ)
-                        $row['date_' . $dateKey] = $usageGroup->sum('weight');
+                            $row['pre_date_' . $dateKey] = $preWeight;
+                            $row['date_' . $dateKey] = $adjWeight;
+                        } else {
+                            $row['date_' . $dateKey] = $usageGroup->sum('weight');
+                        }
+
+                        $total += $usageGroup->sum('weight');
                     }
 
-                    $total += $usageGroup->sum('weight');
-                }
+                    $row['subtotal'] = $total;
+                    return (object) $row;
+                })
+                ->sort(function ($a, $b) {
+                    $dateCompare = strcmp((string) ($a->date ?? ''), (string) ($b->date ?? ''));
+                    if ($dateCompare !== 0) {
+                        return $dateCompare;
+                    }
 
-                $row['subtotal'] = $total;
-                return (object) $row;
-            })
-            ->values();
+                    $chargingCompare = ((int) ($a->charging ?? 0)) <=> ((int) ($b->charging ?? 0));
+                    if ($chargingCompare !== 0) {
+                        return $chargingCompare;
+                    }
+
+                    $materialCompare = strcmp((string) ($a->material_name ?? ''), (string) ($b->material_name ?? ''));
+                    if ($materialCompare !== 0) {
+                        return $materialCompare;
+                    }
+
+                    return strcmp((string) ($a->lot ?? ''), (string) ($b->lot ?? ''));
+                })
+                ->values();
+        } catch (\Throwable $th) {
+            Log::error('Generate report furnace fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
     }
 
     public function getKwhData($startDate, $endDate, $shift, $furnace)
@@ -132,9 +166,12 @@ class JshReportRepository implements JshReportRepositoryInterface
             })->where('plan_furnace', $furnace)
             ->get();
 
+        $planLotMap = $this->buildLotMapFromPlans($plans);
+
         $kwhList = [];
         foreach ($plans as $plan) {
             foreach ($plan->chargingHeads as $head) {
+                $planLot = $this->resolveLotByPlanMap($plan, $planLotMap, $head);
                 if ($head->Kwh->isNotEmpty()) {
                     foreach ($head->Kwh as $kwh) {
                         $kwhList[] = [
@@ -142,7 +179,7 @@ class JshReportRepository implements JshReportRepositoryInterface
                             'plan_furnace' => $plan->plan_furnace,
                             'charging_id' => $head->id,
                             'charging' => $head->charging,
-                            'lot' => $head->lot ?? '-',
+                            'lot' => $planLot,
                             'charge_time' => $kwh->charge_time ?? '-',
                             'kwh_start_charge' => $kwh->kwh_start_charge ?? 0,
                             'kwh_ok_charge' => $kwh->kwh_ok_charge ?? 0,
@@ -156,7 +193,7 @@ class JshReportRepository implements JshReportRepositoryInterface
                         'plan_furnace' => $plan->plan_furnace,
                         'charging_id' => $head->id,
                         'charging' => $head->charging,
-                        'lot' => $head->lot ?? '-',
+                        'lot' => $planLot,
                         'charge_time' => '-',
                         'kwh_start_charge' => 0,
                         'kwh_ok_charge' => 0,
@@ -166,7 +203,27 @@ class JshReportRepository implements JshReportRepositoryInterface
             }
         }
 
-        return $kwhList;
+        return collect($kwhList)
+            ->sort(function ($a, $b) {
+                $dateCompare = strcmp((string) ($a['date'] ?? ''), (string) ($b['date'] ?? ''));
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $chargingCompare = ((int) ($a['charging'] ?? 0)) <=> ((int) ($b['charging'] ?? 0));
+                if ($chargingCompare !== 0) {
+                    return $chargingCompare;
+                }
+
+                $lotCompare = strcmp((string) ($a['lot'] ?? ''), (string) ($b['lot'] ?? ''));
+                if ($lotCompare !== 0) {
+                    return $lotCompare;
+                }
+
+                return 0;
+            })
+            ->values()
+            ->toArray();
     }
 
     public function getTappingData($startDate, $endDate, $shift, $furnace)
@@ -179,9 +236,12 @@ class JshReportRepository implements JshReportRepositoryInterface
             ->where('plan_furnace', $furnace)
             ->get();
 
+        $planLotMap = $this->buildLotMapFromPlans($plans);
+
         $tappingList = [];
         foreach ($plans as $plan) {
             foreach ($plan->chargingHeads as $head) {
+                $planLot = $this->resolveLotByPlanMap($plan, $planLotMap, $head);
                 if ($head->TemptTapping->isNotEmpty()) {
                     foreach ($head->TemptTapping as $tapping) {
                         $tappingList[] = [
@@ -189,7 +249,7 @@ class JshReportRepository implements JshReportRepositoryInterface
                             'plan_furnace' => $plan->plan_furnace,
                             'charging_id' => $head->id,
                             'charging' => $head->charging,
-                            'lot' => $head->lot ?? '-',
+                            'lot' => $planLot,
                             'temperatur' => ($tapping->temperatur ?? 0),
                             'type_tapping' => $tapping->type_tapping?->text() ?? '-',
                         ];
@@ -201,7 +261,7 @@ class JshReportRepository implements JshReportRepositoryInterface
                         'plan_furnace' => $plan->plan_furnace,
                         'charging_id' => $head->id,
                         'charging' => $head->charging,
-                        'lot' => $head->lot ?? '-',
+                        'lot' => $planLot,
                         'temperatur' => 0,
                         'type_tapping' => '-',
                     ];
@@ -209,15 +269,32 @@ class JshReportRepository implements JshReportRepositoryInterface
             }
         }
 
-        return $tappingList;
+        return collect($tappingList)
+            ->sort(function ($a, $b) {
+                $dateCompare = strcmp((string) ($a['date'] ?? ''), (string) ($b['date'] ?? ''));
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $chargingCompare = ((int) ($a['charging'] ?? 0)) <=> ((int) ($b['charging'] ?? 0));
+                if ($chargingCompare !== 0) {
+                    return $chargingCompare;
+                }
+
+                $lotCompare = strcmp((string) ($a['lot'] ?? ''), (string) ($b['lot'] ?? ''));
+                if ($lotCompare !== 0) {
+                    return $lotCompare;
+                }
+
+                return 0;
+            })
+            ->values()
+            ->toArray();
     }
 
     public function reportFurnaceWithKwhTapping($startDate, $endDate, $type, $shift, $furnace)
     {
-        // Ambil data material usage seperti biasa
         $materialData = $this->reportFurnace($startDate, $endDate, $type, $shift, $furnace);
-
-        // Ambil data KWH dan Temperature Tapping menggunakan method terpisah
         $kwhData = $this->getKwhData($startDate, $endDate, $shift, $furnace);
         $tappingData = $this->getTappingData($startDate, $endDate, $shift, $furnace);
 
@@ -234,29 +311,38 @@ class JshReportRepository implements JshReportRepositoryInterface
             $plans = ProdPlan::with(['chargingHeads' => function ($query) {
                 $query->with(['rawMatUse.materialable', 'additMatUse.materialable']);
             }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
-                ->where('shift', $shift)
+                ->when($shift, function ($query) use ($shift) {
+                    return $query->where('shift', $shift);
+                })
                 ->where('model_id', $product)
                 ->get();
 
-            return $plans->flatMap(function ($plan) use ($type) {
-                return $plan->chargingHeads->flatMap(function ($head) use ($plan, $type) {
+            $planLotMap = $this->buildLotMapFromPlans($plans);
+
+            return $plans->flatMap(function ($plan) use ($type, $planLotMap) {
+                return $plan->chargingHeads->flatMap(function ($head) use ($plan, $type, $planLotMap) {
                     $usages = ($type === EnumTypeMat::RawMaterial->value) ? $head->rawMatUse : $head->additMatUse;
-                    return $usages->map(function ($usage) use ($plan) {
+                    return $usages->map(function ($usage) use ($plan, $head, $planLotMap) {
                         return [
                             'material_id' => $usage->materialable_id,
                             'material_name' => $usage->materialable?->material_name,
-                            'product_name' => $plan->models?->model . ' - ' . $plan->models?->alias,
+                            'charging_id' => $head->id,
+                            'charging' => $head->charging,
+                            'lot' => $this->resolveLotByPlanMap($plan, $planLotMap, $head),
+                            'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
                             'date' => $plan->plan_process_date,
-                            'weight' => $usage->weight,
+                            'weight' => (float) $usage->weight,
                             'type_adj' => $usage->type_additive,
                         ];
                     });
                 });
-            })->groupBy('material_id')
-                ->map(function ($items, $materialId) use ($type) {
+            })->groupBy(fn($item) => $item['material_id'] . '|' . $item['charging_id'] . '|' . ($item['lot'] ?? '-'))
+                ->map(function ($items) use ($type) {
                     $row = [
-                        'material_id' => $materialId,
+                        'material_id' => $items->first()['material_id'] ?? '-',
                         'material_name' => $items->first()['material_name'] ?? '-',
+                        'charging' => $items->first()['charging'] ?? '-',
+                        'lot' => $items->first()['lot'] ?? '-',
                         'product_name' => $items->first()['product_name'] ?? '-',
                     ];
                     $total = 0;
@@ -269,7 +355,7 @@ class JshReportRepository implements JshReportRepositoryInterface
                             $adjWeight = $usageGroup->where('type_adj', 2)->sum('weight');
 
                             $row['pre_date_' . $dateKey] = $preWeight;
-                            $row['date_' . $dateKey]     = $adjWeight;
+                            $row['date_' . $dateKey] = $adjWeight;
                         } else {
                             $row['date_' . $dateKey] = $usageGroup->sum('weight');
                         }
@@ -280,6 +366,24 @@ class JshReportRepository implements JshReportRepositoryInterface
                     $row['subtotal'] = $total;
                     return (object) $row;
                 })
+                ->sort(function ($a, $b) {
+                    $chargingCompare = ((int) ($a->charging ?? 0)) <=> ((int) ($b->charging ?? 0));
+                    if ($chargingCompare !== 0) {
+                        return $chargingCompare;
+                    }
+
+                    $lotCompare = strcmp((string) ($a->lot ?? ''), (string) ($b->lot ?? ''));
+                    if ($lotCompare !== 0) {
+                        return $lotCompare;
+                    }
+
+                    $materialCompare = strcmp((string) ($a->material_name ?? ''), (string) ($b->material_name ?? ''));
+                    if ($materialCompare !== 0) {
+                        return $materialCompare;
+                    }
+
+                    return 0;
+                })
                 ->values();
         } catch (\Throwable $th) {
             Log::error('Generate report product fail', [
@@ -288,5 +392,242 @@ class JshReportRepository implements JshReportRepositoryInterface
             ]);
             return false;
         }
+    }
+
+    public function getKwhDataByProduct($startDate, $endDate, $shift, $product)
+    {
+        $plans = ProdPlan::with(['chargingHeads' => function ($query) {
+            $query->with(['Kwh']);
+        }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
+            ->when($shift, function ($query) use ($shift) {
+                return $query->where('shift', $shift);
+            })
+            ->where('model_id', $product)
+            ->get();
+
+        $planLotMap = $this->buildLotMapFromPlans($plans);
+
+        $kwhList = [];
+        foreach ($plans as $plan) {
+            foreach ($plan->chargingHeads as $head) {
+                $planLot = $this->resolveLotByPlanMap($plan, $planLotMap, $head);
+                if ($head->Kwh->isNotEmpty()) {
+                    foreach ($head->Kwh as $kwh) {
+                        $kwhList[] = [
+                            'date' => $plan->plan_process_date,
+                            'plan_furnace' => $plan->plan_furnace,
+                            'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
+                            'charging_id' => $head->id,
+                            'charging' => $head->charging,
+                            'lot' => $planLot,
+                            'charge_time' => $kwh->charge_time ?? '-',
+                            'kwh_start_charge' => $kwh->kwh_start_charge ?? 0,
+                            'kwh_ok_charge' => $kwh->kwh_ok_charge ?? 0,
+                            'power' => $kwh->power ?? 0,
+                        ];
+                    }
+                } else {
+                    $kwhList[] = [
+                        'date' => $plan->plan_process_date,
+                        'plan_furnace' => $plan->plan_furnace,
+                        'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
+                        'charging_id' => $head->id,
+                        'charging' => $head->charging,
+                        'lot' => $planLot,
+                        'charge_time' => '-',
+                        'kwh_start_charge' => 0,
+                        'kwh_ok_charge' => 0,
+                        'power' => 0,
+                    ];
+                }
+            }
+        }
+
+        return collect($kwhList)
+            ->sort(function ($a, $b) {
+                $dateCompare = strcmp((string) ($a['date'] ?? ''), (string) ($b['date'] ?? ''));
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $chargingCompare = ((int) ($a['charging'] ?? 0)) <=> ((int) ($b['charging'] ?? 0));
+                if ($chargingCompare !== 0) {
+                    return $chargingCompare;
+                }
+
+                return strcmp((string) ($a['lot'] ?? ''), (string) ($b['lot'] ?? ''));
+            })
+            ->values()
+            ->toArray();
+    }
+
+    public function getTappingDataByProduct($startDate, $endDate, $shift, $product)
+    {
+        $plans = ProdPlan::with(['chargingHeads' => function ($query) {
+            $query->with(['TemptTapping']);
+        }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
+            ->when($shift, function ($query) use ($shift) {
+                return $query->where('shift', $shift);
+            })
+            ->where('model_id', $product)
+            ->get();
+
+        $planLotMap = $this->buildLotMapFromPlans($plans);
+
+        $tappingList = [];
+        foreach ($plans as $plan) {
+            foreach ($plan->chargingHeads as $head) {
+                $planLot = $this->resolveLotByPlanMap($plan, $planLotMap, $head);
+                if ($head->TemptTapping->isNotEmpty()) {
+                    foreach ($head->TemptTapping as $tapping) {
+                        $tappingList[] = [
+                            'date' => $plan->plan_process_date,
+                            'plan_furnace' => $plan->plan_furnace,
+                            'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
+                            'charging_id' => $head->id,
+                            'charging' => $head->charging,
+                            'lot' => $planLot,
+                            'temperatur' => ($tapping->temperatur ?? 0),
+                            'type_tapping' => $tapping->type_tapping?->text() ?? '-',
+                        ];
+                    }
+                } else {
+                    $tappingList[] = [
+                        'date' => $plan->plan_process_date,
+                        'plan_furnace' => $plan->plan_furnace,
+                        'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
+                        'charging_id' => $head->id,
+                        'charging' => $head->charging,
+                        'lot' => $planLot,
+                        'temperatur' => 0,
+                        'type_tapping' => '-',
+                    ];
+                }
+            }
+        }
+
+        return collect($tappingList)
+            ->sort(function ($a, $b) {
+                $dateCompare = strcmp((string) ($a['date'] ?? ''), (string) ($b['date'] ?? ''));
+                if ($dateCompare !== 0) {
+                    return $dateCompare;
+                }
+
+                $chargingCompare = ((int) ($a['charging'] ?? 0)) <=> ((int) ($b['charging'] ?? 0));
+                if ($chargingCompare !== 0) {
+                    return $chargingCompare;
+                }
+
+                return strcmp((string) ($a['lot'] ?? ''), (string) ($b['lot'] ?? ''));
+            })
+            ->values()
+            ->toArray();
+    }
+
+    public function reportProductWithKwhTapping($startDate, $endDate, $type, $shift, $product)
+    {
+        $materialData = $this->reportProduct($startDate, $endDate, $type, $shift, $product);
+        $kwhData = $this->getKwhDataByProduct($startDate, $endDate, $shift, $product);
+        $tappingData = $this->getTappingDataByProduct($startDate, $endDate, $shift, $product);
+
+        return [
+            'materials' => $materialData,
+            'kwh' => $kwhData,
+            'tapping' => $tappingData,
+        ];
+    }
+
+    private function buildLotMapFromPlans($plans): array
+    {
+        $lotMap = [];
+
+        $plans
+            ->groupBy(function ($plan) {
+                return implode('|', [
+                    (string) ($plan->plan_process_date ?? ''),
+                    (string) ($plan->shift ?? ''),
+                    (string) ($plan->plan_furnace ?? ''),
+                ]);
+            })
+            ->each(function ($groupPlans) use (&$lotMap) {
+                $groupPlans
+                    ->sortBy(function ($plan) {
+                        return (string) ($plan->production_plan_id ?? '');
+                    })
+                    ->values()
+                    ->chunk(3)
+                    ->each(function ($chunk) use (&$lotMap) {
+                        $lotText = $chunk
+                            ->pluck('lot')
+                            ->map(function ($value) {
+                                return trim((string) $value);
+                            })
+                            ->filter(function ($value) {
+                                return $value !== '';
+                            })
+                            ->implode(', ');
+
+                        $lotValue = $lotText !== '' ? $lotText : '-';
+
+                        foreach ($chunk as $plan) {
+                            $planId = (string) ($plan->production_plan_id ?? '');
+                            if ($planId !== '') {
+                                $lotMap[$planId] = $lotValue;
+                            }
+                        }
+                    });
+            });
+
+        return $lotMap;
+    }
+
+    private function resolveLotByPlanMap($plan, array $planLotMap, $head = null): string
+    {
+        $planId = (string) ($plan->production_plan_id ?? '');
+
+        if ($planId !== '' && isset($planLotMap[$planId]) && $planLotMap[$planId] !== '-') {
+            return $planLotMap[$planId];
+        }
+
+        $lotFromPlan = $this->resolveLotFromPlan($plan);
+        if ($lotFromPlan !== '-') {
+            return $lotFromPlan;
+        }
+
+        if ($head !== null) {
+            $headLot = trim((string) data_get($head, 'lot', ''));
+            if ($headLot !== '') {
+                return $headLot;
+            }
+        }
+
+        return '-';
+    }
+
+    private function resolveLotFromPlan($plan): string
+    {
+        $rawLots = [];
+
+        $candidateFields = ['lot', 'lot1', 'lot2', 'lot3', 'lot_1', 'lot_2', 'lot_3'];
+        foreach ($candidateFields as $field) {
+            $value = data_get($plan, $field);
+            if (is_scalar($value) && trim((string) $value) !== '') {
+                $rawLots[] = (string) $value;
+            }
+        }
+
+        $lots = collect($rawLots)
+            ->flatMap(function ($value) {
+                return preg_split('/\s*,\s*/', (string) $value, -1, PREG_SPLIT_NO_EMPTY);
+            })
+            ->map(function ($value) {
+                return trim((string) $value);
+            })
+            ->filter()
+            ->unique()
+            ->take(3)
+            ->values();
+
+        return $lots->isEmpty() ? '-' : $lots->implode(', ');
     }
 }

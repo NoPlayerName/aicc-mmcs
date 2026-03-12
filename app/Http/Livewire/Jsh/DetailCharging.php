@@ -8,15 +8,15 @@ use Livewire\Component;
 
 class DetailCharging extends Component
 {
-    public $lot;
+    public $lot = '-';
     public $id;
     public $chargeId;
-    public $product;
-    public $charging;
-    public $rawMaterial;
-    public $additive;
-    public $kwh;
-    public $tapping;
+    public $product = '-';
+    public $charging = '-';
+    public $rawMaterial = [];
+    public $additive = [];
+    public $kwh = [];
+    public $tapping = [];
 
 
     #[On('DetailCharging')]
@@ -29,10 +29,10 @@ class DetailCharging extends Component
         $this->product = $data['model_id'] ?? "-";
 
         $data = app(MaterialUseJshService::class)->getDetail($this->chargeId, $this->id);
-        $this->rawMaterial = $data->rawMat;
-        $this->additive = $data->additive;
-        $this->kwh = $data->kwh;
-        $this->tapping = $data->tapping;
+        $this->rawMaterial = $data->rawMat ?? [];
+        $this->additive = $data->additive ?? [];
+        $this->kwh = $data->kwh ?? [];
+        $this->tapping = $data->tapping ?? [];
 
         // dd($this->kwh);
 

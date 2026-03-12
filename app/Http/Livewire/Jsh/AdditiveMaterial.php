@@ -108,6 +108,15 @@ class AdditiveMaterial extends Component
     {
         $user = Auth::user()->usr;
         $this->validate();
+
+        $typeAdditiveValue = is_numeric($this->typeAddjust)
+            ? (int) $this->typeAddjust
+            : null;
+
+        $typeAdditive = $typeAdditiveValue !== null
+            ? EnumTypeAdditive::tryFrom($typeAdditiveValue)
+            : null;
+
         $this->dataAdditiveMat[] = [
             'charging_head_id' => $this->chargeId,
             'materialable_id' => $this->material,
@@ -115,8 +124,8 @@ class AdditiveMaterial extends Component
             'materialable_type' => $this->is_trial ? 'trial' : 'master',
             'weight' => $this->weight,
             'type' => EnumTypeMat::Additive->value,
-            'type_additive' => $this->typeAddjust,
-            'type_additive_text' =>  EnumTypeAdditive::tryFrom($this->typeAddjust)?->text(),
+            'type_additive' => $typeAdditiveValue,
+            'type_additive_text' => $typeAdditive?->text(),
             'created_by' => $user,
             'created_at' => now(),
         ];

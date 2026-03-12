@@ -44,6 +44,9 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
             [],
             [
                 'Date',
+                'Charging',
+                'Lot',
+                'Furnace',
                 'Temperature',
                 'Type Tapping',
             ],
@@ -54,6 +57,9 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             \Carbon\Carbon::parse($row['date'])->format('d/m/Y'),
+            $row['charging'] ?? '-',
+            $row['lot'] ?? '-',
+            $row['plan_furnace'] ?? '-',
             $row['temperatur'] ?? 0,
             $row['type_tapping'] ?? '-',
         ];
@@ -64,7 +70,7 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
         $highestRow = $sheet->getHighestRow();
 
         // Header styling
-        $sheet->getStyle('A1:C2')->applyFromArray([
+        $sheet->getStyle('A1:F2')->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
             // 'fill' => [
             //     'fillType' => Fill::FILL_SOLID,
@@ -74,7 +80,7 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
         ]);
 
         // Heading styling
-        $sheet->getStyle('A4:C4')->applyFromArray([
+        $sheet->getStyle('A4:F4')->applyFromArray([
             'font' => ['bold' => true,  'size' => 11],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -90,7 +96,7 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
         ]);
 
         // Data borders
-        $sheet->getStyle('A5:C' . $highestRow)->applyFromArray([
+        $sheet->getStyle('A5:F' . $highestRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -104,6 +110,9 @@ class JshTappingSheetExport implements FromCollection, WithHeadings, WithMapping
         $sheet->getColumnDimension('A')->setWidth(15);
         $sheet->getColumnDimension('B')->setWidth(20);
         $sheet->getColumnDimension('C')->setWidth(20);
+        $sheet->getColumnDimension('D')->setWidth(20);
+        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(20);
 
         return [];
     }

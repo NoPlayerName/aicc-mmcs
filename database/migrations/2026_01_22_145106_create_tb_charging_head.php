@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::connection('material-use')->create('tb_charging_head_jsh', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('plan_id_anchor')->index();
+            $table->string('plan_id_anchor')->index();
             $table->smallInteger('charging')->nullable();
             $table->tinyInteger('status')->nullable();
             $table->string('created_by')->nullable();

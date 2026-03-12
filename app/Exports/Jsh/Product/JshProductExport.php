@@ -22,24 +22,29 @@ class  JshProductExport implements WithMultipleSheets
     public function sheets(): array
     {
         return [
-            // Sheet 1: Raw Material
             new JshProductSheetExport(
                 $this->repo->reportProduct($this->start, $this->end, EnumTypeMat::RawMaterial->value, $this->shift, $this->product),
                 $this->dateRange,
                 'Raw Material',
                 $this->shift,
                 EnumTypeMat::RawMaterial->value,
-                // $this->product
-
             ),
-            // Sheet 2: Additive
             new JshProductSheetExport(
                 $this->repo->reportProduct($this->start, $this->end, EnumTypeMat::Additive->value, $this->shift, $this->product),
                 $this->dateRange,
                 'Additive',
                 $this->shift,
                 EnumTypeMat::Additive->value,
-                // $this->product,
+            ),
+            new JshProductKwhSheetExport(
+                $this->repo->getKwhDataByProduct($this->start, $this->end, $this->shift, $this->product),
+                $this->shift,
+                $this->product
+            ),
+            new JshProductTappingSheetExport(
+                $this->repo->getTappingDataByProduct($this->start, $this->end, $this->shift, $this->product),
+                $this->shift,
+                $this->product
             ),
         ];
     }
