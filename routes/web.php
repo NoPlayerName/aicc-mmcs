@@ -3,6 +3,7 @@
 use App\Http\Livewire\Ace\MaterialInput as AceMaterialInput;
 use App\Http\Livewire\Ace\MaterialAdjust as AceMaterialAdjust;
 use App\Http\Livewire\Ace\MaterialLadleTransfer;
+use App\Http\Livewire\Ace\MaterialLadleTfAdjust;
 use App\Http\Livewire\Auth\Login;
 use App\Http\Livewire\Dashboard;
 use App\Http\Livewire\Invetory\StockForm;
@@ -11,6 +12,7 @@ use App\Http\Livewire\Jsh\MaterialInput;
 use App\Http\Livewire\Jsh\MaterialAdjust as JshMaterialAdjust;
 use App\Http\Livewire\Report\Ace\AllFurnaceAce;
 use App\Http\Livewire\Report\Ace\FurnaceAce;
+use App\Http\Livewire\Report\Ace\LadleTfAdjustReport;
 use App\Http\Livewire\Report\Ace\LadleTransferReport;
 use App\Http\Livewire\Report\Ace\MaterialAdjustReportAce;
 use App\Http\Livewire\Report\Ace\ProductAce;
@@ -39,12 +41,14 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/material-input', AceMaterialInput::class)->name('material-input-ace.index');
         Route::get('/material-adjust', AceMaterialAdjust::class)->name('material-adjust-ace.index');
         Route::get('/ladle-transfer', MaterialLadleTransfer::class)->name('ladle-transfer.index');
+        Route::get('/ladle-tf-adjust', MaterialLadleTfAdjust::class)->name('ladle-tf-adjust.index');
         Route::prefix('report')->name('report.')->group(function () {
             Route::get('/total-furnace', AllFurnaceAce::class)->name('total-furnace-report');
             Route::get('/furnace-report', FurnaceAce::class)->name('furnace-report');
             Route::get('/product-report', ProductAce::class)->name('product-report');
             Route::get('/material-adjust-report', MaterialAdjustReportAce::class)->name('material-adjust-report');
             Route::get('/ladle-transfer-report', LadleTransferReport::class)->name('ladle-transfer-report');
+            Route::get('/ladle-tf-adjust-report', LadleTfAdjustReport::class)->name('ladle-tf-adjust-report');
         });
     });
     // });

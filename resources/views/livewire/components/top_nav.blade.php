@@ -65,6 +65,10 @@
                             <a href="{{ route('ace.ladle-transfer.index') }}" class="dropdown-item" wire:navigate>Ladle
                                 Transfer</a>
                             @endif
+                            {{-- @if ($this->canView('/ace/ladle-tf-adjust', 'can_access'))
+                            <a href="{{ route('ace.ladle-tf-adjust.index') }}" class="dropdown-item" wire:navigate>Ladle
+                                TF Adjust</a>
+                            @endif --}}
                             @if ($this->canView('/ace/material-adjust', 'can_access'))
                             <a href="{{ route('ace.material-adjust-ace.index') }}" class="dropdown-item"
                                 wire:navigate>Material Adjust</a>
@@ -72,7 +76,8 @@
                             @if ($this->canView('/ace/report/total-furnace', 'can_access') ||
                             $this->canView('/ace/report/furnace-report', 'can_access') ||
                             $this->canView('/ace/report/product-report', 'can_access') ||
-                            $this->canView('/ace/report/ladle-transfer-report', 'can_access'))
+                            $this->canView('/ace/report/ladle-transfer-report', 'can_access') ||
+                            $this->canView('/ace/report/ladle-tf-adjust-report', 'can_access'))
                             <div class="dropdown-divider"></div>
                             <h6 class="dropdown-header">Report</h6>
                             @if ($this->canView('/ace/report/total-furnace', 'can_access'))
@@ -89,6 +94,10 @@
                             <a href="{{ route('ace.report.ladle-transfer-report') }}" class="dropdown-item"
                                 wire:navigate>Ladle Transfer Report</a>
                             @endif
+                            {{-- @if ($this->canView('/ace/report/ladle-tf-adjust-report', 'can_access'))
+                            <a href="{{ route('ace.report.ladle-tf-adjust-report') }}" class="dropdown-item"
+                                wire:navigate>Ladle TF Adjust Report</a>
+                            @endif --}}
                             @if ($this->canView('/ace/report/material-adjust-report', 'can_access'))
                             <a href="{{ route('ace.report.material-adjust-report') }}" class="dropdown-item"
                                 wire:navigate>Material Adjust Report</a>

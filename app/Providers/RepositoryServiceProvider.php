@@ -12,6 +12,8 @@ use App\Repositories\MaterialUseAce\MaterialUseAceReposiroty;
 use App\Repositories\MaterialUseAce\MaterialUseAceReposirotyInterface;
 use App\Repositories\MaterialUseAce\MaterialAdjustAceRepository;
 use App\Repositories\MaterialUseAce\MaterialAdjustAceRepositoryInterface;
+use App\Repositories\MaterialUseAce\LadleTfAdjustRepository;
+use App\Repositories\MaterialUseAce\LadleTfAdjustRepositoryInterface;
 use App\Repositories\MaterialUseJsh\MaterialAdjustJshRepository;
 use App\Repositories\MaterialUseJsh\MaterialAdjustJshRepositoryInterface;
 use App\Repositories\MaterialUseJsh\MaterialUseJshRepository;
@@ -45,6 +47,7 @@ class RepositoryServiceProvider extends ServiceProvider
             ProductRepositoryInterface::class => ProductRepository::class,
             MaterialUseAceReposirotyInterface::class => MaterialUseAceReposiroty::class,
             MaterialAdjustAceRepositoryInterface::class => MaterialAdjustAceRepository::class,
+            LadleTfAdjustRepositoryInterface::class => LadleTfAdjustRepository::class,
         ];
 
         foreach ($bindings as $interface => $implementation) {
