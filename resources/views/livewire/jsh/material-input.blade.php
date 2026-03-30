@@ -228,11 +228,13 @@
                                                     title="View Detail">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
+                                                @if ($this->can('can_edit'))
                                                 <button class="btn btn-warning btn-sm"
                                                     wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'
                                                     title="Edit Data">
                                                     <i class="fas fa-edit text-white"></i>
                                                 </button>
+                                                @endif
                                                 <button class="btn btn-primary btn-sm"
                                                     wire:click="Proccess({{ $indexPlan }}, {{ $indexCharge }})"
                                                     title="Process">

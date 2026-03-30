@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Jsh;
 
 use App\Services\MaterialUseJsh\MaterialUseJshService;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class FormMaterialInput extends Component
@@ -75,6 +76,7 @@ class FormMaterialInput extends Component
         $data = [
             'plan_id_anchor' => $this->id,
             'charging' => $this->charging,
+            'created_by' => Auth::user()->usr,
         ];
 
         $save = app(MaterialUseJshService::class)->saveChargingHead($data);

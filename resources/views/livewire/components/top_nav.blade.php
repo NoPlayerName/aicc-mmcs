@@ -13,6 +13,11 @@
                     </li>
 
                     {{-- JSH Dropdown --}}
+                    @if ($this->canView('/jsh/material-input', 'can_access') || $this->canView('/jsh/material-adjust',
+                    'can_access') || $this->canView('/jsh/report/total-furnace', 'can_access') ||
+                    $this->canView('/jsh/report/furnace-report', 'can_access') ||
+                    $this->canView('/jsh/report/product-report', 'can_access') ||
+                    $this->canView('/jsh/material-adjust-report', 'can_access'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-jsh" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -49,8 +54,16 @@
                             @endif
                         </div>
                     </li>
+                    @endif
 
                     {{-- ACE Dropdown --}}
+                    @if ($this->canView('/ace/material-input', 'can_access') || $this->canView('/ace/ladle-transfer',
+                    'can_access') || $this->canView('/ace/material-adjust', 'can_access') ||
+                    $this->canView('/ace/report/total-furnace', 'can_access') ||
+                    $this->canView('/ace/report/furnace-report', 'can_access') ||
+                    $this->canView('/ace/report/product-report', 'can_access') ||
+                    $this->canView('/ace/report/ladle-transfer-report', 'can_access') ||
+                    $this->canView('/ace/report/ladle-tf-adjust-report', 'can_access'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-ace" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -105,6 +118,7 @@
                             @endif
                         </div>
                     </li>
+                    @endif
 
                 </ul>
             </div>
