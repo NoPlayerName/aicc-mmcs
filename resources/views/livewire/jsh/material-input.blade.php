@@ -134,7 +134,7 @@
                         <div class="form-group mb-0">
                             <label class="font-weight-bold"><i class="mdi mdi-calendar mr-1"></i>Select
                                 Date</label>
-                            <input type="text" class="form-control form-control-lg" data-provide="datepicker"
+                            <input class="form-control form-control-lg" data-provide="datepicker"
                                 data-date-format="dd/mm/yyyy" data-date-autoclose="true" placeholder="Choose Date">
                         </div>
                     </div>
