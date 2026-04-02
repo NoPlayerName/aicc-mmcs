@@ -461,11 +461,19 @@
              Livewire.on('showFormEdit', () => {
                 window.__aceMaterialInputTrigger = $(document.activeElement);
                 $('#modal-material-input').modal('show');
+                setTimeout(() => {
+                    cleanupAceSelect2Artifacts();
+                    initAceSelect();
+                }, 100);
             });
 
             Livewire.on('showFormInput', () => {
                 window.__aceMaterialInputTrigger = $(document.activeElement);
                 $('#modal-material-input').modal('show');
+                setTimeout(() => {
+                    cleanupAceSelect2Artifacts();
+                    initAceSelect();
+                }, 100);
             });
              Livewire.on('showDetailCharge', () => {
                 window.__aceMaterialInputTrigger = $(document.activeElement);

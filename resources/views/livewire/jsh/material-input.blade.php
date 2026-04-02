@@ -361,10 +361,18 @@
 
             Livewire.on('showFormInput', () => {
                 $('#modal-material-input').modal('show');
+                setTimeout(() => {
+                    cleanupJshSelect2Artifacts();
+                    initJshSelects();
+                }, 100);
             });
 
             Livewire.on('showFormEdit', () => {
                 $('#modal-material-input').modal('show');
+                setTimeout(() => {
+                    cleanupJshSelect2Artifacts();
+                    initJshSelects();
+                }, 100);
             });
 
             Livewire.on('showDetailCharge', () => {
