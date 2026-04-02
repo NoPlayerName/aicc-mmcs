@@ -329,7 +329,7 @@
         }));
 
         initSelect2WithDispatch('#rawMat-select2', {
-            minimumResultsForSearch: 0
+            minimumResultsForSearch: 5
         }, 'rawMat', ($el) => ({
             rawMat: $el.val(),
             name: $el.find('option:selected').text()
@@ -378,7 +378,7 @@
             Livewire.on('loadMaterial', () => {
                 setTimeout(() => {
                     initSelect2WithDispatch('#rawMat-select2', {
-                        minimumResultsForSearch: 0
+                        minimumResultsForSearch: 5
                     }, 'rawMat', ($el) => ({
                         rawMat: $el.val(),
                         name: $el.find('option:selected').text()
@@ -389,7 +389,7 @@
             Livewire.on('loadAdditive', () => {
                 setTimeout(() => {
                     initSelect2WithDispatch('#Additive-select2', {
-                        minimumResultsForSearch: 0
+                        minimumResultsForSearch: 5
                     }, 'additMat', ($el) => ({
                         data: $el.val(),
                         name: $el.find('option:selected').text()

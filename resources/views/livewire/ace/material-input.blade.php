@@ -135,7 +135,7 @@
                                         Date</label>
                                     <input type="text" class="form-control form-control-lg" data-provide="datepicker"
                                         data-date-format="dd/mm/yyyy" data-date-autoclose="true"
-                                        placeholder="Choose Date">
+                                        placeholder="Choose Date" inputmode="none">
                                 </div>
                             </div>
                             <div class="col-md-3">
