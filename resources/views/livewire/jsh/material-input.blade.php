@@ -318,6 +318,16 @@
             .off('change.jshMaterialInput')
             .on('change.jshMaterialInput', function () {
                 Livewire.dispatch(eventName, payloadBuilder($(this)));
+            })
+            .off('select2:open.jshMaterialInput')
+            .on('select2:open.jshMaterialInput', function () {
+                // Blur search input untuk mencegah keyboard otomatis
+                setTimeout(() => {
+                    const searchInput = $(this).data('select2').$dropdown?.find('.select2-search__field');
+                    if (searchInput && searchInput.length) {
+                        searchInput.blur();
+                    }
+                }, 10);
             });
     }
 
@@ -361,18 +371,10 @@
 
             Livewire.on('showFormInput', () => {
                 $('#modal-material-input').modal('show');
-                setTimeout(() => {
-                    cleanupJshSelect2Artifacts();
-                    initJshSelects();
-                }, 100);
             });
 
             Livewire.on('showFormEdit', () => {
                 $('#modal-material-input').modal('show');
-                setTimeout(() => {
-                    cleanupJshSelect2Artifacts();
-                    initJshSelects();
-                }, 100);
             });
 
             Livewire.on('showDetailCharge', () => {
