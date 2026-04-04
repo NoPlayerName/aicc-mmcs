@@ -19,6 +19,11 @@ class MaterialService
         $data = $this->Material->getAditive();
         return $data;
     }
+    public function getAditiveJsh()
+    {
+        $data = $this->Material->getAditiveJsh();
+        return $data;
+    }
     public function getInoculant()
     {
         $data = $this->Material->getInoculant();

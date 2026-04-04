@@ -70,7 +70,7 @@ class AdditiveMaterial extends Component
 
         if (!$this->is_trial) {
 
-            $data = app(MaterialService::class)->getAdditive();
+            $data = app(MaterialService::class)->getAditiveJsh();
             $this->additiveSelect = $data;
         } else {
 

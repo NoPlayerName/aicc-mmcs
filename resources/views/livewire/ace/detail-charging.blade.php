@@ -158,10 +158,9 @@
                                         @forelse ($kwh as $kw)
                                         <tr>
                                             <td>{{ $kw->charge_time }} <small class="text-muted">Min</small></td>
-                                            <td class="text-center">{{ number_format($kw->kwh_start_charge, 0, ',', '.')
-                                                }} <small>kWh</small></td>
-                                            <td class="text-center text-success">{{ number_format($kw->kwh_ok_charge, 0,
-                                                ',', '.') }} <small>kWh</small></td>
+                                            <td class="text-center">{{ $kw->kwh_start_charge }} <small>kWh</small></td>
+                                            <td class="text-center text-success">{{ $kw->kwh_ok_charge }}
+                                                <small>kWh</small></td>
                                             <td class="text-center text-primary">{{ number_format($kw->power, 0, ',',
                                                 '.') }} <small>kW</small></td>
                                         </tr>

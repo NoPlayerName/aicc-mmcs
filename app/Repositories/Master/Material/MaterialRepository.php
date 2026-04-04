@@ -8,14 +8,19 @@ use App\Models\Master\TbMaterialTrial;
 class MaterialRepository implements MaterialRepositoryInterface
 {
 
+    public function getAditiveJsh()
+    {
+        $data = TbMaterial::whereIn('is_for_mmcs', [2, 3])->where('is_material_show', 1)->get();
+        return $data;
+    }
     public function getAditive()
     {
-        $data = TbMaterial::where('is_for_mmcs', '2')->get();
+        $data = TbMaterial::where('is_for_mmcs', '2')->where('is_material_show', 1)->get();
         return $data;
     }
     public function getInoculant()
     {
-        $data = TbMaterial::where('is_for_mmcs', '3')->get();
+        $data = TbMaterial::where('is_for_mmcs', '3')->where('is_material_show', 1)->get();
         return $data;
     }
 
