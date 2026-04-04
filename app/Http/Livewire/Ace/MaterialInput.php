@@ -54,8 +54,12 @@ class MaterialInput extends BaseLivewireComponent
     public function changeFilter()
     {
         // dd($this->date, $this->shift);
-        $this->furnace = app(PlanProductionAceService::class)
-            ->getFurnaceHead($this->date, $this->shift) ?? collect();
+        if (is_null($this->date) || is_null($this->shift)) {
+            $this->loadFurnaceHead();
+        } else {
+            $this->furnace = app(PlanProductionAceService::class)
+                ->getFurnaceHead($this->date, $this->shift) ?? collect();
+        }
     }
     public function toggleAccordion($index)
     {

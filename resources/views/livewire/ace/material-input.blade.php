@@ -108,7 +108,7 @@
 </style>
 @endpush
 
-<div class="page-content">
+<div class="page-content" wire:poll.visible.10000ms="changeFilter">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
@@ -387,13 +387,13 @@
              date: $('[data-provide="datepicker"]').val() || null
         }));
          initSelect2WithDispatch('#rawMat-select2', {
-            minimumResultsForSearch: 0
+            minimumResultsForSearch: 5
         }, 'rawMat', ($el) => ({
             rawMat: $el.val(),
             name: $el.find('option:selected').text()
         }), '#modal-material-input');
           initSelect2WithDispatch('#Additive-select2', {
-            minimumResultsForSearch: 0
+            minimumResultsForSearch: 5
         }, 'additMat', ($el) => ({
             data: $el.val(),
             name: $el.find('option:selected').text()
@@ -422,7 +422,7 @@
             placeholder: 'Choose Product...',
             allowClear: true,
             dropdownParent: $('#modal-material-input'),
-            minimumResultsForSearch: 0,
+            minimumResultsForSearch: 5,
         }, 'productSelect', ($el) => ({
             productId: $el.val() ? Number($el.val()) : null,
             lotIds: ($('#modal-material-input').find('#selectLotMultiple').val() || []).map(v => Number(v))
