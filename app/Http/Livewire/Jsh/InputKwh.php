@@ -69,7 +69,7 @@ class InputKwh extends Component
 
     public function save()
     {
-        $this->validate();
+        // $this->validate();
         if ($this->edit) {
 
             $save = app(MaterialUseJshService::class)->UpdateKwh($this->form);

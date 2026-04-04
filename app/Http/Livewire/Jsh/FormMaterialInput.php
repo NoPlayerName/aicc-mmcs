@@ -27,7 +27,7 @@ class FormMaterialInput extends Component
         $this->id = $data['production_plan_id'];
         $this->chargeId = $data['chargingHeadId'];
         $this->lot = $data['lot'] ?? '-';
-        $this->charging = $data['charging'] ?? '-';
+        $this->charging = $data['charging'] ?? null;
         $this->product = $data['model_id'] ?? "-";
         $this->dispatch('input-material-data', id: $this->chargeId, isEdit: $this->edit);
         $this->dispatch('showFormInput');

@@ -112,7 +112,7 @@
 </style>
 @endpush
 
-<div class="page-content">
+<div class="page-content" wire:poll.visible.10000ms="changeFilter">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
@@ -134,7 +134,7 @@
                         <div class="form-group mb-0">
                             <label class="font-weight-bold"><i class="mdi mdi-calendar mr-1"></i>Select
                                 Date</label>
-                            <input type="text" class="form-control form-control-lg" data-provide="datepicker"
+                            <input type="text" class="form-control form-control-md" data-provide="datepicker"
                                 data-date-format="dd/mm/yyyy" data-date-autoclose="true" placeholder="Choose Date"
                                 inputmode="none">
                         </div>
@@ -143,13 +143,19 @@
                         <div class="form-group mb-0">
                             <label class="font-weight-bold"><i class="mdi mdi-clock-outline mr-1"></i>Select
                                 Shift</label>
-                            <div wire:ignore>
-                                <select class="form-control form-control-lg" id="jsh-material-shift">
-                                    <option value="">Select</option>
-                                    <option value="D">D </option>
-                                    <option value="S">S </option>
-                                    <option value="N">N </option>
-                                </select>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1" wire:ignore>
+                                    <select class="form-control form-control-lg" id="jsh-material-shift">
+                                        <option value="">Select</option>
+                                        <option value="D">D </option>
+                                        <option value="S">S </option>
+                                        <option value="N">N </option>
+                                    </select>
+                                </div>
+                                {{-- <button type="button" class="btn btn-outline-secondary btn-sm ml-2"
+                                    wire:click="changeFilter" title="Refresh Data">
+                                    <i class="mdi mdi-refresh"></i>
+                                </button> --}}
                             </div>
                         </div>
                     </div>
