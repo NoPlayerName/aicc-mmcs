@@ -41,35 +41,58 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                 ->groupBy('plan_furnace')
                 ->map(function ($group) use ($existingInputs) {
                     $firstGroup = $group->first();
-                    $chargings = $group
-                        ->chunk(3)
-                        ->map(function ($items, $index) use ($existingInputs) {
-                            $firstItem = $items->first();
-                            $anchorId = $firstItem->production_plan_id;
-                            $charge = $existingInputs->get($anchorId);
-                            $totalRaw = (float) ($charge?->rawMatUse?->sum('weight') ?? 0);
-                            $totalAdditive = (float) ($charge?->additMatUse?->sum('weight') ?? 0);
-                            // dd($charge);
-                            return [
-                                'production_plan_id' => $firstItem->production_plan_id,
-                                'chargingHeadId' => $charge ? $charge->id : null,
-                                'charging' => $charge ? $charge->charging : null,
-                                'lot'         => $items->pluck('lot')->implode(', '),
-                                'model_id'       => $firstItem->models?->model,
-                                'total_raw_material'  => $totalRaw,
-                                'total_additive'      => $totalAdditive,
-                            ];
-                        })
-                        ->values();
+
+                    // Sort lot numbers and group consecutive ones
+                    $sortedLots = $group->pluck('lot')->sort()->values()->toArray();
+                    $lotGroups = [];
+                    $currentGroup = [];
+
+                    foreach ($sortedLots as $lot) {
+                        if (empty($currentGroup)) {
+                            $currentGroup[] = $lot;
+                        } else {
+                            $lastLot = end($currentGroup);
+                            // If consecutive and less than 3, add to current group
+                            if ($lot == $lastLot + 1 && count($currentGroup) < 3) {
+                                $currentGroup[] = $lot;
+                            } else {
+                                // Start new group
+                                $lotGroups[] = $currentGroup;
+                                $currentGroup = [$lot];
+                            }
+                        }
+                    }
+                    // Add last group
+                    if (!empty($currentGroup)) {
+                        $lotGroups[] = $currentGroup;
+                    }
+
+                    $chargings = array_map(function ($lotGroup) use ($group, $existingInputs) {
+                        $firstItem = $group->first();
+                        $anchorId = $firstItem->production_plan_id;
+                        $charge = $existingInputs->get($anchorId);
+                        $totalRaw = (float) ($charge?->rawMatUse?->sum('weight') ?? 0);
+                        $totalAdditive = (float) ($charge?->additMatUse?->sum('weight') ?? 0);
+
+                        return [
+                            'production_plan_id' => $firstItem->production_plan_id,
+                            'chargingHeadId' => $charge ? $charge->id : null,
+                            'charging' => $charge ? $charge->charging : null,
+                            'lot'         => implode(', ', $lotGroup),
+                            'model_id'       => $firstItem->models?->model,
+                            'total_raw_material'  => $totalRaw,
+                            'total_additive'      => $totalAdditive,
+                        ];
+                    }, $lotGroups);
 
                     return [
                         'plan_furnace'  =>  $firstGroup->plan_furnace ?? '-',
                         'plan_process_date'  =>  $firstGroup->plan_process_date ?? '-',
                         'shift'  =>  $firstGroup->shift ?? '-',
                         'model_id' =>  $firstGroup->models?->model ?? '-',
-                        'chargings' => $chargings, // 🔥 charging DI DALAM prodplan
-                        'total_raw_material'  => (float) $chargings->sum('total_raw_material'),
-                        'total_additive'      => (float) $chargings->sum('total_additive'),
+                        'chargings' => collect($chargings), // 🔥 charging DI DALAM prodplan
+                        'total_raw_material'  => (float) collect($chargings)->sum('total_raw_material'),
+                        'total_additive'      => (float) collect($chargings)->sum('total_additive'),
                     ];
                 })
                 ->values();
