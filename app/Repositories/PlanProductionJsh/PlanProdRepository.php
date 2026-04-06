@@ -42,33 +42,34 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                 ->map(function ($group) use ($existingInputs) {
                     $firstGroup = $group->first();
 
-                    // Sort lot numbers and group consecutive ones
-                    $sortedLots = $group->pluck('lot')->sort()->values()->toArray();
-                    $lotGroups = [];
+                    // Sort items by lot and group consecutive lots (max 3 per charging)
+                    $sortedItems = $group->sortBy(fn($item) => (int) $item->lot)->values();
+                    $itemGroups = [];
                     $currentGroup = [];
 
-                    foreach ($sortedLots as $lot) {
+                    foreach ($sortedItems as $item) {
                         if (empty($currentGroup)) {
-                            $currentGroup[] = $lot;
+                            $currentGroup[] = $item;
+                            continue;
+                        }
+
+                        $lastLot = (int) end($currentGroup)->lot;
+                        $currentLot = (int) $item->lot;
+
+                        if ($currentLot === $lastLot + 1 && count($currentGroup) < 3) {
+                            $currentGroup[] = $item;
                         } else {
-                            $lastLot = end($currentGroup);
-                            // If consecutive and less than 3, add to current group
-                            if ($lot == $lastLot + 1 && count($currentGroup) < 3) {
-                                $currentGroup[] = $lot;
-                            } else {
-                                // Start new group
-                                $lotGroups[] = $currentGroup;
-                                $currentGroup = [$lot];
-                            }
+                            $itemGroups[] = $currentGroup;
+                            $currentGroup = [$item];
                         }
                     }
-                    // Add last group
+
                     if (!empty($currentGroup)) {
-                        $lotGroups[] = $currentGroup;
+                        $itemGroups[] = $currentGroup;
                     }
 
-                    $chargings = array_map(function ($lotGroup) use ($group, $existingInputs) {
-                        $firstItem = $group->first();
+                    $chargings = array_map(function ($itemsGroup) use ($existingInputs) {
+                        $firstItem = $itemsGroup[0];
                         $anchorId = $firstItem->production_plan_id;
                         $charge = $existingInputs->get($anchorId);
                         $totalRaw = (float) ($charge?->rawMatUse?->sum('weight') ?? 0);
@@ -78,12 +79,12 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                             'production_plan_id' => $firstItem->production_plan_id,
                             'chargingHeadId' => $charge ? $charge->id : null,
                             'charging' => $charge ? $charge->charging : null,
-                            'lot'         => implode(', ', $lotGroup),
+                            'lot'         => collect($itemsGroup)->pluck('lot')->implode(', '),
                             'model_id'       => $firstItem->models?->model,
                             'total_raw_material'  => $totalRaw,
                             'total_additive'      => $totalAdditive,
                         ];
-                    }, $lotGroups);
+                    }, $itemGroups);
 
                     return [
                         'plan_furnace'  =>  $firstGroup->plan_furnace ?? '-',

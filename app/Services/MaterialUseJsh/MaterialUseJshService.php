@@ -64,6 +64,7 @@ class MaterialUseJshService
     {
         $newData = array_map(function ($item) {
             unset($item['material_name']);
+            unset($item['materialable']);
             return $item;
         }, $data);
         $save = $this->materialUse->saveRawMat($newData);
@@ -75,6 +76,7 @@ class MaterialUseJshService
         $now = now();
         $update = array_map(function ($item) use ($now, $user) {
             unset($item['material_name']);
+            unset($item['materialable']);
             $item['updated_by'] = $user;
             $item['updated_at'] = $now;
             return $item;
@@ -88,6 +90,7 @@ class MaterialUseJshService
         $newData = array_map(function ($item) {
             unset($item['type_additive_text']);
             unset($item['material_name']);
+            unset($item['materialable']);
             return $item;
         }, $data);
         $save = $this->materialUse->saveAdditiveMat($newData);
@@ -100,6 +103,7 @@ class MaterialUseJshService
         $update = array_map(function ($item) use ($now, $user) {
             unset($item['type_additive_text']);
             unset($item['material_name']);
+            unset($item['materialable']);
             $item['updated_by'] = $user;
             $item['updated_at'] = $now;
             return $item;

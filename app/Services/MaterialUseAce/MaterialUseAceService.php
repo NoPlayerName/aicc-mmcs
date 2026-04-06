@@ -51,6 +51,7 @@ class MaterialUseAceService
     {
         $newData = array_map(function ($item) {
             unset($item['material_name']);
+            unset($item['materialable']);
             return $item;
         }, $data);
         return $this->repository->saveRawMat($newData);
@@ -74,6 +75,7 @@ class MaterialUseAceService
         $newData = array_map(function ($item) {
             unset($item['type_additive_text']);
             unset($item['material_name']);
+            unset($item['materialable']);
             return $item;
         }, $data);
         return $this->repository->saveAdditiveMat($newData);

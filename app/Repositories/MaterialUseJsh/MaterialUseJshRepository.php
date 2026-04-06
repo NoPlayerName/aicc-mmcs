@@ -49,7 +49,7 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
         $data = MaterialUsageJsh::with('materialable')->select('charging_head_id', 'materialable_id', 'materialable_type', 'weight', 'type', 'created_by', 'created_at')->where('charging_head_id', $data)
             ->where('type', EnumTypeMat::RawMaterial->value)->get()->map(function ($item) {
                 $item->material_name = $item->materialable?->material_name ?? '-';
-                return $item->makeHidden('material');
+                return $item->makeHidden('materialable');
             });
         // dd($data);
         return $data;
@@ -60,7 +60,7 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
             ->where('type', EnumTypeMat::Additive->value)->get()->map(function ($item) {
                 $item->type_additive_text = $item->type_additive?->text() ?? '-';
                 $item->material_name = $item->materialable?->material_name ?? '-';
-                return $item->makeHidden('material');
+                return $item->makeHidden('materialable');
             });
         return $data;
     }
