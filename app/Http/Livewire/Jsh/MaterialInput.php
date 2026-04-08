@@ -23,16 +23,17 @@ class MaterialInput extends BaseLivewireComponent
             session()->flash('error', 'You no have access to this menu!');
             return redirect()->route('dashboard');
         }
+        $this->changeFilter();
     }
     public function updatedShift($value)
     {
         // Cek apakah shift masuk
-        $this->ChangeFilter();
+        $this->changeFilter();
     }
     public function updatedDate($value)
     {
         // Cek apakah shift masuk
-        $this->ChangeFilter();
+        $this->changeFilter();
     }
 
     #[On('Date')]
@@ -53,6 +54,11 @@ class MaterialInput extends BaseLivewireComponent
         $this->data = app(PlanProductionService::class)
             ->getPlanProd($this->date, $this->shift) ?? collect();
     }
+    // public function LoadData()
+    // {
+    //     $this->data = app(PlanProductionService::class)
+    //         ->getPlanProd(null, null) ?? collect();
+    // }
 
     // Fungsi untuk handle klik accordion
     public function toggleAccordion($index)

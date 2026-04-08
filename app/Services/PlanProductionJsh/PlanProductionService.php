@@ -24,13 +24,24 @@ class PlanProductionService
 
     public function getPlanProd($date, $shift)
     {
-        if (empty($date) || empty($shift)) {
-            return null;
+        $currentDateTime = now();
+        $hour = $currentDateTime->hour;
+        $shiftByHour = ($hour >= 7 && $hour < 20) ? 'D' : 'N';
+        $productionDate = $currentDateTime->copy();
+
+        if ($shiftByHour === 'N' && $hour < 7) {
+            $productionDate->subDay();
         }
-        $tanggal = Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
-        // dd($tanggal);
-        // dd($this->PlanProduction->generateData($tanggal, $shift));
-        return $this->PlanProduction->generateData($tanggal, $shift);
+
+        if (empty($date) || empty($shift)) {
+            $tanggal = $productionDate->format('Y-m-d');
+            $shiftNow = $shiftByHour;
+        } else {
+            $tanggal = Carbon::createFromFormat('d/m/Y', $date)->format('Y-m-d');
+            $shiftNow = $shift;
+        }
+
+        return $this->PlanProduction->generateData($tanggal, $shiftNow);
         // $data = FurnaceHead::where('date', $tanggal)
         //     ->where('shift', $shift)
         //     ->exists();
