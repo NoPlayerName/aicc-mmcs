@@ -248,7 +248,7 @@
                                                 <td class="font-weight-bold text-dark">{{ $charge->charging }}</td>
                                                 <td><span class="badge badge-light px-2 py-1">{{ $charge->lot ?? '-'
                                                         }}</span></td>
-                                                <td>{{ $charge->product->name ?? '-' }}</td>
+                                                <td>{{ $charge->product->alias ?? '-' }}</td>
                                                 <td class="text-right">
                                                     <div class="btn-group">
                                                         <button class="btn btn-info btn-sm"
