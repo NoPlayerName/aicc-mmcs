@@ -36,6 +36,11 @@ class ChargingHead extends BaseModelJsh
     {
         return $this->hasMany(TemptTappingJsh::class, 'charging_head_id', 'id');
     }
+
+    public function furnaceHead()
+    {
+        return $this->belongsTo(FurnaceHead::class, 'plan_id_anchor', 'id');
+    }
     protected function serializeDate(\DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');

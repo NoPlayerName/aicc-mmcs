@@ -20,6 +20,6 @@ class FurnaceHead extends Model
 
     public function chargings()
     {
-        return $this->hasMany(ChargingHead::class, 'furnace_head_id', 'id');
+        return $this->hasMany(ChargingHead::class, 'plan_id_anchor', 'id');
     }
 }

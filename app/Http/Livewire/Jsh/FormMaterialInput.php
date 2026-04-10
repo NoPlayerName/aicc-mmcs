@@ -13,6 +13,7 @@ class FormMaterialInput extends Component
     public $lot;
     public $id;
     public $chargeId;
+    public $description;
     public $product;
     public $charging;
     public $edit = false;
@@ -29,6 +30,7 @@ class FormMaterialInput extends Component
         $this->lot = $data['lot'] ?? '-';
         $this->charging = $data['charging'] ?? null;
         $this->product = $data['model_id'] ?? "-";
+        $this->description = $data['desc'] ?? null;
         $this->dispatch('input-material-data', id: $this->chargeId, isEdit: $this->edit);
         $this->dispatch('showFormInput');
     }
@@ -82,10 +84,31 @@ class FormMaterialInput extends Component
         $save = app(MaterialUseJshService::class)->saveChargingHead($data);
         if ($save) {
             $this->dispatch('refreshData')->to(MaterialInput::class);
+            $this->chargeId = $save['id'];
             $this->dispatch('input-material-data', id: $save['id'], isEdit: $this->edit);
             $this->dispatch('success', message: 'Data charging berhasil ditambahkan!');
         } else {
             $this->dispatch('error', message: 'Data charging gagal ditambahkan');
+        }
+    }
+
+    public function addDesc()
+    {
+        $data = [
+            'id' => $this->chargeId,
+            'desc' => $this->description,
+        ];
+        if (is_null($this->chargeId)) {
+            $this->dispatch('error', message: 'Silahkan simpan data charging terlebih dahulu sebelum menambahkan deskripsi');
+            return;
+        } else {
+            $save = app(MaterialUseJshService::class)->saveDesc($data);
+            if ($save) {
+                $this->dispatch('refreshData')->to(MaterialInput::class);
+                $this->dispatch('success', message: 'Deskripsi berhasil ditambahkan!');
+            } else {
+                $this->dispatch('error', message: 'Deskripsi gagal ditambahkan');
+            }
         }
     }
 

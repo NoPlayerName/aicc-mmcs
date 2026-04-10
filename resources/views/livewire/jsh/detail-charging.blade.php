@@ -21,20 +21,24 @@
                         </div>
                         <div class="col-md-3 border-left">
                             <small class="text-muted d-block font-weight-normal">Charging</small>
-                            @if($charging != '-')
+                            {{-- @if($charging != '-') --}}
                             <span class="h5 mb-0 text-primary">{{ $charging }}</span>
-                            @else
-                            <div class="d-flex align-items-center">
+                            {{-- @else --}}
+                            {{-- <div class="d-flex align-items-center">
                                 <input type="text" class="form-control form-control-sm mr-2" style="width: 80px"
                                     wire:model='charging'>
                                 <button class="btn btn-sm btn-primary" wire:click='saveCharge'><i
                                         class="fas fa-check"></i></button>
                             </div>
-                            @endif
+                            @endif --}}
                         </div>
-                        <div class="col-md-6 border-left text-right text-md-left pl-md-4">
+                        <div class="col-md-3 border-left text-right text-md-left pl-md-4">
                             <small class="text-muted d-block font-weight-normal">Product Type</small>
                             <span class="h5 mb-0 text-dark">{{ $product }}</span>
+                        </div>
+                        <div class="col-md-3 border-left text-right text-md-left pl-md-4">
+                            <small class="text-muted d-block font-weight-normal">Description</small>
+                            <span class="h5 mb-0 text-dark">{{ $description }}</span>
                         </div>
                     </div>
                 </div>
@@ -159,7 +163,9 @@
                                         <tr>
                                             <td>{{ $kw->charge_time }} <small class="text-muted">Min</small></td>
                                             <td class="text-center">{{ $kw->kwh_start_charge }} <small>kWh</small></td>
-                                            <td class="text-center text-success">{{ $kw->kwh_ok_charge }} <small>kWh</small></td>
+                                            <td class="text-center text-success">{{ $kw->kwh_ok_charge }}
+                                                <small>kWh</small>
+                                            </td>
                                             <td class="text-center text-primary">{{ number_format($kw->power, 0, ',',
                                                 '.') }} <small>kW</small></td>
                                         </tr>

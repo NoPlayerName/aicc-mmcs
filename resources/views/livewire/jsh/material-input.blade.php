@@ -164,6 +164,22 @@
             </div>
         </div>
 
+        {{-- <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-end">
+                    {{-- @if ($this->can('can_create')) --}}
+                    {{-- <button class="btn btn-primary mr-2" wire:click="addManualFurnace(4)">
+                        <i class="fas fa-plus"></i> Add Furnace 4 Manual
+                    </button>
+                    <button class="btn btn-primary" wire:click="addManualFurnace(5)">
+                        <i class="fas fa-plus"></i> Add Furnace 5 Manual
+                    </button> --}}
+                    {{-- @endif --}}
+                    {{--
+                </div>
+            </div>
+        </div> --}}
+
         <div id="accordion" class="custom-accordion">
             @forelse (($data ?? []) as $indexPlan => $dt)
             <div class="card mb-2 shadow-none border-0" wire:key="plan-{{ $indexPlan }}">
@@ -202,6 +218,7 @@
                             </div>
 
                             <div class="col-md-1 text-right">
+
                                 <i class="mdi mdi-chevron-down font-size-24 accor-down-icon text-muted"></i>
                             </div>
                         </div>
@@ -211,6 +228,20 @@
                 <div id="collapse{{ $indexPlan }}" class="collapse {{ $openIndex === $indexPlan ? 'show' : '' }}"
                     aria-labelledby="heading{{ $indexPlan }}" data-parent="#accordion">
                     <div class="card-body border-top bg-white p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="m-0 font-size-15"><i class="mdi mdi-format-list-bulleted mr-2"></i>Charging
+                                Details</h5>
+                            @if(in_array($dt['plan_furnace'], [4, 5]) )
+                            <div class="d-flex flex-column align-items-end">
+                                <button type="button" class="btn btn-outline-primary btn-sm waves-effect"
+                                    wire:click="addManualCharging({{ $indexPlan }}, {{ $dt['plan_furnace'] }}, '{{ $dt['plan_process_date'] }}', '{{ $dt['shift'] }}')"
+                                    title="Add Manual Charging">
+                                    <i class="mdi mdi-plus mr-1"></i>Add Charging
+                                </button>
+                                <small class="text-warning ml-2">Khusus untuk material transfer</small>
+                            </div>
+                            @endif
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="thead-light">
@@ -218,6 +249,7 @@
                                         <th class="py-3">Charging #</th>
                                         <th>Lot Number</th>
                                         <th>Product</th>
+                                        <th>Description</th>
                                         <th class="text-right px-4">Actions</th>
                                     </tr>
                                 </thead>
@@ -228,6 +260,7 @@
                                         <td><span class="badge badge-light p-2 font-size-12">{{ $charge['lot'] }}</span>
                                         </td>
                                         <td>{{ $charge['model_id'] }}</td>
+                                        <td>{{ $charge['desc'] }}</td>
                                         <td class="text-right px-4">
                                             <div class="btn-group">
                                                 <button class="btn btn-info btn-sm"

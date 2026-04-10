@@ -42,10 +42,24 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="d-flex align-items-center">
                                     <span class="text-muted mr-2">Product:</span>
                                     <span class="font-weight-bold text-dark text-truncate">{{ $product }}</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted mr-2">Description:</span>
+                                    {{-- <span class="font-weight-bold text-dark text-truncate">{{ $product }}</span>
+                                    --}}
+                                    @if($description != null)
+                                    <span class="text-dark text-truncate">{{ $description }}</span>
+                                    @else
+                                    <textarea required class="form-control" rows="1" wire:change='addDesc'
+                                        wire:model='description'></textarea>
+                                    @endif
                                 </div>
                             </div>
 

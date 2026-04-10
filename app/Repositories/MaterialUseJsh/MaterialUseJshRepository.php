@@ -103,6 +103,22 @@ class MaterialUseJshRepository implements MaterialUseJshRepositoryInterface
         }
     }
 
+    public function saveDesc($data)
+    {
+        try {
+            $charging = ChargingHead::findOrFail($data['id']);
+            $charging->desc = $data['desc'];
+            $charging->save();
+            return true;
+        } catch (\Throwable $th) {
+            Log::error('Save description fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
+
     public function saveCharging($data)
     {
         try {

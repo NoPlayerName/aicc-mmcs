@@ -11,6 +11,7 @@ interface   MaterialUseJshRepositoryInterface
     public function getTempTapping($id);
     public function getCharging($id);
     public function saveCharging($data);
+    public function saveDesc($data);
     public function saveChargingHead($data);
     public function saveRawMat($data);
     public function saveUpdateRawMat($data);

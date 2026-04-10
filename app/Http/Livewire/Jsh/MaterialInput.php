@@ -53,13 +53,8 @@ class MaterialInput extends BaseLivewireComponent
     {
         $this->data = app(PlanProductionService::class)
             ->getPlanProd($this->date, $this->shift) ?? collect();
+        // dd($this->data);
     }
-    // public function LoadData()
-    // {
-    //     $this->data = app(PlanProductionService::class)
-    //         ->getPlanProd(null, null) ?? collect();
-    // }
-
     // Fungsi untuk handle klik accordion
     public function toggleAccordion($index)
     {
@@ -93,6 +88,27 @@ class MaterialInput extends BaseLivewireComponent
         $Data['is_edit'] = true;
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
         $this->dispatch('FormUpdateMat', data: $Data)->to(FormMaterialInput::class);
+    }
+
+    public function addManualCharging($dataPlan, $furnace, $date, $shiftF)
+    {
+        $this->openIndex = $dataPlan;
+        // dd($furnace, $date, $shiftF);
+
+        $result = app(MaterialUseJshService::class)->createManualCharging($furnace, $date, $shiftF);
+
+        // $date = $this->date ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->date)->format('Y-m-d') : now()->format('Y-m-d');
+        // $shift = $this->shift ?? (($this->date ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->date) : now())->hour >= 7 && ($this->date ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->date) : now())->hour < 20 ? 'D' : 'N');
+
+        // $result = app(\App\Services\MaterialUseJsh\MaterialUseJshService::class)->createManualCharging($furnace, $date, $shift, 1); 
+        // Start with charging 1
+
+        if ($result) {
+            $this->dispatch('refreshData');
+            $this->dispatch('success', message: 'Charging manual berhasil ditambahkan!');
+        } else {
+            $this->dispatch('error', message: 'Gagal menambahkan charging manual');
+        }
     }
 
     #[Title('JSH Material Input')]
