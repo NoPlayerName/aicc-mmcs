@@ -33,7 +33,7 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                     'rawMatUse',   // ->sum('weight')
                     'additMatUse', // ->sum('weight')
                 ])->whereIn('plan_id_anchor', $planIds)
-                ->select('id', 'plan_id_anchor', 'charging', 'status')
+                ->select('id', 'plan_id_anchor', 'charging', 'desc')
                 ->get()
                 ->keyBy('plan_id_anchor');
 
