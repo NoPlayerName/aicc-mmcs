@@ -144,15 +144,20 @@ class RawMaterial extends Component
                 $this->dispatch('error', message: 'Data raw material gagal diubah');
             }
         } else {
-
-            $save = app(MaterialUseJshService::class)->saveRawMat($this->dataRawMat);
-            // dd($save);
-            if ($save) {
-                $this->reset(['dataRawMat', 'totalWeight']);
-                $this->dispatch('saved');
-                $this->dispatch('success', message: 'Data raw material berhasil disave');
+            if (is_null($this->chargeId)) {
+                $this->dispatch('error', message: 'Silahkan simpan data charging terlebih dahulu sebelum menambahkan raw material');
+                return;
             } else {
-                $this->dispatch('error', message: 'Data raw material gagal save');
+
+                $save = app(MaterialUseJshService::class)->saveRawMat($this->dataRawMat);
+                // dd($save);
+                if ($save) {
+                    $this->reset(['dataRawMat', 'totalWeight']);
+                    $this->dispatch('saved');
+                    $this->dispatch('success', message: 'Data raw material berhasil disave');
+                } else {
+                    $this->dispatch('error', message: 'Data raw material gagal save');
+                }
             }
         }
     }

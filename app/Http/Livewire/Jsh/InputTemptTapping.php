@@ -101,13 +101,18 @@ class InputTemptTapping extends Component
                 $this->dispatch('error', message: 'Data Tapping gagal diubah');
             }
         } else {
-            $save =  app(MaterialUseJshService::class)->saveTemptTapping($this->dataTapping);
-            if ($save) {
-                $this->reset('dataTapping');
-                // $this->dispatch('saved');
-                $this->dispatch('success', message: 'Data Tapping berhasil disave');
+            if (is_null($this->chargeId)) {
+                $this->dispatch('error', message: 'Silahkan simpan data charging terlebih dahulu sebelum menambahkan Tempt Tapping');
+                return;
             } else {
-                $this->dispatch('error', message: 'Data Tapping gagal save');
+                $save =  app(MaterialUseJshService::class)->saveTemptTapping($this->dataTapping);
+                if ($save) {
+                    $this->reset('dataTapping');
+                    // $this->dispatch('saved');
+                    $this->dispatch('success', message: 'Data Tapping berhasil disave');
+                } else {
+                    $this->dispatch('error', message: 'Data Tapping gagal save');
+                }
             }
         }
     }
