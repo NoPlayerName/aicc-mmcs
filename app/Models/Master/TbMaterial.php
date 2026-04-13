@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TbMaterial extends Model
 {
     protected $connection = 'master';
-    protected $table = 'tb_material_erp';
+    protected $table = 'v_mat_material_use';
     protected $primaryKey = 'material_code';
     protected $keyType = 'string';
     public $incrementing = false;
