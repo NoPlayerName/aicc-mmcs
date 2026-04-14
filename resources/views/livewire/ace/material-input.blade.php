@@ -373,7 +373,7 @@
                 setTimeout(() => {
                     const searchInput = $(this).data('select2').$dropdown?.find('.select2-search__field');
                     if (searchInput && searchInput.length) {
-                        searchInput.prop('readonly', true);
+                        // searchInput.prop('readonly', true);
                         searchInput.blur();
                     }
                 }, 10);
@@ -413,7 +413,7 @@
             placeholder: 'Choose Lots...',
             allowClear: true,
             dropdownParent: $('#modal-material-input'),
-            maximumSelectionLength: 3,
+            maximumSelectionLength: 5,
             minimumResultsForSearch: Infinity,
         }, 'lotSelection', ($el) => ({
             productId: $('#modal-material-input').find('#product-select2').val() ? Number($('#modal-material-input').find('#product-select2').val()) : null,
@@ -424,7 +424,7 @@
             placeholder: 'Choose Product...',
             allowClear: true,
             dropdownParent: $('#modal-material-input'),
-            minimumResultsForSearch: 5,
+            minimumResultsForSearch: 0,
         }, 'productSelect', ($el) => ({
             productId: $el.val() ? Number($el.val()) : null,
             lotIds: ($('#modal-material-input').find('#selectLotMultiple').val() || []).map(v => Number(v))
