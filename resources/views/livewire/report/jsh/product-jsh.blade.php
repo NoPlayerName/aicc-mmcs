@@ -150,6 +150,18 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-2">
+                                <div class="form-group" wire:ignore>
+                                    <label class="control-label">Select Furnace</label>
+                                    <select class="form-control select2" id="furnace" wire:model.live="furnace">
+                                        <option value="">select</option>
+                                        @foreach ($furnaceSelect as $fc)
+                                        <option value="{{ $fc->value }}">{{ $fc->text }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="col-md-auto">
                                 <button class="btn btn-md btn-primary" wire:click='search' wire:loading.attr="disabled">
                                     <i class="fas fa-search" wire:loading.remove></i>
@@ -224,6 +236,11 @@
                                                     <span class="badge badge-soft-light text-warning fw-bold">
                                                         {{ $data->first()->product_name ?? '-' }}
                                                     </span>
+                                                    <div class="mt-1">
+                                                        <span class="badge badge-soft-light text-info fw-bold">
+                                                            Furnace: {{ $furnace ?: 'All Furnace' }}
+                                                        </span>
+                                                    </div>
                                                     @endif
                                                 </th>
                                                 <th rowspan="2">Subtotal</th>
@@ -285,6 +302,11 @@
                                                     <span class="badge badge-soft-light text-warning fw-bold">
                                                         {{ $data->first()->product_name ?? '-' }}
                                                     </span>
+                                                    <div class="mt-1">
+                                                        <span class="badge badge-soft-light text-info fw-bold">
+                                                            Furnace: {{ $furnace ?: 'All Furnace' }}
+                                                        </span>
+                                                    </div>
                                                     @endif
                                                 </th>
                                                 <th rowspan="3">Subtotal</th>
@@ -453,6 +475,12 @@
         }).on('change', function (e) {
             let Data = $(this).val()
             Livewire.dispatch('Product', {data: Data});
+        });
+         $('#furnace').select2({
+            minimumResultsForSearch: Infinity
+        }).on('change', function (e) {
+            let Data = $(this).val()
+            Livewire.dispatch('Furnace', {data: Data});
         });
        
     })
