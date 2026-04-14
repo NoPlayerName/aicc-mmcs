@@ -16,6 +16,7 @@ class MaterialInput extends BaseLivewireComponent
     public $shift;
     public $openIndex = null;
     public $indexCharge = null;
+    public $isEditForm = false;
     public function mount()
     {
         $permissionAcces =  $this->mountBase();
@@ -74,6 +75,7 @@ class MaterialInput extends BaseLivewireComponent
 
         $this->openIndex = $dataPlan;
         $this->indexCharge = $indexCharge;
+        $this->isEditForm = false;
         $Data = $this->furnace[$dataPlan]['chargings'][$indexCharge];
         $Data['is_edit'] = false;
         $this->dispatch('FormInputMat', data: $Data)->to(FormMaterialInput::class);
@@ -82,6 +84,7 @@ class MaterialInput extends BaseLivewireComponent
     {
         $this->openIndex = $dataPlan;
         $this->indexCharge = $dataCharge;
+        $this->isEditForm = true;
         $Data = $this->furnace[$dataPlan]['chargings'][$dataCharge];
         $Data['is_edit'] = true;
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
@@ -106,7 +109,7 @@ class MaterialInput extends BaseLivewireComponent
         }
 
         $Data = $this->furnace[$this->openIndex]['chargings'][$this->indexCharge];
-        $Data['is_edit'] = false;
+        $Data['is_edit'] = $this->isEditForm;
         $this->dispatch('LoadFormInputMat', data: $Data)->to(FormMaterialInput::class);
     }
 

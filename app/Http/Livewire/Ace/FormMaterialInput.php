@@ -18,6 +18,7 @@ class FormMaterialInput extends Component
     public $productSelect;
     public $charging;
     public $edit = false;
+    public $selectionLocked = false;
     public $lots = [];
     public $products = [];
 
@@ -40,6 +41,13 @@ class FormMaterialInput extends Component
             ->filter(fn($lot) => $lot !== '')
             ->values()
             ->all();
+
+        // Rule:
+        // - Mode edit: lot/product selalu bisa diubah.
+        // - Mode process: hanya bisa isi jika masih kosong, jika sudah ada nilainya maka dikunci.
+        $hasLot = !empty($this->lots);
+        $hasProduct = !empty($this->productSelect);
+        $this->selectionLocked = !$this->edit && $hasLot && $hasProduct;
     }
 
 
