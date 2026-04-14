@@ -25,34 +25,36 @@
                             <div class="col-md-4 border-right">
                                 <label class="text-muted small text-uppercase font-weight-bold mb-1 d-block">Lot
                                     Number</label>
-                                @if($lot != null)
-                                <h5 class="mb-0 font-weight-bold text-dark">{{ $lot }}</h5>
-                                @else
-                                <div wire:ignore class="mt-1">
+                                @if($lot)
+                                <small class="d-block text-muted mb-1">Current: {{ $lot }}</small>
+                                @endif
+                                <div wire:ignore wire:key="select-lot-{{ $chargeId }}" class="mt-1">
                                     <select id="selectLotMultiple" class="form-control select2-multiple"
                                         multiple="multiple">
-                                        @for ($a = 1 ; $a <= 100 ; $a++) <option value="{{ $a }}">Lot {{ $a }}</option>
+                                        @for ($a = 1 ; $a <= 100 ; $a++)
+                                            <option value="{{ $a }}" @selected(in_array((string) $a, $lots, true))>
+                                                Lot {{ $a }}
+                                            </option>
                                             @endfor
                                     </select>
                                 </div>
-                                @endif
                             </div>
 
                             <div class="col-md-4">
                                 <label
                                     class="text-muted small text-uppercase font-weight-bold mb-1 d-block">Product</label>
-                                @if ($product != null)
-                                <h5 class="mb-0 font-weight-bold text-dark text-truncate">{{ $product }}</h5>
-                                @else
-                                <div wire:ignore wire:key="select-product" class="mt-1">
+                                @if($product)
+                                <small class="d-block text-muted mb-1">Current: {{ $product }}</small>
+                                @endif
+                                <div wire:ignore wire:key="select-product-{{ $chargeId }}" class="mt-1">
                                     <select class="form-control select2" id="product-select2">
                                         <option value="">Select Product</option>
                                         @foreach ($products as $p)
-                                        <option value="{{ $p->id }}">{{ $p->alias }}</option>
+                                        <option value="{{ $p->id }}" @selected((string) $p->id === (string)
+                                            $productSelect)>{{ $p->alias }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                @endif
                             </div>
                         </div>
                     </div>

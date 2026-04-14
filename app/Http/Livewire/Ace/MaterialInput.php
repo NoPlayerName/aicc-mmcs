@@ -81,6 +81,7 @@ class MaterialInput extends BaseLivewireComponent
     public function Edit($dataPlan, $dataCharge)
     {
         $this->openIndex = $dataPlan;
+        $this->indexCharge = $dataCharge;
         $Data = $this->furnace[$dataPlan]['chargings'][$dataCharge];
         $Data['is_edit'] = true;
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
@@ -96,6 +97,14 @@ class MaterialInput extends BaseLivewireComponent
     #[On('loadDataFormInputMat')]
     public function load()
     {
+        if (is_null($this->openIndex) || is_null($this->indexCharge)) {
+            return;
+        }
+
+        if (!isset($this->furnace[$this->openIndex]['chargings'][$this->indexCharge])) {
+            return;
+        }
+
         $Data = $this->furnace[$this->openIndex]['chargings'][$this->indexCharge];
         $Data['is_edit'] = false;
         $this->dispatch('LoadFormInputMat', data: $Data)->to(FormMaterialInput::class);
