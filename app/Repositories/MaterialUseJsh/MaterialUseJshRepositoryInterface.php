@@ -13,6 +13,7 @@ interface   MaterialUseJshRepositoryInterface
     public function saveCharging($data);
     public function saveDesc($data);
     public function saveChargingHead($data);
+    public function updateChargingHead($data);
     public function saveRawMat($data);
     public function saveUpdateRawMat($data);
     public function saveAdditiveMat($data);

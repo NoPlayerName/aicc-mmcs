@@ -81,14 +81,31 @@ class FormMaterialInput extends Component
             'created_by' => Auth::user()->usr,
         ];
 
-        $save = app(MaterialUseJshService::class)->saveChargingHead($data);
-        if ($save) {
-            $this->dispatch('refreshData')->to(MaterialInput::class);
-            $this->chargeId = $save['id'];
-            $this->dispatch('input-material-data', id: $save['id'], isEdit: $this->edit);
-            $this->dispatch('success', message: 'Data charging berhasil ditambahkan!');
+        if ($this->edit) {
+            $data['id'] = $this->chargeId;
+            $save = app(MaterialUseJshService::class)->updateChargingHead($data);
+            if ($save) {
+                $chargeId = is_array($save)
+                    ? ($save['id'] ?? $this->chargeId)
+                    : ($save->id ?? $this->chargeId);
+
+                $this->dispatch('refreshData')->to(MaterialInput::class);
+                $this->chargeId = $chargeId;
+                $this->dispatch('input-material-data', id: $chargeId, isEdit: $this->edit);
+                $this->dispatch('success', message: 'Data charging berhasil diperbarui!');
+            } else {
+                $this->dispatch('error', message: 'Data charging gagal diperbarui');
+            }
         } else {
-            $this->dispatch('error', message: 'Data charging gagal ditambahkan');
+            $save = app(MaterialUseJshService::class)->saveChargingHead($data);
+            if ($save) {
+                $this->dispatch('refreshData')->to(MaterialInput::class);
+                $this->chargeId = $save['id'];
+                $this->dispatch('input-material-data', id: $save['id'], isEdit: $this->edit);
+                $this->dispatch('success', message: 'Data charging berhasil ditambahkan!');
+            } else {
+                $this->dispatch('error', message: 'Data charging gagal ditambahkan');
+            }
         }
     }
 

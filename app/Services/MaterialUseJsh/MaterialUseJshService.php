@@ -64,6 +64,18 @@ class MaterialUseJshService
         $data = $this->materialUse->saveChargingHead($data);
         return $data;
     }
+    public function updateChargingHead($data)
+    {
+        if (!is_array($data) || !isset($data['id'])) {
+            return false;
+        }
+
+        $newData = $data;
+        $newData['updated_by'] = $data['created_by'] ?? Auth::user()->usr;
+        unset($newData['created_by']);
+        $data = $this->materialUse->updateChargingHead($newData);
+        return $data;
+    }
 
     public function saveRawMat($data)
     {

@@ -21,7 +21,7 @@
                             <div class="col-md-3">
                                 <div class="d-flex align-items-center">
                                     <span class="text-muted mr-2">Charging:</span>
-                                    @if($charging != null)
+                                    @if($charging != null && $edit == false)
                                     <span class="badge badge-soft-primary p-2 font-size-14">{{ $charging }}</span>
                                     @else
                                     <div class="input-group input-group-sm" style="width: 120px;">
