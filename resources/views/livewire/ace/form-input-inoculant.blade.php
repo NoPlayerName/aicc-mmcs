@@ -43,7 +43,7 @@
                                         id="product-select2">
                                         <option value="">Choose Product</option>
                                         @foreach ($products as $product)
-                                        <option value="{{ $product['id'] }}">{{ $product['name'] }}</option>
+                                        <option value="{{ $product['id'] }}">{{ $product['alias'] }}</option>
                                         @endforeach
                                     </select>
                                     @error('product')
