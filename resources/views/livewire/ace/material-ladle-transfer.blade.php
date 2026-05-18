@@ -98,7 +98,7 @@
                                         </th>
                                         <td><span class="badge badge-soft-dark p-2 font-size-12">{{ $item->lot }}</span>
                                         </td>
-                                        <td class="font-weight-medium">{{ $item->product?->name ?? '-' }}</td>
+                                        <td class="font-weight-medium">{{ $item->product?->alias ?? '-' }}</td>
                                         <td class="text-right px-4">
                                             <div class="btn-group-action">
                                                 <button type="button" class="btn btn-info btn-sm waves-effect"

@@ -36,7 +36,7 @@ class LadleTransferDetail extends Component
         }
 
         $this->furnace = $ladle->furnace?->furnace ?? '-';
-        $this->product = $ladle->product?->name ?? '-';
+        $this->product = $ladle->product?->alias ?? '-';
         $this->lot = $ladle->lot ?? '-';
         $this->moltTmpt = $ladle->ladle_molten_temp ?? 0;
         $this->beratMolt = $ladle->molten_weight ?? 0;

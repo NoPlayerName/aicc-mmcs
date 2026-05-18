@@ -365,7 +365,7 @@ class MaterialUseAceReposiroty implements MaterialUseAceReposirotyInterface
                     'shift' => $item->furnace?->shift ?? '-',
                     'furnace' => $item->furnace?->furnace ?? '-',
                     'lot' => $item->lot ?? '-',
-                    'product' => $item->product?->name ?? '-',
+                    'product' => $item->product?->alias ?? '-',
                     'molten_weight' => (float) ($item->molten_weight ?? 0),
                     'ladle_molten_temp' => (float) ($item->ladle_molten_temp ?? 0),
                     'weighing_status' => (bool) $item->weighing_status,
