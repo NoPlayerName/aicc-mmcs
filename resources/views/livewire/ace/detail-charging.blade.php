@@ -122,7 +122,7 @@
                                             <td class="text-center"><span class="badge badge-soft-info">{{
                                                     $aW->type_additive_text }}</span></td>
                                             <td class="text-right px-4 font-weight-bold text-info">{{
-                                                number_format($aW->weight, 0, ',', '.') }} kg</td>
+                                                number_format($aW->weight, 1, ',', '.') }} kg</td>
                                         </tr>
                                         @empty
                                         <tr>
@@ -135,7 +135,7 @@
                                         <tr class="font-weight-bold">
                                             <td colspan="2" class="text-right">TOTAL ADDITIVE</td>
                                             <td class="text-right px-4">{{
-                                                number_format(collect($additive)->sum('weight'), 0, ',', '.') }} KG</td>
+                                                number_format(collect($additive)->sum('weight'), 1, ',', '.') }} KG</td>
                                         </tr>
                                     </tfoot>
                                     @endif
@@ -160,7 +160,8 @@
                                             <td>{{ $kw->charge_time }} <small class="text-muted">Min</small></td>
                                             <td class="text-center">{{ $kw->kwh_start_charge }} <small>kWh</small></td>
                                             <td class="text-center text-success">{{ $kw->kwh_ok_charge }}
-                                                <small>kWh</small></td>
+                                                <small>kWh</small>
+                                            </td>
                                             <td class="text-center text-primary">{{ number_format($kw->power, 0, ',',
                                                 '.') }} <small>kW</small></td>
                                         </tr>

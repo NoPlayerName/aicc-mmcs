@@ -126,7 +126,7 @@
                                             <td class="text-center"><span class="badge badge-soft-info">{{
                                                     $aW->type_additive_text }}</span></td>
                                             <td class="text-right px-4 font-weight-bold text-info">{{
-                                                number_format($aW->weight, 0, ',', '.') }} kg</td>
+                                                number_format($aW->weight, 1, ',', '.') }} kg</td>
                                         </tr>
                                         @empty
                                         <tr>
@@ -139,7 +139,7 @@
                                         <tr class="font-weight-bold">
                                             <td colspan="2" class="text-right">TOTAL ADDITIVE</td>
                                             <td class="text-right px-4">{{
-                                                number_format(collect($additive)->sum('weight'), 0, ',', '.') }} KG</td>
+                                                number_format(collect($additive)->sum('weight'), 1, ',', '.') }} KG</td>
                                         </tr>
                                     </tfoot>
                                     @endif

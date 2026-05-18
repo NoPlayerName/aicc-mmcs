@@ -207,7 +207,7 @@
                                     <div class="col-md-3 border-left text-center border-right">
                                         <small class="info-label">Total Additive</small>
                                         <span class="info-value text-info">
-                                            {{ number_format($item->total_additive ?? 0, 0, ',', '.') }}
+                                            {{ number_format($item->total_additive ?? 0, 1, ',', '.') }}
                                             <small class="text-muted font-weight-normal ml-1">kg</small>
                                         </span>
                                     </div>

@@ -207,14 +207,15 @@
 
                             <div class="col-md-3 border-md-left text-center">
                                 <small class="info-label">Total Raw Material</small>
-                                <span class="info-value font-weight-bold">{{ number_format($dt['total_raw_material'], 0,
+                                <span class="info-value font-weight-bold">{{ number_format($dt['total_raw_material']??
+                                    0, 0,
                                     ',', '.') }} <small class="text-muted">kg</small></span>
                             </div>
 
                             <div class="col-md-3 border-md-left text-center">
                                 <small class="info-label text-info">Total Additive</small>
-                                <span class="info-value text-info">{{ number_format($dt['total_additive'], 0, ',', '.')
-                                    }} <small class="text-muted">kg</small></span>
+                                <span class="info-value text-info">{{ number_format($dt['total_additive'] ?? 0, 1, ',',
+                                    '.') }} <small class="text-muted">kg</small></span>
                             </div>
 
                             <div class="col-md-1 text-right">
