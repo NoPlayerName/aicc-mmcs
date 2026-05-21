@@ -10,7 +10,7 @@ class MaterialRepository implements MaterialRepositoryInterface
 
     public function getAditiveJsh()
     {
-        $data = TbMaterial::whereIn('is_for_mmcs', [2, 3])->where('is_material_show', 1)->orderBy('material_name', 'ASC')->get();
+        $data = TbMaterial::whereIn('is_for_mmcs', [2, 3])->whereIn('usage_location', [1, 3])->where('is_material_show', 1)->orderBy('material_name', 'ASC')->get();
         return $data;
     }
     public function getAditive()
