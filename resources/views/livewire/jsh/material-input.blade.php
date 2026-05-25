@@ -232,7 +232,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="m-0 font-size-15"><i class="mdi mdi-format-list-bulleted mr-2"></i>Charging
                                 Details</h5>
-                            @if(in_array($dt['plan_furnace'], [4, 5]) )
+                            @if(in_array($dt['plan_furnace'], [1, 2, 3, 4, 5]) )
                             <div class="d-flex flex-column align-items-end">
                                 <button type="button" class="btn btn-outline-primary btn-sm waves-effect"
                                     wire:click="addManualCharging({{ $indexPlan }}, {{ $dt['plan_furnace'] }}, '{{ $dt['plan_process_date'] }}', '{{ $dt['shift'] }}')"
