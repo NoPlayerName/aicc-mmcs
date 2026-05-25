@@ -18,6 +18,7 @@ class FormMaterialInput extends Component
     public $productSelect;
     public $charging;
     public $edit = false;
+    public $selectionLocked = false;
     public $lots = [];
     public $products = [];
 
@@ -26,36 +27,41 @@ class FormMaterialInput extends Component
         $this->loadProduct();
     }
 
-
-    #[On('FormInputMat')]
-    public function showForm($data)
+    private function hydrateSelectionData(array $data): void
     {
-
-
-        // dd($data);
-        // dd($id, $data);
         $this->edit = $data['is_edit'];
         $this->id = $data['plan_id_anchor'];
         $this->chargeId = $data['id'];
         $this->lot = $data['lot'] ?? null;
         $this->charging = $data['charging'] ?? '-';
         $this->product = $data['product']['name'] ?? null;
+        $this->productSelect = $data['product']['id'] ?? null;
+        $this->lots = collect(explode(',', (string) ($this->lot ?? '')))
+            ->map(fn($lot) => trim($lot))
+            ->filter(fn($lot) => $lot !== '')
+            ->values()
+            ->all();
+
+        // Rule:
+        // - Mode edit: lot/product selalu bisa diubah.
+        // - Mode process: hanya bisa isi jika masih kosong, jika sudah ada nilainya maka dikunci.
+        $hasLot = !empty($this->lots);
+        $hasProduct = !empty($this->productSelect);
+        $this->selectionLocked = !$this->edit && $hasLot && $hasProduct;
+    }
+
+
+    #[On('FormInputMat')]
+    public function showForm($data)
+    {
+        $this->hydrateSelectionData($data);
         $this->dispatch('input-material-data', id: $this->chargeId, isEdit: $this->edit);
         $this->dispatch('showFormInput');
     }
     #[On('LoadFormInputMat')]
     public function loadFormdata($data)
     {
-
-
-        // dd($data);
-        // dd($id, $data);
-        $this->edit = $data['is_edit'];
-        $this->id = $data['plan_id_anchor'];
-        $this->chargeId = $data['id'];
-        $this->lot = $data['lot'] ?? null;
-        $this->charging = $data['charging'] ?? '-';
-        $this->product = $data['product']['name'] ?? null;
+        $this->hydrateSelectionData($data);
         // $this->dispatch('input-material-data', id: $this->chargeId, isEdit: $this->edit);
         // $this->dispatch('showFormInput');
     }
@@ -80,15 +86,7 @@ class FormMaterialInput extends Component
     #[On('FormUpdateMat')]
     public function showFormUpdate($data)
     {
-        // dd($edit);
-        // dd($data);
-        // dd($id, $data);
-        $this->edit = $data['is_edit'];
-        $this->id = $data['plan_id_anchor'];
-        $this->chargeId = $data['id'];
-        $this->lot = $data['lot'] ?? '-';
-        $this->charging = $data['charging'] ?? '-';
-        $this->product = $data['product']['name'] ?? "-";
+        $this->hydrateSelectionData($data);
 
         $this->dispatch('load-material-data', id: $this->chargeId, isEdit: $this->edit);
 

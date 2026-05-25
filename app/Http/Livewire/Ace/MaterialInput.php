@@ -16,6 +16,7 @@ class MaterialInput extends BaseLivewireComponent
     public $shift;
     public $openIndex = null;
     public $indexCharge = null;
+    public $isEditForm = false;
     public function mount()
     {
         $permissionAcces =  $this->mountBase();
@@ -54,8 +55,12 @@ class MaterialInput extends BaseLivewireComponent
     public function changeFilter()
     {
         // dd($this->date, $this->shift);
-        $this->furnace = app(PlanProductionAceService::class)
-            ->getFurnaceHead($this->date, $this->shift) ?? collect();
+        if (is_null($this->date) || is_null($this->shift)) {
+            $this->loadFurnaceHead();
+        } else {
+            $this->furnace = app(PlanProductionAceService::class)
+                ->getFurnaceHead($this->date, $this->shift) ?? collect();
+        }
     }
     public function toggleAccordion($index)
     {
@@ -70,6 +75,7 @@ class MaterialInput extends BaseLivewireComponent
 
         $this->openIndex = $dataPlan;
         $this->indexCharge = $indexCharge;
+        $this->isEditForm = false;
         $Data = $this->furnace[$dataPlan]['chargings'][$indexCharge];
         $Data['is_edit'] = false;
         $this->dispatch('FormInputMat', data: $Data)->to(FormMaterialInput::class);
@@ -77,6 +83,8 @@ class MaterialInput extends BaseLivewireComponent
     public function Edit($dataPlan, $dataCharge)
     {
         $this->openIndex = $dataPlan;
+        $this->indexCharge = $dataCharge;
+        $this->isEditForm = true;
         $Data = $this->furnace[$dataPlan]['chargings'][$dataCharge];
         $Data['is_edit'] = true;
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
@@ -92,8 +100,16 @@ class MaterialInput extends BaseLivewireComponent
     #[On('loadDataFormInputMat')]
     public function load()
     {
+        if (is_null($this->openIndex) || is_null($this->indexCharge)) {
+            return;
+        }
+
+        if (!isset($this->furnace[$this->openIndex]['chargings'][$this->indexCharge])) {
+            return;
+        }
+
         $Data = $this->furnace[$this->openIndex]['chargings'][$this->indexCharge];
-        $Data['is_edit'] = false;
+        $Data['is_edit'] = $this->isEditForm;
         $this->dispatch('LoadFormInputMat', data: $Data)->to(FormMaterialInput::class);
     }
 

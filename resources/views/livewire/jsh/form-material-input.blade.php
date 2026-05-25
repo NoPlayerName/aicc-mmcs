@@ -21,7 +21,7 @@
                             <div class="col-md-3">
                                 <div class="d-flex align-items-center">
                                     <span class="text-muted mr-2">Charging:</span>
-                                    @if($charging != '-')
+                                    @if($charging != null && $edit == false)
                                     <span class="badge badge-soft-primary p-2 font-size-14">{{ $charging }}</span>
                                     @else
                                     <div class="input-group input-group-sm" style="width: 120px;">
@@ -42,10 +42,20 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="d-flex align-items-center">
                                     <span class="text-muted mr-2">Product:</span>
                                     <span class="font-weight-bold text-dark text-truncate">{{ $product }}</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted mr-2">Description:</span>
+                                    {{-- <span class="font-weight-bold text-dark text-truncate">{{ $product }}</span>
+                                    --}}
+                                    <textarea required class="form-control" rows="1" wire:change='addDesc'
+                                        wire:model='description'></textarea>
                                 </div>
                             </div>
 

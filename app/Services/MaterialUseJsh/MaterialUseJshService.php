@@ -53,10 +53,27 @@ class MaterialUseJshService
         $data = $this->materialUse->saveCharging($data);
         return $data;
     }
+    public function saveDesc($data)
+    {
+        $data = $this->materialUse->saveDesc($data);
+        return $data;
+    }
 
     public function saveChargingHead($data)
     {
         $data = $this->materialUse->saveChargingHead($data);
+        return $data;
+    }
+    public function updateChargingHead($data)
+    {
+        if (!is_array($data) || !isset($data['id'])) {
+            return false;
+        }
+
+        $newData = $data;
+        $newData['updated_by'] = $data['created_by'] ?? Auth::user()->usr;
+        unset($newData['created_by']);
+        $data = $this->materialUse->updateChargingHead($newData);
         return $data;
     }
 
@@ -64,6 +81,7 @@ class MaterialUseJshService
     {
         $newData = array_map(function ($item) {
             unset($item['material_name']);
+            unset($item['materialable']);
             return $item;
         }, $data);
         $save = $this->materialUse->saveRawMat($newData);
@@ -75,6 +93,7 @@ class MaterialUseJshService
         $now = now();
         $update = array_map(function ($item) use ($now, $user) {
             unset($item['material_name']);
+            unset($item['materialable']);
             $item['updated_by'] = $user;
             $item['updated_at'] = $now;
             return $item;
@@ -88,6 +107,7 @@ class MaterialUseJshService
         $newData = array_map(function ($item) {
             unset($item['type_additive_text']);
             unset($item['material_name']);
+            unset($item['materialable']);
             return $item;
         }, $data);
         $save = $this->materialUse->saveAdditiveMat($newData);
@@ -100,6 +120,7 @@ class MaterialUseJshService
         $update = array_map(function ($item) use ($now, $user) {
             unset($item['type_additive_text']);
             unset($item['material_name']);
+            unset($item['materialable']);
             $item['updated_by'] = $user;
             $item['updated_at'] = $now;
             return $item;
@@ -143,6 +164,38 @@ class MaterialUseJshService
         })->all();
         $save = $this->materialUse->saveTemptTapping($newData);
         return $save;
+    }
+
+    public function createManualCharging($furnace, $date, $shift, $charging = null)
+    {
+        // Create furnace head if not exists
+        $furnaceHeadService = app(FurnaceHeadService::class);
+        $existingFurnace = $furnaceHeadService->getFurnaceHeadByDateShift($date, $shift)->where('furnace', $furnace)->first();
+
+        if (!$existingFurnace) {
+            $existingFurnace = $furnaceHeadService->createFurnaceHead($furnace, $date, $shift);
+        }
+
+        if (!$existingFurnace) {
+            return false;
+        }
+
+        // Determine charging number
+        // if ($charging === null) {
+        //     $lastCharging = $existingFurnace->chargings()->max('charging') ?? 0;
+        //     $charging = $lastCharging + 1;
+        // }
+
+        // Create charging head
+        $chargingData = [
+            'plan_id_anchor' => (string) $existingFurnace->id, // Use furnace head id as anchor
+            // 'charging' => $charging,
+            'created_by' => Auth::user()->usr,
+        ];
+
+        $chargingHead = $this->saveChargingHead($chargingData);
+
+        return $chargingHead ? ['furnace_head' => $existingFurnace, 'charging_head' => $chargingHead] : false;
     }
     public function updateTemptTapping($data)
     {

@@ -4,10 +4,10 @@
             <label class="form-label font-weight-bold text-muted">Charging Time</label>
             <div class="input-group input-group-lg">
                 <input type="text" class="form-control @error('form.charge_time') is-invalid @enderror"
-                    placeholder="00:00:00" wire:model='form.charge_time'>
-                <div class="input-group-append">
-                    <span class="input-group-text bg-light small font-weight-bold">Time</span>
-                </div>
+                    placeholder="00 Menit" wire:model='form.charge_time'>
+                {{-- <div class="input-group-append">
+                    <span class="input-group-text bg-light small font-weight-bold"></span>
+                </div> --}}
             </div>
             @error('form.charge_time')
             <small class="text-danger position-absolute">{{ $message }}</small>
@@ -18,7 +18,7 @@
             <label class="form-label font-weight-bold text-muted">KWH Start Charge</label>
             <div class="input-group input-group-lg">
                 <input type="number" class="form-control @error('form.kwh_start_charge') is-invalid @enderror" min="0"
-                    placeholder="0.0" wire:model='form.kwh_start_charge'>
+                    placeholder="0" wire:model='form.kwh_start_charge'>
                 <div class="input-group-append">
                     <span class="input-group-text bg-light small font-weight-bold">kWh</span>
                 </div>
@@ -32,7 +32,7 @@
             <label class="form-label font-weight-bold text-muted">KWH Ok Charge</label>
             <div class="input-group input-group-lg">
                 <input type="number" class="form-control @error('form.kwh_ok_charge') is-invalid @enderror" min="0"
-                    placeholder="0.0" wire:model='form.kwh_ok_charge'>
+                    placeholder="0" wire:model='form.kwh_ok_charge'>
                 <div class="input-group-append">
                     <span class="input-group-text bg-light small font-weight-bold">kWh</span>
                 </div>

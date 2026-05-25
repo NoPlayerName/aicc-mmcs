@@ -33,7 +33,7 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                     'rawMatUse',   // ->sum('weight')
                     'additMatUse', // ->sum('weight')
                 ])->whereIn('plan_id_anchor', $planIds)
-                ->select('id', 'plan_id_anchor', 'charging', 'status')
+                ->select('id', 'plan_id_anchor', 'charging', 'desc')
                 ->get()
                 ->keyBy('plan_id_anchor');
 
@@ -41,35 +41,99 @@ class PlanProdRepository implements PlanProdRepositoryInterface
                 ->groupBy('plan_furnace')
                 ->map(function ($group) use ($existingInputs) {
                     $firstGroup = $group->first();
-                    $chargings = $group
-                        ->chunk(3)
-                        ->map(function ($items, $index) use ($existingInputs) {
-                            $firstItem = $items->first();
-                            $anchorId = $firstItem->production_plan_id;
-                            $charge = $existingInputs->get($anchorId);
-                            $totalRaw = (float) ($charge?->rawMatUse?->sum('weight') ?? 0);
-                            $totalAdditive = (float) ($charge?->additMatUse?->sum('weight') ?? 0);
-                            // dd($charge);
+
+
+                    // Sort items by lot and group consecutive lots (max 3 per charging)
+                    $sortedItems = $group->sortBy(fn($item) => (int) $item->lot)->values();
+                    $itemGroups = [];
+                    $currentGroup = [];
+
+                    foreach ($sortedItems as $item) {
+                        if (empty($currentGroup)) {
+                            $currentGroup[] = $item;
+                            continue;
+                        }
+
+                        $lastLot = (int) end($currentGroup)->lot;
+                        $currentLot = (int) $item->lot;
+
+                        if ($currentLot === $lastLot + 1 && count($currentGroup) < 3) {
+                            $currentGroup[] = $item;
+                        } else {
+                            $itemGroups[] = $currentGroup;
+                            $currentGroup = [$item];
+                        }
+                    }
+
+                    if (!empty($currentGroup)) {
+                        $itemGroups[] = $currentGroup;
+                    }
+
+                    $chargings = array_map(function ($itemsGroup) use ($existingInputs) {
+                        $firstItem = $itemsGroup[0];
+                        $anchorId = $firstItem->production_plan_id;
+                        $charge = $existingInputs->get($anchorId);
+                        $totalRaw = (float) ($charge?->rawMatUse?->sum('weight') ?? 0);
+                        $totalAdditive = (float) ($charge?->additMatUse?->sum('weight') ?? 0);
+
+                        return [
+                            'production_plan_id' => $firstItem->production_plan_id,
+                            'chargingHeadId' => $charge ? $charge->id : null,
+                            'charging' => $charge ? $charge->charging : null,
+                            'lot'         => collect($itemsGroup)->pluck('lot')->implode(', '),
+                            'model_id'       => $firstItem->models?->model,
+                            'desc'  => $charge ? $charge->desc : null,
+                            'total_raw_material'  => $totalRaw,
+                            'total_additive'      => $totalAdditive,
+                        ];
+                    }, $itemGroups);
+
+                    if ($firstGroup->plan_furnace === 4) {
+                        $furnaceM = FurnaceHead::where('furnace', $firstGroup->plan_furnace)
+                            ->where('date', $firstGroup->plan_process_date)
+                            ->where('shift', $firstGroup->shift)
+                            ->first();
+                        $chargings = array_merge($chargings, $furnaceM ? $furnaceM->chargings->map(function ($charging) {
                             return [
-                                'production_plan_id' => $firstItem->production_plan_id,
-                                'chargingHeadId' => $charge ? $charge->id : null,
-                                'charging' => $charge ? $charge->charging : null,
-                                'lot'         => $items->pluck('lot')->implode(', '),
-                                'model_id'       => $firstItem->models?->model,
-                                'total_raw_material'  => $totalRaw,
-                                'total_additive'      => $totalAdditive,
+                                'production_plan_id' => $charging->plan_id_anchor,
+                                'chargingHeadId' => $charging->id,
+                                'charging' => $charging->charging ?? '-',
+                                'lot' => $charging->lot ?? '-',
+                                'model_id' => $charging->model_id ?? '-',
+                                'desc'  => $charging->desc ?? null,
+                                'total_raw_material' => (float) $charging->rawMatUse->sum('weight'),
+                                'total_additive' => (float) $charging->additMatUse->sum('weight'),
                             ];
-                        })
-                        ->values();
+                        })->toArray() : []);
+                    }
+
+                    if ($firstGroup->plan_furnace === 5) {
+                        $furnaceN = FurnaceHead::where('furnace', $firstGroup->plan_furnace)
+                            ->where('date', $firstGroup->plan_process_date)
+                            ->where('shift', $firstGroup->shift)
+                            ->first();
+                        $chargings = array_merge($chargings, $furnaceN ? $furnaceN->chargings->map(function ($charging) {
+                            return [
+                                'production_plan_id' => $charging->plan_id_anchor,
+                                'chargingHeadId' => $charging->id,
+                                'charging' => $charging->charging ?? '-',
+                                'lot' => $charging->lot ?? '-',
+                                'model_id' => $charging->model_id ?? '-',
+                                'desc'  => $charging->desc ?? null,
+                                'total_raw_material' => (float) $charging->rawMatUse->sum('weight'),
+                                'total_additive' => (float) $charging->additMatUse->sum('weight'),
+                            ];
+                        })->toArray() : []);
+                    }
 
                     return [
                         'plan_furnace'  =>  $firstGroup->plan_furnace ?? '-',
                         'plan_process_date'  =>  $firstGroup->plan_process_date ?? '-',
                         'shift'  =>  $firstGroup->shift ?? '-',
                         'model_id' =>  $firstGroup->models?->model ?? '-',
-                        'chargings' => $chargings, // 🔥 charging DI DALAM prodplan
-                        'total_raw_material'  => (float) $chargings->sum('total_raw_material'),
-                        'total_additive'      => (float) $chargings->sum('total_additive'),
+                        'chargings' => collect($chargings), // 🔥 charging DI DALAM prodplan
+                        'total_raw_material'  => (float) collect($chargings)->sum('total_raw_material'),
+                        'total_additive'      => (float) collect($chargings)->sum('total_additive'),
                     ];
                 })
                 ->values();

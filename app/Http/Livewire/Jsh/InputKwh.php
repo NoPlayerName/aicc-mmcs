@@ -69,7 +69,7 @@ class InputKwh extends Component
 
     public function save()
     {
-        $this->validate();
+        // $this->validate();
         if ($this->edit) {
 
             $save = app(MaterialUseJshService::class)->UpdateKwh($this->form);
@@ -80,16 +80,21 @@ class InputKwh extends Component
                 $this->dispatch('error', message: 'Data kwh gagal diubah');
             }
         } else {
-            $data = array_merge($this->form, [
-                'charging_head_id' => $this->chargeId,
-            ]);
-            $save = app(MaterialUseJshService::class)->saveKwh($data);
-
-            if ($save) {
-                $this->reset('form');
-                $this->dispatch('success', message: 'Data kwh berhasil disave');
+            if (is_null($this->chargeId)) {
+                $this->dispatch('error', message: 'Silahkan simpan data charging terlebih dahulu sebelum menambahkan KWH');
+                return;
             } else {
-                $this->dispatch('error', message: 'Data kwh gagal save');
+                $data = array_merge($this->form, [
+                    'charging_head_id' => $this->chargeId,
+                ]);
+                $save = app(MaterialUseJshService::class)->saveKwh($data);
+
+                if ($save) {
+                    $this->reset('form');
+                    $this->dispatch('success', message: 'Data kwh berhasil disave');
+                } else {
+                    $this->dispatch('error', message: 'Data kwh gagal save');
+                }
             }
         }
     }

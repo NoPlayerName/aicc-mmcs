@@ -70,7 +70,7 @@ class AdditiveMaterial extends Component
 
         if (!$this->is_trial) {
 
-            $data = app(MaterialService::class)->getAdditive();
+            $data = app(MaterialService::class)->getAditiveJsh();
             $this->additiveSelect = $data;
         } else {
 
@@ -153,14 +153,19 @@ class AdditiveMaterial extends Component
                 $this->dispatch('error', message: 'Data Additive gagal diubah');
             }
         } else {
-
-            $save = app(MaterialUseJshService::class)->saveAdditiveMat($this->dataAdditiveMat);
-            if ($save) {
-                $this->reset(['dataAdditiveMat', 'totalWeight']);
-                // $this->dispatch('saved');
-                $this->dispatch('success', message: 'Data Additive berhasil disave');
+            if (is_null($this->chargeId)) {
+                $this->dispatch('error', message: 'Silahkan simpan data charging terlebih dahulu sebelum menambahkan additive material');
+                return;
             } else {
-                $this->dispatch('error', message: 'Data Additive gagal save');
+
+                $save = app(MaterialUseJshService::class)->saveAdditiveMat($this->dataAdditiveMat);
+                if ($save) {
+                    $this->reset(['dataAdditiveMat', 'totalWeight']);
+                    // $this->dispatch('saved');
+                    $this->dispatch('success', message: 'Data Additive berhasil disave');
+                } else {
+                    $this->dispatch('error', message: 'Data Additive gagal save');
+                }
             }
         }
     }

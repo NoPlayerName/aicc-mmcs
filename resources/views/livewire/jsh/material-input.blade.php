@@ -112,7 +112,7 @@
 </style>
 @endpush
 
-<div class="page-content">
+<div class="page-content" wire:poll.visible.10000ms="changeFilter">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
@@ -134,21 +134,28 @@
                         <div class="form-group mb-0">
                             <label class="font-weight-bold"><i class="mdi mdi-calendar mr-1"></i>Select
                                 Date</label>
-                            <input type="text" class="form-control form-control-lg" data-provide="datepicker"
-                                data-date-format="dd/mm/yyyy" data-date-autoclose="true" placeholder="Choose Date">
+                            <input type="text" class="form-control form-control-md" data-provide="datepicker"
+                                data-date-format="dd/mm/yyyy" data-date-autoclose="true" placeholder="Choose Date"
+                                inputmode="none">
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group mb-0">
                             <label class="font-weight-bold"><i class="mdi mdi-clock-outline mr-1"></i>Select
                                 Shift</label>
-                            <div wire:ignore>
-                                <select class="form-control form-control-lg" id="jsh-material-shift">
-                                    <option value="">Select</option>
-                                    <option value="D">D </option>
-                                    <option value="S">S </option>
-                                    <option value="N">N </option>
-                                </select>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1" wire:ignore>
+                                    <select class="form-control form-control-lg" id="jsh-material-shift">
+                                        <option value="">Select</option>
+                                        <option value="D">D </option>
+                                        <option value="S">S </option>
+                                        <option value="N">N </option>
+                                    </select>
+                                </div>
+                                {{-- <button type="button" class="btn btn-outline-secondary btn-sm ml-2"
+                                    wire:click="changeFilter" title="Refresh Data">
+                                    <i class="mdi mdi-refresh"></i>
+                                </button> --}}
                             </div>
                         </div>
                     </div>
@@ -156,6 +163,22 @@
                 </div>
             </div>
         </div>
+
+        {{-- <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-end">
+                    {{-- @if ($this->can('can_create')) --}}
+                    {{-- <button class="btn btn-primary mr-2" wire:click="addManualFurnace(4)">
+                        <i class="fas fa-plus"></i> Add Furnace 4 Manual
+                    </button>
+                    <button class="btn btn-primary" wire:click="addManualFurnace(5)">
+                        <i class="fas fa-plus"></i> Add Furnace 5 Manual
+                    </button> --}}
+                    {{-- @endif --}}
+                    {{--
+                </div>
+            </div>
+        </div> --}}
 
         <div id="accordion" class="custom-accordion">
             @forelse (($data ?? []) as $indexPlan => $dt)
@@ -195,6 +218,7 @@
                             </div>
 
                             <div class="col-md-1 text-right">
+
                                 <i class="mdi mdi-chevron-down font-size-24 accor-down-icon text-muted"></i>
                             </div>
                         </div>
@@ -204,6 +228,20 @@
                 <div id="collapse{{ $indexPlan }}" class="collapse {{ $openIndex === $indexPlan ? 'show' : '' }}"
                     aria-labelledby="heading{{ $indexPlan }}" data-parent="#accordion">
                     <div class="card-body border-top bg-white p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="m-0 font-size-15"><i class="mdi mdi-format-list-bulleted mr-2"></i>Charging
+                                Details</h5>
+                            @if(in_array($dt['plan_furnace'], [4, 5]) )
+                            <div class="d-flex flex-column align-items-end">
+                                <button type="button" class="btn btn-outline-primary btn-sm waves-effect"
+                                    wire:click="addManualCharging({{ $indexPlan }}, {{ $dt['plan_furnace'] }}, '{{ $dt['plan_process_date'] }}', '{{ $dt['shift'] }}')"
+                                    title="Add Manual Charging">
+                                    <i class="mdi mdi-plus mr-1"></i>Add Charging
+                                </button>
+                                <small class="text-warning ml-2">Khusus untuk material transfer</small>
+                            </div>
+                            @endif
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="thead-light">
@@ -211,6 +249,7 @@
                                         <th class="py-3">Charging #</th>
                                         <th>Lot Number</th>
                                         <th>Product</th>
+                                        <th>Description</th>
                                         <th class="text-right px-4">Actions</th>
                                     </tr>
                                 </thead>
@@ -221,6 +260,7 @@
                                         <td><span class="badge badge-light p-2 font-size-12">{{ $charge['lot'] }}</span>
                                         </td>
                                         <td>{{ $charge['model_id'] }}</td>
+                                        <td>{{ $charge['desc'] }}</td>
                                         <td class="text-right px-4">
                                             <div class="btn-group">
                                                 <button class="btn btn-info btn-sm"
@@ -228,11 +268,13 @@
                                                     title="View Detail">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
+                                                @if ($this->can('can_edit'))
                                                 <button class="btn btn-warning btn-sm"
                                                     wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'
                                                     title="Edit Data">
                                                     <i class="fas fa-edit text-white"></i>
                                                 </button>
+                                                @endif
                                                 <button class="btn btn-primary btn-sm"
                                                     wire:click="Proccess({{ $indexPlan }}, {{ $indexCharge }})"
                                                     title="Process">
@@ -315,6 +357,16 @@
             .off('change.jshMaterialInput')
             .on('change.jshMaterialInput', function () {
                 Livewire.dispatch(eventName, payloadBuilder($(this)));
+            })
+            .off('select2:open.jshMaterialInput')
+            .on('select2:open.jshMaterialInput', function () {
+                // Blur search input untuk mencegah keyboard otomatis
+                setTimeout(() => {
+                    const searchInput = $(this).data('select2').$dropdown?.find('.select2-search__field');
+                    if (searchInput && searchInput.length) {
+                        searchInput.blur();
+                    }
+                }, 10);
             });
     }
 
@@ -326,7 +378,7 @@
         }));
 
         initSelect2WithDispatch('#rawMat-select2', {
-            minimumResultsForSearch: 0
+            minimumResultsForSearch: 5
         }, 'rawMat', ($el) => ({
             rawMat: $el.val(),
             name: $el.find('option:selected').text()
@@ -375,7 +427,7 @@
             Livewire.on('loadMaterial', () => {
                 setTimeout(() => {
                     initSelect2WithDispatch('#rawMat-select2', {
-                        minimumResultsForSearch: 0
+                        minimumResultsForSearch: 5
                     }, 'rawMat', ($el) => ({
                         rawMat: $el.val(),
                         name: $el.find('option:selected').text()
@@ -386,7 +438,7 @@
             Livewire.on('loadAdditive', () => {
                 setTimeout(() => {
                     initSelect2WithDispatch('#Additive-select2', {
-                        minimumResultsForSearch: 0
+                        minimumResultsForSearch: 5
                     }, 'additMat', ($el) => ({
                         data: $el.val(),
                         name: $el.find('option:selected').text()

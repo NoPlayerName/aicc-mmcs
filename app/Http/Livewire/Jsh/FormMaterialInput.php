@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Jsh;
 
 use App\Services\MaterialUseJsh\MaterialUseJshService;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class FormMaterialInput extends Component
@@ -12,6 +13,7 @@ class FormMaterialInput extends Component
     public $lot;
     public $id;
     public $chargeId;
+    public $description;
     public $product;
     public $charging;
     public $edit = false;
@@ -26,8 +28,9 @@ class FormMaterialInput extends Component
         $this->id = $data['production_plan_id'];
         $this->chargeId = $data['chargingHeadId'];
         $this->lot = $data['lot'] ?? '-';
-        $this->charging = $data['charging'] ?? '-';
+        $this->charging = $data['charging'] ?? null;
         $this->product = $data['model_id'] ?? "-";
+        $this->description = $data['desc'] ?? null;
         $this->dispatch('input-material-data', id: $this->chargeId, isEdit: $this->edit);
         $this->dispatch('showFormInput');
     }
@@ -75,15 +78,54 @@ class FormMaterialInput extends Component
         $data = [
             'plan_id_anchor' => $this->id,
             'charging' => $this->charging,
+            'created_by' => Auth::user()->usr,
         ];
 
-        $save = app(MaterialUseJshService::class)->saveChargingHead($data);
-        if ($save) {
-            $this->dispatch('refreshData')->to(MaterialInput::class);
-            $this->dispatch('input-material-data', id: $save['id'], isEdit: $this->edit);
-            $this->dispatch('success', message: 'Data charging berhasil ditambahkan!');
+        if ($this->edit) {
+            $data['id'] = $this->chargeId;
+            $save = app(MaterialUseJshService::class)->updateChargingHead($data);
+            if ($save) {
+                $chargeId = is_array($save)
+                    ? ($save['id'] ?? $this->chargeId)
+                    : ($save->id ?? $this->chargeId);
+
+                $this->dispatch('refreshData')->to(MaterialInput::class);
+                $this->chargeId = $chargeId;
+                $this->dispatch('input-material-data', id: $chargeId, isEdit: $this->edit);
+                $this->dispatch('success', message: 'Data charging berhasil diperbarui!');
+            } else {
+                $this->dispatch('error', message: 'Data charging gagal diperbarui');
+            }
         } else {
-            $this->dispatch('error', message: 'Data charging gagal ditambahkan');
+            $save = app(MaterialUseJshService::class)->saveChargingHead($data);
+            if ($save) {
+                $this->dispatch('refreshData')->to(MaterialInput::class);
+                $this->chargeId = $save['id'];
+                $this->dispatch('input-material-data', id: $save['id'], isEdit: $this->edit);
+                $this->dispatch('success', message: 'Data charging berhasil ditambahkan!');
+            } else {
+                $this->dispatch('error', message: 'Data charging gagal ditambahkan');
+            }
+        }
+    }
+
+    public function addDesc()
+    {
+        $data = [
+            'id' => $this->chargeId,
+            'desc' => $this->description,
+        ];
+        if (is_null($this->chargeId)) {
+            $this->dispatch('error', message: 'Silahkan simpan data charging terlebih dahulu sebelum menambahkan deskripsi');
+            return;
+        } else {
+            $save = app(MaterialUseJshService::class)->saveDesc($data);
+            if ($save) {
+                $this->dispatch('refreshData')->to(MaterialInput::class);
+                $this->dispatch('success', message: 'Deskripsi berhasil ditambahkan!');
+            } else {
+                $this->dispatch('error', message: 'Deskripsi gagal ditambahkan');
+            }
         }
     }
 

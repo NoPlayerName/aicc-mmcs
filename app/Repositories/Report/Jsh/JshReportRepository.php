@@ -305,7 +305,7 @@ class JshReportRepository implements JshReportRepositoryInterface
         ];
     }
 
-    public function reportProduct($startDate, $endDate, $type, $shift, $product)
+    public function reportProduct($startDate, $endDate, $type, $shift, $product, $furnace = null)
     {
         try {
             $plans = ProdPlan::with(['chargingHeads' => function ($query) {
@@ -313,6 +313,9 @@ class JshReportRepository implements JshReportRepositoryInterface
             }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
                 ->when($shift, function ($query) use ($shift) {
                     return $query->where('shift', $shift);
+                })
+                ->when($furnace, function ($query) use ($furnace) {
+                    return $query->where('plan_furnace', $furnace);
                 })
                 ->where('model_id', $product)
                 ->get();
@@ -394,13 +397,16 @@ class JshReportRepository implements JshReportRepositoryInterface
         }
     }
 
-    public function getKwhDataByProduct($startDate, $endDate, $shift, $product)
+    public function getKwhDataByProduct($startDate, $endDate, $shift, $product, $furnace = null)
     {
         $plans = ProdPlan::with(['chargingHeads' => function ($query) {
             $query->with(['Kwh']);
         }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
             ->when($shift, function ($query) use ($shift) {
                 return $query->where('shift', $shift);
+            })
+            ->when($furnace, function ($query) use ($furnace) {
+                return $query->where('plan_furnace', $furnace);
             })
             ->where('model_id', $product)
             ->get();
@@ -461,13 +467,16 @@ class JshReportRepository implements JshReportRepositoryInterface
             ->toArray();
     }
 
-    public function getTappingDataByProduct($startDate, $endDate, $shift, $product)
+    public function getTappingDataByProduct($startDate, $endDate, $shift, $product, $furnace = null)
     {
         $plans = ProdPlan::with(['chargingHeads' => function ($query) {
             $query->with(['TemptTapping']);
         }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
             ->when($shift, function ($query) use ($shift) {
                 return $query->where('shift', $shift);
+            })
+            ->when($furnace, function ($query) use ($furnace) {
+                return $query->where('plan_furnace', $furnace);
             })
             ->where('model_id', $product)
             ->get();
@@ -524,11 +533,11 @@ class JshReportRepository implements JshReportRepositoryInterface
             ->toArray();
     }
 
-    public function reportProductWithKwhTapping($startDate, $endDate, $type, $shift, $product)
+    public function reportProductWithKwhTapping($startDate, $endDate, $type, $shift, $product, $furnace = null)
     {
-        $materialData = $this->reportProduct($startDate, $endDate, $type, $shift, $product);
-        $kwhData = $this->getKwhDataByProduct($startDate, $endDate, $shift, $product);
-        $tappingData = $this->getTappingDataByProduct($startDate, $endDate, $shift, $product);
+        $materialData = $this->reportProduct($startDate, $endDate, $type, $shift, $product, $furnace);
+        $kwhData = $this->getKwhDataByProduct($startDate, $endDate, $shift, $product, $furnace);
+        $tappingData = $this->getTappingDataByProduct($startDate, $endDate, $shift, $product, $furnace);
 
         return [
             'materials' => $materialData,
@@ -550,35 +559,86 @@ class JshReportRepository implements JshReportRepositoryInterface
                 ]);
             })
             ->each(function ($groupPlans) use (&$lotMap) {
-                $groupPlans
-                    ->sortBy(function ($plan) {
-                        return (string) ($plan->production_plan_id ?? '');
-                    })
-                    ->values()
-                    ->chunk(3)
-                    ->each(function ($chunk) use (&$lotMap) {
-                        $lotText = $chunk
-                            ->pluck('lot')
-                            ->map(function ($value) {
-                                return trim((string) $value);
-                            })
-                            ->filter(function ($value) {
-                                return $value !== '';
-                            })
-                            ->implode(', ');
+                $sortedPlans = $groupPlans
+                    ->sort(function ($a, $b) {
+                        $lotA = $this->getLotNumber($a);
+                        $lotB = $this->getLotNumber($b);
 
-                        $lotValue = $lotText !== '' ? $lotText : '-';
-
-                        foreach ($chunk as $plan) {
-                            $planId = (string) ($plan->production_plan_id ?? '');
-                            if ($planId !== '') {
-                                $lotMap[$planId] = $lotValue;
-                            }
+                        if ($lotA !== $lotB) {
+                            return $lotA <=> $lotB;
                         }
-                    });
+
+                        return strcmp((string) ($a->production_plan_id ?? ''), (string) ($b->production_plan_id ?? ''));
+                    })
+                    ->values();
+
+                $planGroups = [];
+                $currentGroup = [];
+
+                foreach ($sortedPlans as $plan) {
+                    if (empty($currentGroup)) {
+                        $currentGroup[] = $plan;
+                        continue;
+                    }
+
+                    $lastPlan = end($currentGroup);
+                    $lastLot = $this->getLotNumber($lastPlan);
+                    $currentLot = $this->getLotNumber($plan);
+
+                    if ($currentLot === ($lastLot + 1) && count($currentGroup) < 3) {
+                        $currentGroup[] = $plan;
+                    } else {
+                        $planGroups[] = $currentGroup;
+                        $currentGroup = [$plan];
+                    }
+                }
+
+                if (!empty($currentGroup)) {
+                    $planGroups[] = $currentGroup;
+                }
+
+                foreach ($planGroups as $planGroup) {
+                    $lotText = collect($planGroup)
+                        ->pluck('lot')
+                        ->map(function ($value) {
+                            return trim((string) $value);
+                        })
+                        ->filter(function ($value) {
+                            return $value !== '';
+                        })
+                        ->implode(', ');
+
+                    $lotValue = $lotText !== '' ? $lotText : '-';
+
+                    foreach ($planGroup as $plan) {
+                        $planId = (string) ($plan->production_plan_id ?? '');
+                        if ($planId !== '') {
+                            $lotMap[$planId] = $lotValue;
+                        }
+                    }
+                }
             });
 
         return $lotMap;
+    }
+
+    private function getLotNumber($plan): int
+    {
+        $lot = trim((string) data_get($plan, 'lot', ''));
+
+        if ($lot === '') {
+            return PHP_INT_MAX;
+        }
+
+        if (is_numeric($lot)) {
+            return (int) $lot;
+        }
+
+        if (preg_match('/\d+/', $lot, $matches) === 1) {
+            return (int) $matches[0];
+        }
+
+        return PHP_INT_MAX;
     }
 
     private function resolveLotByPlanMap($plan, array $planLotMap, $head = null): string

@@ -13,6 +13,7 @@ class DetailCharging extends Component
     public $chargeId;
     public $product = '-';
     public $charging = '-';
+    public $description = '-';
     public $rawMaterial = [];
     public $additive = [];
     public $kwh = [];
@@ -27,6 +28,7 @@ class DetailCharging extends Component
         $this->lot = $data['lot'] ?? '-';
         $this->charging = $data['charging'] ?? '-';
         $this->product = $data['model_id'] ?? "-";
+        $this->description = $data['desc'] ?? "-";
 
         $data = app(MaterialUseJshService::class)->getDetail($this->chargeId, $this->id);
         $this->rawMaterial = $data->rawMat ?? [];

@@ -108,7 +108,7 @@
 </style>
 @endpush
 
-<div class="page-content">
+<div class="page-content" wire:poll.visible.10000ms="changeFilter">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
@@ -135,7 +135,7 @@
                                         Date</label>
                                     <input type="text" class="form-control form-control-lg" data-provide="datepicker"
                                         data-date-format="dd/mm/yyyy" data-date-autoclose="true"
-                                        placeholder="Choose Date">
+                                        placeholder="Choose Date" inputmode="none">
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -248,7 +248,7 @@
                                                 <td class="font-weight-bold text-dark">{{ $charge->charging }}</td>
                                                 <td><span class="badge badge-light px-2 py-1">{{ $charge->lot ?? '-'
                                                         }}</span></td>
-                                                <td>{{ $charge->product->name ?? '-' }}</td>
+                                                <td>{{ $charge->product->alias ?? '-' }}</td>
                                                 <td class="text-right">
                                                     <div class="btn-group">
                                                         <button class="btn btn-info btn-sm"
@@ -256,11 +256,13 @@
                                                             title="View Detail">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
+                                                        @if ($this->can('can_edit'))
                                                         <button class="btn btn-warning btn-sm"
                                                             wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'
                                                             title="Edit Data">
                                                             <i class="fas fa-edit text-white"></i>
                                                         </button>
+                                                        @endif
                                                         <button class="btn btn-primary btn-sm"
                                                             wire:click="Proccess({{ $indexPlan }}, {{ $indexCharge }})"
                                                             title="Process">
@@ -364,6 +366,17 @@
             .off('change.aceMaterialInput')
             .on('change.aceMaterialInput', function () {
                 Livewire.dispatch(eventName, payloadBuilder($(this)));
+            })
+            .off('select2:open.aceMaterialInput')
+            .on('select2:open.aceMaterialInput', function () {
+                // Blur search input untuk mencegah keyboard otomatis
+                setTimeout(() => {
+                    const searchInput = $(this).data('select2').$dropdown?.find('.select2-search__field');
+                    if (searchInput && searchInput.length) {
+                        // searchInput.prop('readonly', true);
+                        searchInput.blur();
+                    }
+                }, 10);
             });
     }
 
@@ -375,13 +388,13 @@
              date: $('[data-provide="datepicker"]').val() || null
         }));
          initSelect2WithDispatch('#rawMat-select2', {
-            minimumResultsForSearch: 0
+            minimumResultsForSearch: 5
         }, 'rawMat', ($el) => ({
             rawMat: $el.val(),
             name: $el.find('option:selected').text()
         }), '#modal-material-input');
           initSelect2WithDispatch('#Additive-select2', {
-            minimumResultsForSearch: 0
+            minimumResultsForSearch: 5
         }, 'additMat', ($el) => ({
             data: $el.val(),
             name: $el.find('option:selected').text()
@@ -400,7 +413,8 @@
             placeholder: 'Choose Lots...',
             allowClear: true,
             dropdownParent: $('#modal-material-input'),
-            maximumSelectionLength: 3,
+            maximumSelectionLength: 5,
+            minimumResultsForSearch: Infinity,
         }, 'lotSelection', ($el) => ({
             productId: $('#modal-material-input').find('#product-select2').val() ? Number($('#modal-material-input').find('#product-select2').val()) : null,
             lotIds: ($el.val() || []).map(v => Number(v))
