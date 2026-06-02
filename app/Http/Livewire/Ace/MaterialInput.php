@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Ace;
 
 use App\Http\Livewire\BaseLivewireComponent;
+use App\Services\MaterialUseAce\MaterialUseAceService;
 use App\Services\PlanProductionAce\PlanProductionAceService;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -89,6 +90,21 @@ class MaterialInput extends BaseLivewireComponent
         $Data['is_edit'] = true;
         // $dataCharge = app(MaterialUseJshService::class)->getChargeById($id);
         $this->dispatch('FormUpdateMat', data: $Data)->to(FormMaterialInput::class);
+    }
+    #[On('deleteConfirmed')]
+    public function Delete($dataPlan, $dataCharge)
+    {
+        $this->openIndex = $dataPlan;
+        $this->indexCharge = $dataCharge;
+        $Data = $this->furnace[$dataPlan]['chargings'][$dataCharge];
+        $dataCharge = app(MaterialUseAceService::class)->deleteCharging($Data['id']);
+        if ($dataCharge) {
+            $this->dispatch('deleteSuccess', message: 'Data charging berhasil dihapus.');
+            $this->loadFurnaceHead();
+        } else {
+            $this->dispatch('error', message: 'Gagal menghapus data charging.');
+            $this->loadFurnaceHead();
+        }
     }
     public function Detail($dataPlan, $dataCharge)
     {

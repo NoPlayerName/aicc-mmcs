@@ -68,6 +68,18 @@
             Livewire.on('error', (e) => {
                 toastr.error(e.message);
             })
+
+            Livewire.on('deleteSuccess', (e) => {
+            var message = e && e.message ? e.message : 'Data berhasil dihapus.';
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: message,
+                    timer: 1000,
+                    showConfirmButton: false
+                });
+            });
         });
     </script>
 

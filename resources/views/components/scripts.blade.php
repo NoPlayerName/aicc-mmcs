@@ -8,6 +8,11 @@
 <script src={{ asset('assets/libs/simplebar/simplebar.min.js') }}></script>
 <script src={{ asset('assets/libs/node-waves/waves.min.js') }}></script>
 <script src="{{ asset('assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+
+<!-- SweetAlert2 -->
+<script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script src="{{ asset('assets/js/pages/sweet-alerts.init.js') }}"></script>
+
 <!-- Sweet alert init js-->
 <script src="{{ asset('assets/js/sweet.min.js') }}"></script>
 <script src="{{ asset('assets/js/general.js') }}"></script>
@@ -39,6 +44,34 @@
 
 
 <script src={{ asset('assets/js/app.js') }}></script>
+
+<script>
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest('.delete-charging');
+        if (!button) {
+            return;
+        }
+
+        var plan = button.dataset.plan;
+        var charge = button.dataset.charge;
+
+        Swal.fire({
+            title: 'Yakin ingin menghapus?',
+            text: 'Data charging akan dihapus secara permanen.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus',
+            cancelButtonText: 'Batal'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                Livewire.dispatch('deleteConfirmed', {
+                    dataPlan: parseInt(plan, 10),
+                    dataCharge: parseInt(charge, 10)
+                });
+            }
+        });
+    });
+</script>
 
 <script src="{{ asset('vendor/livewire/livewire.js') }}" data-update-uri="{{ url('/livewire/update') }}"
     data-csrf="{{ csrf_token() }}" data-navigate-once="true">

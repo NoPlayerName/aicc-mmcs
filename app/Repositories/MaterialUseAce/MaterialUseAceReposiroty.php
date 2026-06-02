@@ -46,6 +46,26 @@ class MaterialUseAceReposiroty implements MaterialUseAceReposirotyInterface
         ];
     }
 
+    public function deleteCharging($id)
+    {
+        DB::beginTransaction();
+        try {
+            MaterialUsageAce::where('charging_head_id', $id)->delete();
+            KwhAce::where('charging_head_id', $id)->delete();
+            TemptTappingAce::where('charging_head_id', $id)->delete();
+            ChargingHeadAce::where('id', $id)->delete();
+            DB::commit();
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Delete charging fail', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
+
     public function getRawMat($data)
     {
         $data = MaterialUsageAce::with('materialable')->select('charging_head_id', 'materialable_id', 'materialable_type', 'weight', 'type', 'created_by', 'created_at')->where('charging_head_id', $data)

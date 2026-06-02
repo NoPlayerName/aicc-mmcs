@@ -19,6 +19,11 @@ class MaterialUseAceService
     {
         return $this->repository->getDetail($id, $anchor);
     }
+
+    public function deleteCharging($id)
+    {
+        return $this->repository->deleteCharging($id);
+    }
     public function getRawMat($id)
     {
         return $this->repository->getRawMat($id);

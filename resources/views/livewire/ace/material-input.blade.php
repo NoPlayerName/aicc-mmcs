@@ -250,25 +250,33 @@
                                                         }}</span></td>
                                                 <td>{{ $charge->product->alias ?? '-' }}</td>
                                                 <td class="text-right">
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-info btn-sm"
+                                                    {{-- <div class="btn-group"> --}}
+                                                        <button class="btn btn-info btn-sm "
                                                             wire:click='Detail({{ $indexPlan}}, {{ $indexCharge }})'
                                                             title="View Detail">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
                                                         @if ($this->can('can_edit'))
-                                                        <button class="btn btn-warning btn-sm"
+                                                        <button class="btn btn-warning btn-sm "
                                                             wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'
                                                             title="Edit Data">
                                                             <i class="fas fa-edit text-white"></i>
                                                         </button>
                                                         @endif
-                                                        <button class="btn btn-primary btn-sm"
+                                                        <button class="btn btn-primary btn-sm "
                                                             wire:click="Proccess({{ $indexPlan }}, {{ $indexCharge }})"
                                                             title="Process">
                                                             <i class="fas fa-cogs"></i>
                                                         </button>
-                                                    </div>
+                                                        @if ($this->can('can_delete'))
+                                                        <button type="button" class="btn btn-danger btn-sm delete-charging"
+                                                            data-plan="{{ $indexPlan }}" data-charge="{{ $indexCharge }}"
+                                                            title="Delete Data">
+                                                            <i class="fas fa-trash text-white"></i>
+                                                        </button>
+                                                        @endif
+                                                        {{--
+                                                    </div> --}}
                                                 </td>
                                             </tr>
                                             @empty

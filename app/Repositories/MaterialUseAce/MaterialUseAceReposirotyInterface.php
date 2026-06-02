@@ -5,6 +5,7 @@ namespace App\Repositories\MaterialUseAce;
 interface MaterialUseAceReposirotyInterface
 {
     public function getDetail($id, $anchor);
+    public function deleteCharging($id);
     public function getRawMat($data);
     public function getAdditiveMat($id);
     public function getKwh($id);
