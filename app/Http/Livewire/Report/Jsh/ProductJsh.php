@@ -7,6 +7,7 @@ use App\Enums\EnumFurnace;
 use App\Enums\EnumTypeMat;
 use App\Exports\Jsh\Product\JshProductExport;
 use App\Http\Livewire\BaseLivewireComponent;
+use App\Services\Master\Material\MaterialService;
 use App\Services\Master\ProductJsh\ModelService;
 use App\Services\Report\JshReportService;
 use Carbon\Carbon;
@@ -163,11 +164,38 @@ class ProductJsh extends BaseLivewireComponent
 
         $sheet->setCellValue('AI10', '=SUM(D10:AH10)');
 
-        $rawAggregate = $this->buildAggregateByMaterialAndDay(collect($rawData), $this->dateRange, false);
-        $additiveAggregate = $this->buildAggregateByMaterialAndDay(collect($additiveData), $this->dateRange, true);
+        $rawMaster = collect(app(MaterialService::class)->getRawMat());
+        $additiveMaster = collect(app(MaterialService::class)->getAditiveJsh());
 
-        $this->fillSectionByTemplateRows($sheet, 14, 30, $rawAggregate['days'], $rawAggregate['labels']);
-        $this->fillSectionByTemplateRows($sheet, 32, 45, $additiveAggregate['days'], $additiveAggregate['labels']);
+        $rawAggregate = $this->buildAggregateByMaterialAndDay(
+            collect($rawData),
+            $this->dateRange,
+            false,
+            $rawMaster
+        );
+        $additiveAggregate = $this->buildAggregateByMaterialAndDay(
+            collect($additiveData),
+            $this->dateRange,
+            true,
+            $additiveMaster
+        );
+
+        $this->fillSectionByTemplateRows(
+            $sheet,
+            14,
+            30,
+            $rawAggregate['days'],
+            $rawAggregate['labels'],
+            $rawAggregate['order']
+        );
+        $this->fillSectionByTemplateRows(
+            $sheet,
+            32,
+            45,
+            $additiveAggregate['days'],
+            $additiveAggregate['labels'],
+            $additiveAggregate['order']
+        );
         $sheet->setCellValue('AI46', '=SUM(AI14:AI45)');
 
         $tempDir = storage_path('app/temp');
@@ -184,8 +212,14 @@ class ProductJsh extends BaseLivewireComponent
         return response()->download($outputPath, $fileName)->deleteFileAfterSend(true);
     }
 
-    private function fillSectionByTemplateRows($sheet, int $startRow, int $endRow, array $aggregate, array $labels): void
-    {
+    private function fillSectionByTemplateRows(
+        $sheet,
+        int $startRow,
+        int $endRow,
+        array $aggregate,
+        array $labels,
+        array $order = []
+    ): void {
         $rowMaterialMap = [];
         for ($row = $startRow; $row <= $endRow; $row++) {
             $materialName = trim((string) $sheet->getCell('B' . $row)->getValue());
@@ -193,6 +227,17 @@ class ProductJsh extends BaseLivewireComponent
         }
 
         $aggregateKeys = array_keys($aggregate);
+        $orderedKeys = [];
+        if (!empty($order)) {
+            foreach ($order as $key) {
+                if (isset($aggregate[$key]) && !in_array($key, $orderedKeys, true)) {
+                    $orderedKeys[] = $key;
+                }
+            }
+        }
+        if (empty($orderedKeys)) {
+            $orderedKeys = $aggregateKeys;
+        }
         $usedKeys = [];
         $resolvedMap = [];
 
@@ -236,27 +281,25 @@ class ProductJsh extends BaseLivewireComponent
             }
         }
 
-        // Third pass: fallback by highest subtotal for any still-unmatched row
-        $remainingEntries = [];
-        foreach ($aggregate as $key => $dayMap) {
+        // Third pass: fill remaining rows using stable order from master list
+        $remainingKeys = [];
+        foreach ($orderedKeys as $key) {
             if (!isset($usedKeys[$key])) {
-                $remainingEntries[$key] = array_sum($dayMap);
+                $remainingKeys[] = $key;
             }
         }
-        arsort($remainingEntries);
 
         foreach ($rowMaterialMap as $row => $templateKey) {
             if (isset($resolvedMap[$row])) {
                 continue;
             }
 
-            $nextKey = array_key_first($remainingEntries);
+            $nextKey = array_shift($remainingKeys);
             if ($nextKey === null) {
                 break;
             }
 
             $resolvedMap[$row] = $nextKey;
-            unset($remainingEntries[$nextKey]);
         }
 
         for ($row = $startRow; $row <= $endRow; $row++) {
@@ -279,10 +322,31 @@ class ProductJsh extends BaseLivewireComponent
         }
     }
 
-    private function buildAggregateByMaterialAndDay($rows, array $dateRange, bool $isAdditive): array
-    {
+    private function buildAggregateByMaterialAndDay(
+        $rows,
+        array $dateRange,
+        bool $isAdditive,
+        $masterMaterials = null
+    ): array {
         $aggregate = [];
         $labels = [];
+        $order = [];
+
+        if ($masterMaterials) {
+            foreach ($masterMaterials as $materialRow) {
+                $rawName = trim((string) ($materialRow->material_name ?? $materialRow['material_name'] ?? ''));
+                $materialKey = $this->normalizeMaterialName($rawName);
+                if ($materialKey === '') {
+                    continue;
+                }
+
+                if (!isset($labels[$materialKey])) {
+                    $labels[$materialKey] = $rawName !== '' ? $rawName : '-';
+                    $aggregate[$materialKey] = [];
+                    $order[] = $materialKey;
+                }
+            }
+        }
 
         foreach ($rows as $row) {
             $material = $this->normalizeMaterialName((string) ($row->material_name ?? ''));
@@ -292,6 +356,11 @@ class ProductJsh extends BaseLivewireComponent
 
             if (!isset($labels[$material])) {
                 $labels[$material] = trim((string) ($row->material_name ?? '-'));
+            }
+
+            if (!isset($aggregate[$material])) {
+                $aggregate[$material] = [];
+                $order[] = $material;
             }
 
             foreach ($dateRange as $date) {
@@ -318,6 +387,7 @@ class ProductJsh extends BaseLivewireComponent
         return [
             'days' => $aggregate,
             'labels' => $labels,
+            'order' => $order,
         ];
     }
 
