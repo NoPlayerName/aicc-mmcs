@@ -183,15 +183,15 @@ class ProductJsh extends BaseLivewireComponent
         $this->fillSectionByTemplateRows(
             $sheet,
             14,
-            30,
+            41,
             $rawAggregate['days'],
             $rawAggregate['labels'],
             $rawAggregate['order']
         );
         $this->fillSectionByTemplateRows(
             $sheet,
-            32,
-            45,
+            43,
+            60,
             $additiveAggregate['days'],
             $additiveAggregate['labels'],
             $additiveAggregate['order']
