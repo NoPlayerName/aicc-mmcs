@@ -343,11 +343,11 @@
                                                 $adjAlias = 'date_' . $dateKey;
                                                 @endphp
                                                 <td>{{ isset($row->$preAlias) && $row->$preAlias > 0 ?
-                                                    number_format($row->$preAlias, 0) : '-' }}</td>
+                                                    number_format($row->$preAlias, 1) : '-' }}</td>
                                                 <td>{{ isset($row->$adjAlias) && $row->$adjAlias > 0 ?
-                                                    number_format($row->$adjAlias, 0) : '-' }}</td>
+                                                    number_format($row->$adjAlias, 1) : '-' }}</td>
                                                 @endforeach
-                                                <td class="fw-bold bg-light">{{ number_format($row->subtotal, 0) }}</td>
+                                                <td class="fw-bold bg-light">{{ number_format($row->subtotal, 1) }}</td>
                                             </tr>
                                             @empty
                                             <tr>

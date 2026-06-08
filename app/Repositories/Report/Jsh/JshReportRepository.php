@@ -47,11 +47,14 @@ class JshReportRepository implements JshReportRepositoryInterface
 
                             $row['pre_date_' . $dateKey] = $preWeight;
                             $row['date_' . $dateKey] = $adjWeight;
+
+                            // Keep subtotal consistent with displayed additive columns (P.ADJ + ADJ)
+                            $total += ($preWeight + $adjWeight);
                         } else {
                             $row['date_' . $dateKey] = $usageGroup->sum('weight');
-                        }
 
-                        $total += $usageGroup->sum('weight');
+                            $total += $usageGroup->sum('weight');
+                        }
                     }
 
                     $row['subtotal'] = $total;
@@ -118,11 +121,14 @@ class JshReportRepository implements JshReportRepositoryInterface
 
                             $row['pre_date_' . $dateKey] = $preWeight;
                             $row['date_' . $dateKey] = $adjWeight;
+
+                            // Keep subtotal consistent with displayed additive columns (P.ADJ + ADJ)
+                            $total += ($preWeight + $adjWeight);
                         } else {
                             $row['date_' . $dateKey] = $usageGroup->sum('weight');
-                        }
 
-                        $total += $usageGroup->sum('weight');
+                            $total += $usageGroup->sum('weight');
+                        }
                     }
 
                     $row['subtotal'] = $total;
@@ -359,11 +365,14 @@ class JshReportRepository implements JshReportRepositoryInterface
 
                             $row['pre_date_' . $dateKey] = $preWeight;
                             $row['date_' . $dateKey] = $adjWeight;
+
+                            // Keep subtotal consistent with displayed additive columns (P.ADJ + ADJ)
+                            $total += ($preWeight + $adjWeight);
                         } else {
                             $row['date_' . $dateKey] = $usageGroup->sum('weight');
-                        }
 
-                        $total += $usageGroup->sum('weight');
+                            $total += $usageGroup->sum('weight');
+                        }
                     }
 
                     $row['subtotal'] = $total;
