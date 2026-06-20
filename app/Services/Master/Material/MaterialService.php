@@ -30,9 +30,14 @@ class MaterialService
         return $data;
     }
 
-    public function getRawMat()
+    public function getRawMatAce()
     {
-        $data =  $this->Material->getRawMat();
+        $data =  $this->Material->getRawMatAce();
+        return $data;
+    }
+    public function getRawMatJsh()
+    {
+        $data =  $this->Material->getRawMatJsh();
         return $data;
     }
     public function getRawMatTrial()

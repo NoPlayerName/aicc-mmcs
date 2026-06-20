@@ -56,16 +56,16 @@ class RawMaterial extends Component
     public function updatedIsTrial()
     {
         $this->reset(['weight', 'totalWeight', 'rawMatSelect']);
-        $this->loadSelectAdditive();
+        $this->loadSelectRawMaterial();
         $this->dispatch('loadMaterial');
     }
 
-    public function loadSelectAdditive()
+    public function loadSelectRawMaterial()
     {
 
         if (!$this->is_trial) {
 
-            $data = app(MaterialService::class)->getRawMat();
+            $data = app(MaterialService::class)->getRawMatAce();
             $this->rawMatSelect = $data;
         } else {
 
@@ -157,7 +157,7 @@ class RawMaterial extends Component
     }
     public function render()
     {
-        $this->loadSelectAdditive();
+        $this->loadSelectRawMaterial();
         return view('livewire.ace.raw-material');
     }
 }

@@ -24,7 +24,12 @@ class MaterialRepository implements MaterialRepositoryInterface
         return $data;
     }
 
-    public function getRawMat()
+    public function getRawMatJsh()
+    {
+        $data = TbMaterial::where('is_for_mmcs', '1')->whereIn('usage_location', [1, 3])->orderBy('material_name', 'ASC')->get();
+        return $data;
+    }
+    public function getRawMatAce()
     {
         $data = TbMaterial::where('is_for_mmcs', '1')->orderBy('material_name', 'ASC')->get();
         return $data;

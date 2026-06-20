@@ -28,7 +28,7 @@ class MaterialAdjustReportAce extends BaseLivewireComponent
     {
         $this->mountBase();
 
-        $raw = collect(app(MaterialService::class)->getRawMat())->map(function ($item) {
+        $raw = collect(app(MaterialService::class)->getRawMatJsh())->map(function ($item) {
             return [
                 'material_code' => $item['material_code'] ?? null,
                 'material_name' => $item['material_name'] ?? '-',

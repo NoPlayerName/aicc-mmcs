@@ -68,7 +68,7 @@ class RawMaterial extends Component
 
         if (!$this->is_trial) {
 
-            $data = app(MaterialService::class)->getRawMat();
+            $data = app(MaterialService::class)->getRawMatJsh();
             $this->rawMatSelect = $data;
         } else {
 

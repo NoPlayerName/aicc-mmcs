@@ -19,7 +19,7 @@ class MaterialAdjust extends Component
 
     public function mount()
     {
-        $raw = collect(app(MaterialService::class)->getRawMat())->map(function ($item) {
+        $raw = collect(app(MaterialService::class)->getRawMatAce())->map(function ($item) {
             return [
                 'material_code' => $item['material_code'] ?? null,
                 'material_name' => $item['material_name'] ?? '-',

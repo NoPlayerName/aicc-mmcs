@@ -164,7 +164,7 @@ class ProductJsh extends BaseLivewireComponent
 
         $sheet->setCellValue('AI10', '=SUM(D10:AH10)');
 
-        $rawMaster = collect(app(MaterialService::class)->getRawMat());
+        $rawMaster = collect(app(MaterialService::class)->getRawMatJsh());
         $additiveMaster = collect(app(MaterialService::class)->getAditiveJsh());
 
         $rawAggregate = $this->buildAggregateByMaterialAndDay(
@@ -331,6 +331,7 @@ class ProductJsh extends BaseLivewireComponent
         $aggregate = [];
         $labels = [];
         $order = [];
+        $typeMap = [];
 
         if ($masterMaterials) {
             foreach ($masterMaterials as $materialRow) {
@@ -344,6 +345,14 @@ class ProductJsh extends BaseLivewireComponent
                     $labels[$materialKey] = $rawName !== '' ? $rawName : '-';
                     $aggregate[$materialKey] = [];
                     $order[] = $materialKey;
+                    // collect type_scrap if present on master list (1=scrap, 2=return scrap)
+                    $type = null;
+                    if (is_object($materialRow)) {
+                        $type = $materialRow->type_scrap ?? $materialRow->type ?? null;
+                    } elseif (is_array($materialRow)) {
+                        $type = $materialRow['type_scrap'] ?? $materialRow['type'] ?? null;
+                    }
+                    $typeMap[$materialKey] = $type !== null ? (int) $type : 1;
                 }
             }
         }
@@ -361,6 +370,17 @@ class ProductJsh extends BaseLivewireComponent
             if (!isset($aggregate[$material])) {
                 $aggregate[$material] = [];
                 $order[] = $material;
+            }
+
+            // capture type_scrap if present on individual rows (overrides master)
+            $rowType = null;
+            if (is_object($row)) {
+                $rowType = $row->type_scrap ?? $row->type ?? null;
+            } elseif (is_array($row)) {
+                $rowType = $row['type_scrap'] ?? $row['type'] ?? null;
+            }
+            if ($rowType !== null) {
+                $typeMap[$material] = (int) $rowType;
             }
 
             foreach ($dateRange as $date) {
@@ -383,6 +403,16 @@ class ProductJsh extends BaseLivewireComponent
                 $aggregate[$material][$day] += $value;
             }
         }
+
+        // sort order by type_scrap (1 before 2) and then by label alphabetically
+        usort($order, function ($a, $b) use ($typeMap, $labels) {
+            $ta = $typeMap[$a] ?? 1;
+            $tb = $typeMap[$b] ?? 1;
+            if ($ta === $tb) {
+                return strcasecmp($labels[$a] ?? $a, $labels[$b] ?? $b);
+            }
+            return $ta <=> $tb;
+        });
 
         return [
             'days' => $aggregate,
