@@ -1,34 +1,19 @@
 @push('style')
 <style>
-    .custom-accordion .card {
-        border: 1px solid #f1f3f5;
-        margin-bottom: 0.8rem;
-        border-radius: 10px;
-        overflow: hidden;
+    .custom-accordion .card-header {
+        padding: 0;
+        border: none;
     }
 
     .accordion-button-custom {
         display: block;
-        padding: 1rem 1.25rem;
-        background-color: #fcfcfd;
+        padding: 1.25rem;
+        background-color: #f8f9fa;
+        border-radius: 8px !important;
         transition: all 0.3s ease;
         border: 1px solid #e9ecef;
-        border-radius: 10px !important;
     }
 
-    .accordion-button-custom:hover {
-        background-color: #f8f9fa;
-        text-decoration: none;
-    }
-
-    .accordion-button-custom[aria-expanded="true"] {
-        background-color: #fff;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    /* Fix Rotasi Icon */
     .accor-down-icon {
         transition: transform 0.3s ease;
         display: inline-block;
@@ -39,39 +24,47 @@
         color: #556ee6 !important;
     }
 
+    .accordion-button-custom:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .accordion-button-custom:hover {
+        background-color: #f1f3f5;
+        text-decoration: none;
+    }
+
+    .accordion-button-custom[aria-expanded="true"] {
+        background-color: #fff;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-bottom: 1px solid transparent;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
     .info-label {
-        font-size: 11px;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        color: #adb5bd;
-        letter-spacing: 0.5px;
-        font-weight: 700;
+        color: #6c757d;
+        font-weight: 600;
         display: block;
     }
 
     .info-value {
-        font-size: 14px;
-        color: #495057;
+        font-size: 0.95rem;
+        color: #343a40;
         font-weight: 700;
-        display: block;
     }
 
     .badge-soft-primary {
         background-color: rgba(85, 110, 230, 0.1);
         color: #556ee6;
-        font-weight: 600;
     }
 
-    @media (min-width: 768px) {
-        .border-md-left {
-            border-left: 1px solid #eff2f7 !important;
-        }
-    }
-
-    body[data-layout-mode="dark"] .custom-accordion .card,
     body[data-layout-mode="dark"] .accordion-button-custom,
     body[data-layout-mode="dark"] .accordion-button-custom[aria-expanded="true"],
-    body[data-layout-mode="dark"] .card-body.border-top,
-    body[data-layout-mode="dark"] .card-body.border-top.bg-white {
+    body[data-layout-mode="dark"] .card-body.border.rounded-bottom,
+    body[data-layout-mode="dark"] .card-body.border.rounded-bottom.bg-white {
         background-color: #2a3042 !important;
         border-color: #3a4258 !important;
         color: #e9edf4 !important;
@@ -117,187 +110,204 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0 font-size-18 text-uppercase">JSH Material Input</h4>
+                    <h4 class="mb-0 font-size-18">JSH Material Input</h4>
                     <div class="page-title-right">
-                        <ol class="breadcrumb m-0 small">
+                        <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">JSH</a></li>
-                            <li class="breadcrumb-item active">JSH</li>
+                            <li class="breadcrumb-item active">JSH Material</li>
                         </ol>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card shadow-sm mb-4 border-0">
-            <div class="card-body">
-                <div class="row align-items-end">
-                    <div class="col-md-3">
-                        <div class="form-group mb-0">
-                            <label class="font-weight-bold"><i class="mdi mdi-calendar mr-1"></i>Select
-                                Date</label>
-                            <input type="text" class="form-control form-control-md" data-provide="datepicker"
-                                data-date-format="dd/mm/yyyy" data-date-autoclose="true" placeholder="Choose Date"
-                                inputmode="none">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group mb-0">
-                            <label class="font-weight-bold"><i class="mdi mdi-clock-outline mr-1"></i>Select
-                                Shift</label>
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1" wire:ignore>
-                                    <select class="form-control form-control-lg" id="jsh-material-shift">
-                                        <option value="">Select</option>
-                                        <option value="D">D </option>
-                                        <option value="S">S </option>
-                                        <option value="N">N </option>
-                                    </select>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-end">
+                            <div class="col-md-3">
+                                <div class="form-group mb-0">
+                                    <label class="font-weight-bold"><i class="mdi mdi-calendar mr-1"></i>Select
+                                        Date</label>
+                                    <input type="text" class="form-control form-control-lg" data-provide="datepicker"
+                                        data-date-format="dd/mm/yyyy" data-date-autoclose="true"
+                                        placeholder="Choose Date" inputmode="none">
                                 </div>
-                                {{-- <button type="button" class="btn btn-outline-secondary btn-sm ml-2"
-                                    wire:click="changeFilter" title="Refresh Data">
-                                    <i class="mdi mdi-refresh"></i>
-                                </button> --}}
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-0">
+                                    <label class="font-weight-bold"><i class="mdi mdi-clock-outline mr-1"></i>Select
+                                        Shift</label>
+                                    <div wire:ignore>
+                                        <select class="form-control form-control-lg" id="jsh-material-shift">
+                                            <option value="">Select</option>
+                                            <option value="D">D </option>
+                                            <option value="S">S </option>
+                                            <option value="N">N </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-md-right">
+                                <button type="button" class="btn btn-primary btn-lg waves-effect waves-light shadow-sm"
+                                    wire:click="addFurnace">
+                                    <i class="mdi mdi-plus-circle mr-2"></i>Add New Furnace
+                                </button>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
 
-        {{-- <div class="row mb-4">
+        <div class="row">
             <div class="col-12">
-                <div class="d-flex justify-content-end">
-                    {{-- @if ($this->can('can_create')) --}}
-                    {{-- <button class="btn btn-primary mr-2" wire:click="addManualFurnace(4)">
-                        <i class="fas fa-plus"></i> Add Furnace 4 Manual
-                    </button>
-                    <button class="btn btn-primary" wire:click="addManualFurnace(5)">
-                        <i class="fas fa-plus"></i> Add Furnace 5 Manual
-                    </button> --}}
-                    {{-- @endif --}}
-                    {{--
-                </div>
-            </div>
-        </div> --}}
+                @forelse (($data ?? []) as $indexPlan => $dt)
+                <div id="accordion-{{ $indexPlan }}" class="custom-accordion mb-3" wire:key="plan-{{ $indexPlan }}">
+                    <div class="card shadow-none border-0 mb-0">
+                        <div class="card-header p-0" id="heading{{ $indexPlan }}">
+                            <a href="#"
+                                class="accordion-button-custom text-dark {{ $openIndex === $indexPlan ? '' : 'collapsed' }}"
+                                wire:click.prevent="toggleAccordion({{ $indexPlan }})"
+                                aria-expanded="{{ $openIndex === $indexPlan ? 'true' : 'false' }}"
+                                aria-controls="collapse{{ $indexPlan }}">
 
-        <div id="accordion" class="custom-accordion">
-            @forelse (($data ?? []) as $indexPlan => $dt)
-            <div class="card mb-2 shadow-none border-0" wire:key="plan-{{ $indexPlan }}">
-                <div class="card-header p-0" id="heading{{ $indexPlan }}">
-                    <a href="#collapse{{ $indexPlan }}"
-                        class="accordion-button-custom text-dark {{ $openIndex === $indexPlan ? '' : 'collapsed' }}"
-                        data-toggle="collapse" aria-expanded="{{ $openIndex === $indexPlan ? 'true' : 'false' }}">
+                                <div class="row align-items-center text-center text-md-left">
+                                    <div class="col-md-2 mb-2 mb-md-0">
+                                        <small class="info-label">Furnace</small>
+                                        <span class="info-value text-primary font-size-15">
+                                            <i class="fas fa-fire-alt mr-2"></i>{{ $dt['furnace'] }}
+                                        </span>
+                                    </div>
 
-                        <div class="row align-items-center">
-                            <div class="col-md-2 mb-2 mb-md-0">
-                                <small class="info-label">Furnace ID</small>
-                                <span class="info-value text-primary font-size-15"><i
-                                        class="fas fa-fire-alt mr-2"></i>{{ $dt['plan_furnace'] }}</span>
-                            </div>
+                                    <div class="col-md-2 mb-2 mb-md-0 border-left">
+                                        <small class="info-label">Processing Date</small>
+                                        <span class="info-value">{{ $dt['date'] }}</span>
+                                    </div>
 
-                            <div class="col-md-2 mb-2 mb-md-0 border-md-left pl-md-3">
-                                <small class="info-label">Process Date</small>
-                                <span class="info-value font-weight-normal">{{ $dt['plan_process_date'] }}</span>
-                            </div>
+                                    <div class="col-md-1 mb-2 mb-md-0 border-left text-center">
+                                        <small class="info-label">Shift</small>
+                                        <span class="badge badge-soft-primary px-3 py-1 mt-1 font-size-12">{{
+                                            $dt['shift'] }}</span>
+                                    </div>
 
-                            <div class="col-md-1 mb-2 mb-md-0 border-md-left text-center">
-                                <small class="info-label">Shift</small>
-                                <span class="badge badge-soft-primary px-3">{{ $dt['shift'] }}</span>
-                            </div>
+                                    <div class="col-md-3 border-left text-center">
+                                        <small class="info-label">Total Raw Material</small>
+                                        <span class="info-value text-dark">
+                                            {{ number_format($dt['total_raw_material'] ?? 0, 0, ',', '.') }}
+                                            <small class="text-muted font-weight-normal ml-1">kg</small>
+                                        </span>
+                                    </div>
 
-                            <div class="col-md-3 border-md-left text-center">
-                                <small class="info-label">Total Raw Material</small>
-                                <span class="info-value font-weight-bold">{{ number_format($dt['total_raw_material']??
-                                    0, 0,
-                                    ',', '.') }} <small class="text-muted">kg</small></span>
-                            </div>
+                                    <div class="col-md-3 border-left text-center border-right">
+                                        <small class="info-label">Total Additive</small>
+                                        <span class="info-value text-info">
+                                            {{ number_format($dt['total_additive'] ?? 0, 1, ',', '.') }}
+                                            <small class="text-muted font-weight-normal ml-1">kg</small>
+                                        </span>
+                                    </div>
 
-                            <div class="col-md-3 border-md-left text-center">
-                                <small class="info-label text-info">Total Additive</small>
-                                <span class="info-value text-info">{{ number_format($dt['total_additive'] ?? 0, 1, ',',
-                                    '.') }} <small class="text-muted">kg</small></span>
-                            </div>
-
-                            <div class="col-md-1 text-right">
-
-                                <i class="mdi mdi-chevron-down font-size-24 accor-down-icon text-muted"></i>
-                            </div>
+                                    <div class="col-md-1 text-right">
+                                        <i class="mdi mdi-chevron-down font-size-24 accor-down-icon text-muted"></i>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
-                    </a>
-                </div>
 
-                <div id="collapse{{ $indexPlan }}" class="collapse {{ $openIndex === $indexPlan ? 'show' : '' }}"
-                    aria-labelledby="heading{{ $indexPlan }}" data-parent="#accordion">
-                    <div class="card-body border-top bg-white p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="m-0 font-size-15"><i class="mdi mdi-format-list-bulleted mr-2"></i>Charging
-                                Details</h5>
-                            @if(in_array($dt['plan_furnace'], [1, 2, 3, 4, 5]) )
-                            <div class="d-flex flex-column align-items-end">
-                                <button type="button" class="btn btn-outline-primary btn-sm waves-effect"
-                                    wire:click="addManualCharging({{ $indexPlan }}, {{ $dt['plan_furnace'] }}, '{{ $dt['plan_process_date'] }}', '{{ $dt['shift'] }}')"
-                                    title="Add Manual Charging">
-                                    <i class="mdi mdi-plus mr-1"></i>Add Charging
-                                </button>
-                                <small class="text-warning ml-2">Khusus untuk material transfer</small>
+                        <div id="collapse{{ $indexPlan }}"
+                            class="collapse {{ $openIndex === $indexPlan ? 'show' : '' }}"
+                            aria-labelledby="heading{{ $indexPlan }}" data-parent="#accordion-{{ $indexPlan }}">
+                            <div class="card-body border rounded-bottom bg-white">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="m-0 font-size-15"><i
+                                            class="mdi mdi-format-list-bulleted mr-2"></i>Charging Details</h5>
+                                    <button type="button" class="btn btn-outline-primary btn-sm waves-effect"
+                                        wire:click="addManualCharging({{ $indexPlan }}, {{ $dt['furnace'] }}, '{{ $dt['date'] }}', '{{ $dt['shift'] }}')">
+
+                                        <i class="mdi mdi-plus mr-1"></i>Add Charging
+                                    </button>
+                                    {{-- @if(in_array($dt['plan_furnace'], [1, 2, 3, 4, 5]))
+                                    <div class="d-flex flex-column align-items-end">
+                                        <button type="button" class="btn btn-outline-primary btn-sm waves-effect"
+                                            wire:click="addManualCharging({{ $indexPlan }}, {{ $dt['plan_furnace'] }}, '{{ $dt['plan_process_date'] }}', '{{ $dt['shift'] }}')"
+                                            title="Add Manual Charging">
+                                            <i class="mdi mdi-plus mr-1"></i>Add Charging
+                                        </button>
+                                        <small class="text-warning ml-2">Khusus untuk material transfer</small>
+                                    </div>
+                                    @endif --}}
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-centered mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th class="border-top-0">Charging #</th>
+                                                <th class="border-top-0">Lot Number</th>
+                                                <th class="border-top-0">Product</th>
+                                                <th class="border-top-0">Description</th>
+                                                <th class="border-top-0 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($dt['chargings'] as $indexCharge => $charge)
+                                            <tr wire:key="charge-{{ $indexPlan }}-{{ $indexCharge }}">
+                                                <td class="font-weight-bold text-dark">{{ $charge['charging'] ?? '-' }}
+                                                </td>
+                                                <td><span class="badge badge-light px-2 py-1">{{ $charge['lot']
+                                                        }}</span></td>
+                                                <td>{{ $charge['model_id'] }}</td>
+                                                <td>{{ $charge['desc'] }}</td>
+                                                <td class="text-right">
+                                                    <button class="btn btn-info btn-sm"
+                                                        wire:click='Detail({{ $indexPlan}}, {{ $indexCharge }})'
+                                                        title="View Detail">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    @if ($this->can('can_edit'))
+                                                    <button class="btn btn-warning btn-sm"
+                                                        wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'
+                                                        title="Edit Data">
+                                                        <i class="fas fa-edit text-white"></i>
+                                                    </button>
+                                                    @endif
+                                                    <button class="btn btn-primary btn-sm"
+                                                        wire:click="Proccess({{ $indexPlan }}, {{ $indexCharge }})"
+                                                        title="Process">
+                                                        <i class="fas fa-cogs"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center py-4 text-muted small italic">
+                                                    <i class="fas fa-info-circle fa-4x text-muted mb-3 d-block"></i>
+                                                    <h5 class="text-dark font-weight-bold">No charging data recorded for
+                                                        this furnace.</h5>
+                                                </td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            @endif
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th class="py-3">Charging #</th>
-                                        <th>Lot Number</th>
-                                        <th>Product</th>
-                                        <th>Description</th>
-                                        <th class="text-right px-4">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($dt['chargings'] as $indexCharge => $charge)
-                                    <tr wire:key="charge-{{ $indexPlan }}-{{ $indexCharge }}">
-                                        <td class="font-weight-bold text-dark">{{ $charge['charging'] ?? '-' }}</td>
-                                        <td><span class="badge badge-light p-2 font-size-12">{{ $charge['lot'] }}</span>
-                                        </td>
-                                        <td>{{ $charge['model_id'] }}</td>
-                                        <td>{{ $charge['desc'] }}</td>
-                                        <td class="text-right px-4">
-                                            <div class="btn-group">
-                                                <button class="btn btn-info btn-sm"
-                                                    wire:click='Detail({{ $indexPlan}}, {{ $indexCharge }})'
-                                                    title="View Detail">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                @if ($this->can('can_edit'))
-                                                <button class="btn btn-warning btn-sm"
-                                                    wire:click='Edit({{ $indexPlan}}, {{ $indexCharge }})'
-                                                    title="Edit Data">
-                                                    <i class="fas fa-edit text-white"></i>
-                                                </button>
-                                                @endif
-                                                <button class="btn btn-primary btn-sm"
-                                                    wire:click="Proccess({{ $indexPlan }}, {{ $indexCharge }})"
-                                                    title="Process">
-                                                    <i class="fas fa-cogs"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
+                @empty
+                <div class="card shadow-sm border-dashed">
+                    <div class="card-body text-center py-5">
+                        <div class="avatar-lg mx-auto mb-4">
+                            <i class="fas fa-info-circle fa-4x text-muted mb-3 d-block"></i>
+                        </div>
+                        <h5 class="text-dark">Data Tidak Ditemukan</h5>
+                        <p class="text-muted mx-auto w-50">Silahkan pilih tanggal dan shift lain atau tambahkan furnace
+                            baru untuk memulai input material.</p>
+                    </div>
+                </div>
+                @endforelse
             </div>
-            @empty
-            <div class="card border-dashed p-5 text-center bg-transparent">
-                <i class="fas fa-info-circle fa-4x text-muted mb-3 d-block"></i>
-                <h5 class="text-dark font-weight-bold">Data Tidak ditemukan</h5>
-                <p class="text-muted">Silahkan periksa filter tanggal atau shift Anda.</p>
-            </div>
-            @endforelse
         </div>
     </div>
 

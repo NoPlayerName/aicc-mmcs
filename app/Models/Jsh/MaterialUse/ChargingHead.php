@@ -4,9 +4,12 @@ namespace App\Models\Jsh\MaterialUse;
 
 use App\Enums\EnumTypeMat;
 use App\Models\BaseModelJsh;
+use App\Models\Jsh\Molding\Models;
+use App\Traits\Loggable;
 
 class ChargingHead extends BaseModelJsh
 {
+    use Loggable;
     protected $connection = "material-use";
     protected $table = "tb_charging_head_jsh";
 
@@ -14,11 +17,18 @@ class ChargingHead extends BaseModelJsh
         'plan_id_anchor',
         'charging',
         'lot',
+        'model_id',
+        'desc',
         'created_by',
+        'updated_by',
         'created_at',
         'updated_at',
     ];
 
+    public function product()
+    {
+        return $this->belongsTo(Models::class, 'model_id', 'id');
+    }
 
     public function rawMatUse()
     {

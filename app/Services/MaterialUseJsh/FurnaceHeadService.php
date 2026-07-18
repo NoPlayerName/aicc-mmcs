@@ -21,9 +21,10 @@ class FurnaceHeadService
 
     public function getFurnaceHeadByDateShift($date, $shift)
     {
+        // dd($date, $shift);
         return FurnaceHead::where('date', $date)
             ->where('shift', $shift)
-            ->whereIn('furnace', [4, 5])
+            ->whereIn('furnace', [1, 2, 3, 4, 5])
             ->get();
     }
 }

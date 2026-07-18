@@ -23,8 +23,8 @@ class DetailCharging extends Component
     #[On('DetailCharging')]
     public function showForm($data)
     {
-        $this->id = $data['production_plan_id'];
-        $this->chargeId = $data['chargingHeadId'];
+        $this->id = $data['plan_id_anchor'];
+        $this->chargeId = $data['id'];
         $this->lot = $data['lot'] ?? '-';
         $this->charging = $data['charging'] ?? '-';
         $this->product = $data['model_id'] ?? "-";

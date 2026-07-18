@@ -35,7 +35,7 @@ class MaterialUsageJsh extends BaseModelJsh
 
     public function charging()
     {
-        return $this->belongsTo(ChargingHead::class, 'id', 'charging_head_id');
+        return $this->belongsTo(ChargingHead::class, 'charging_head_id', 'id');
     }
     public function materialable(): MorphTo
     {

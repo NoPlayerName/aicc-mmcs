@@ -5,6 +5,7 @@ namespace App\Repositories\MaterialUseJsh;
 use App\Enums\EnumTypeMat;
 use App\Models\Jsh\MaterialUse\MaterialAdjustJsh;
 use App\Models\Jsh\MaterialUse\ChargingHead;
+use App\Models\Jsh\MaterialUse\FurnaceHead;
 use App\Models\Jsh\MaterialUse\MaterialUsageJsh;
 use App\Models\Jsh\ProdPlan;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,7 @@ class MaterialAdjustJshRepository implements MaterialAdjustJshRepositoryInterfac
 
     public function existsPlanDate(string $transactionDate): bool
     {
-        return ProdPlan::whereDate('plan_process_date', $transactionDate)->exists();
+        return FurnaceHead::whereDate('date', $transactionDate)->exists();
     }
 
     public function getReport(?string $startDate, ?string $endDate, ?string $materialCode = null)
@@ -55,13 +56,13 @@ class MaterialAdjustJshRepository implements MaterialAdjustJshRepositoryInterfac
     {
         $summary = [];
 
-        $planQuery = ProdPlan::select('production_plan_id', 'plan_process_date');
+        $planQuery = FurnaceHead::select('id', 'date');
         if (!empty($startDate) && !empty($endDate)) {
-            $planQuery->whereBetween('plan_process_date', [$startDate, $endDate]);
+            $planQuery->whereBetween('date', [$startDate, $endDate]);
         }
 
         $plans = $planQuery->get();
-        $planDateById = $plans->pluck('plan_process_date', 'production_plan_id')->toArray();
+        $planDateById = $plans->pluck('date', 'id')->toArray();
 
         if (!empty($planDateById)) {
             $chargingHeads = ChargingHead::select('id', 'plan_id_anchor')

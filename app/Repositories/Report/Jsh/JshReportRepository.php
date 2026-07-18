@@ -3,6 +3,7 @@
 namespace App\Repositories\Report\Jsh;
 
 use App\Enums\EnumTypeMat;
+use App\Models\Jsh\MaterialUse\FurnaceHead;
 use App\Models\Jsh\ProdPlan;
 use Illuminate\Support\Facades\Log;
 
@@ -11,9 +12,9 @@ class JshReportRepository implements JshReportRepositoryInterface
     public function reportTotalFurnace($startDate, $endDate, $type, $shift)
     {
         try {
-            $plans = ProdPlan::with(['chargingHeads' => function ($query) {
+            $plans = FurnaceHead::with(['chargingHeads' => function ($query) {
                 $query->with(['rawMatUse.materialable', 'additMatUse.materialable']);
-            }])->whereBetween('plan_process_date', [$startDate, $endDate])
+            }])->whereBetween('date', [$startDate, $endDate])
                 ->where('shift', $shift)
                 ->get();
 
@@ -24,7 +25,7 @@ class JshReportRepository implements JshReportRepositoryInterface
                         return [
                             'material_id' => $usage->materialable_id,
                             'material_name' => $usage->materialable?->material_name,
-                            'date' => $plan->plan_process_date,
+                            'date' => $plan->date,
                             'weight' => (float) $usage->weight,
                             'type_adj' => $usage->type_additive,
                         ];
@@ -73,13 +74,13 @@ class JshReportRepository implements JshReportRepositoryInterface
     public function reportFurnace($startDate, $endDate, $type, $shift, $furnace)
     {
         try {
-            $plans = ProdPlan::with(['chargingHeads' => function ($query) {
+            $plans = FurnaceHead::with(['chargingHeads' => function ($query) {
                 $query->with(['rawMatUse.materialable', 'additMatUse.materialable']);
-            }])->whereBetween('plan_process_date', [$startDate, $endDate])
+            }])->whereBetween('date', [$startDate, $endDate])
                 ->when($shift, function ($query) use ($shift) {
                     return $query->where('shift', $shift);
                 })
-                ->where('plan_furnace', $furnace)
+                ->where('furnace', $furnace)
                 ->get();
 
             $planLotMap = $this->buildLotMapFromPlans($plans);
@@ -94,8 +95,8 @@ class JshReportRepository implements JshReportRepositoryInterface
                             'charging_id' => $head->id,
                             'charging' => $head->charging,
                             'lot' => $this->resolveLotByPlanMap($plan, $planLotMap, $head),
-                            'plan_furnace' => $plan->plan_furnace,
-                            'date' => $plan->plan_process_date,
+                            'plan_furnace' => $plan->furnace,
+                            'date' => $plan->date,
                             'weight' => (float) $usage->weight,
                             'type_adj' => $usage->type_additive,
                         ];
@@ -164,12 +165,12 @@ class JshReportRepository implements JshReportRepositoryInterface
 
     public function getKwhData($startDate, $endDate, $shift, $furnace)
     {
-        $plans = ProdPlan::with(['chargingHeads' => function ($query) {
+        $plans = FurnaceHead::with(['chargingHeads' => function ($query) {
             $query->with(['Kwh']);
-        }])->whereBetween('plan_process_date', [$startDate, $endDate])
+        }])->whereBetween('date', [$startDate, $endDate])
             ->when($shift, function ($query) use ($shift) {
                 return $query->where('shift', $shift);
-            })->where('plan_furnace', $furnace)
+            })->where('furnace', $furnace)
             ->get();
 
         $planLotMap = $this->buildLotMapFromPlans($plans);
@@ -181,8 +182,8 @@ class JshReportRepository implements JshReportRepositoryInterface
                 if ($head->Kwh->isNotEmpty()) {
                     foreach ($head->Kwh as $kwh) {
                         $kwhList[] = [
-                            'date' => $plan->plan_process_date,
-                            'plan_furnace' => $plan->plan_furnace,
+                            'date' => $plan->date,
+                            'plan_furnace' => $plan->furnace,
                             'charging_id' => $head->id,
                             'charging' => $head->charging,
                             'lot' => $planLot,
@@ -195,8 +196,8 @@ class JshReportRepository implements JshReportRepositoryInterface
                 } else {
                     // Tampilkan charging meskipun belum ada KWH record
                     $kwhList[] = [
-                        'date' => $plan->plan_process_date,
-                        'plan_furnace' => $plan->plan_furnace,
+                        'date' => $plan->date,
+                        'plan_furnace' => $plan->furnace,
                         'charging_id' => $head->id,
                         'charging' => $head->charging,
                         'lot' => $planLot,
@@ -234,12 +235,12 @@ class JshReportRepository implements JshReportRepositoryInterface
 
     public function getTappingData($startDate, $endDate, $shift, $furnace)
     {
-        $plans = ProdPlan::with(['chargingHeads.TemptTapping'])
-            ->whereBetween('plan_process_date', [$startDate, $endDate])
+        $plans = FurnaceHead::with(['chargingHeads.TemptTapping'])
+            ->whereBetween('date', [$startDate, $endDate])
             ->when($shift, function ($query) use ($shift) {
                 return $query->where('shift', $shift);
             })
-            ->where('plan_furnace', $furnace)
+            ->where('furnace', $furnace)
             ->get();
 
         $planLotMap = $this->buildLotMapFromPlans($plans);
@@ -251,8 +252,8 @@ class JshReportRepository implements JshReportRepositoryInterface
                 if ($head->TemptTapping->isNotEmpty()) {
                     foreach ($head->TemptTapping as $tapping) {
                         $tappingList[] = [
-                            'date' => $plan->plan_process_date,
-                            'plan_furnace' => $plan->plan_furnace,
+                            'date' => $plan->date,
+                            'plan_furnace' => $plan->furnace,
                             'charging_id' => $head->id,
                             'charging' => $head->charging,
                             'lot' => $planLot,
@@ -263,8 +264,8 @@ class JshReportRepository implements JshReportRepositoryInterface
                 } else {
                     // Tampilkan charging meskipun belum ada tapping record
                     $tappingList[] = [
-                        'date' => $plan->plan_process_date,
-                        'plan_furnace' => $plan->plan_furnace,
+                        'date' => $plan->date,
+                        'plan_furnace' => $plan->furnace,
                         'charging_id' => $head->id,
                         'charging' => $head->charging,
                         'lot' => $planLot,
@@ -314,16 +315,16 @@ class JshReportRepository implements JshReportRepositoryInterface
     public function reportProduct($startDate, $endDate, $type, $shift, $product, $furnace = null)
     {
         try {
-            $plans = ProdPlan::with(['chargingHeads' => function ($query) {
-                $query->with(['rawMatUse.materialable', 'additMatUse.materialable']);
-            }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
+            $plans = FurnaceHead::with(['chargingHeads' => function ($query) use ($product) {
+                $query->with(['product', 'rawMatUse.materialable', 'additMatUse.materialable'])
+                    ->where('model_id', $product);
+            }])->whereBetween('date', [$startDate, $endDate])
                 ->when($shift, function ($query) use ($shift) {
                     return $query->where('shift', $shift);
                 })
                 ->when($furnace, function ($query) use ($furnace) {
-                    return $query->where('plan_furnace', $furnace);
+                    return $query->where('furnace', $furnace);
                 })
-                ->where('model_id', $product)
                 ->get();
 
             $planLotMap = $this->buildLotMapFromPlans($plans);
@@ -338,8 +339,8 @@ class JshReportRepository implements JshReportRepositoryInterface
                             'charging_id' => $head->id,
                             'charging' => $head->charging,
                             'lot' => $this->resolveLotByPlanMap($plan, $planLotMap, $head),
-                            'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
-                            'date' => $plan->plan_process_date,
+                            'product_name' => trim(($head->product?->model ?? '-') . ' - ' . ($head->product?->alias ?? '-')),
+                            'date' => $plan->date,
                             'weight' => (float) $usage->weight,
                             'type_adj' => $usage->type_additive,
                         ];
@@ -408,16 +409,15 @@ class JshReportRepository implements JshReportRepositoryInterface
 
     public function getKwhDataByProduct($startDate, $endDate, $shift, $product, $furnace = null)
     {
-        $plans = ProdPlan::with(['chargingHeads' => function ($query) {
-            $query->with(['Kwh']);
-        }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
+        $plans = FurnaceHead::with(['chargingHeads' => function ($query) use ($product) {
+            $query->with(['product', 'Kwh'])->where('model_id', $product);
+        }])->whereBetween('date', [$startDate, $endDate])
             ->when($shift, function ($query) use ($shift) {
                 return $query->where('shift', $shift);
             })
             ->when($furnace, function ($query) use ($furnace) {
-                return $query->where('plan_furnace', $furnace);
+                return $query->where('furnace', $furnace);
             })
-            ->where('model_id', $product)
             ->get();
 
         $planLotMap = $this->buildLotMapFromPlans($plans);
@@ -429,9 +429,9 @@ class JshReportRepository implements JshReportRepositoryInterface
                 if ($head->Kwh->isNotEmpty()) {
                     foreach ($head->Kwh as $kwh) {
                         $kwhList[] = [
-                            'date' => $plan->plan_process_date,
-                            'plan_furnace' => $plan->plan_furnace,
-                            'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
+                            'date' => $plan->date,
+                            'plan_furnace' => $plan->furnace,
+                            'product_name' => trim(($head->product?->model ?? '-') . ' - ' . ($head->product?->alias ?? '-')),
                             'charging_id' => $head->id,
                             'charging' => $head->charging,
                             'lot' => $planLot,
@@ -443,9 +443,9 @@ class JshReportRepository implements JshReportRepositoryInterface
                     }
                 } else {
                     $kwhList[] = [
-                        'date' => $plan->plan_process_date,
-                        'plan_furnace' => $plan->plan_furnace,
-                        'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
+                        'date' => $plan->date,
+                        'plan_furnace' => $plan->furnace,
+                        'product_name' => trim(($head->product?->model ?? '-') . ' - ' . ($head->product?->alias ?? '-')),
                         'charging_id' => $head->id,
                         'charging' => $head->charging,
                         'lot' => $planLot,
@@ -478,16 +478,15 @@ class JshReportRepository implements JshReportRepositoryInterface
 
     public function getTappingDataByProduct($startDate, $endDate, $shift, $product, $furnace = null)
     {
-        $plans = ProdPlan::with(['chargingHeads' => function ($query) {
-            $query->with(['TemptTapping']);
-        }, 'models'])->whereBetween('plan_process_date', [$startDate, $endDate])
+        $plans = FurnaceHead::with(['chargingHeads' => function ($query) use ($product) {
+            $query->with(['product', 'TemptTapping'])->where('model_id', $product);
+        }])->whereBetween('date', [$startDate, $endDate])
             ->when($shift, function ($query) use ($shift) {
                 return $query->where('shift', $shift);
             })
             ->when($furnace, function ($query) use ($furnace) {
-                return $query->where('plan_furnace', $furnace);
+                return $query->where('furnace', $furnace);
             })
-            ->where('model_id', $product)
             ->get();
 
         $planLotMap = $this->buildLotMapFromPlans($plans);
@@ -499,9 +498,9 @@ class JshReportRepository implements JshReportRepositoryInterface
                 if ($head->TemptTapping->isNotEmpty()) {
                     foreach ($head->TemptTapping as $tapping) {
                         $tappingList[] = [
-                            'date' => $plan->plan_process_date,
-                            'plan_furnace' => $plan->plan_furnace,
-                            'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
+                            'date' => $plan->date,
+                            'plan_furnace' => $plan->furnace,
+                            'product_name' => trim(($head->product?->model ?? '-') . ' - ' . ($head->product?->alias ?? '-')),
                             'charging_id' => $head->id,
                             'charging' => $head->charging,
                             'lot' => $planLot,
@@ -511,9 +510,9 @@ class JshReportRepository implements JshReportRepositoryInterface
                     }
                 } else {
                     $tappingList[] = [
-                        'date' => $plan->plan_process_date,
-                        'plan_furnace' => $plan->plan_furnace,
-                        'product_name' => trim(($plan->models?->model ?? '-') . ' - ' . ($plan->models?->alias ?? '-')),
+                        'date' => $plan->date,
+                        'plan_furnace' => $plan->furnace,
+                        'product_name' => trim(($head->product?->model ?? '-') . ' - ' . ($head->product?->alias ?? '-')),
                         'charging_id' => $head->id,
                         'charging' => $head->charging,
                         'lot' => $planLot,
@@ -562,9 +561,9 @@ class JshReportRepository implements JshReportRepositoryInterface
         $plans
             ->groupBy(function ($plan) {
                 return implode('|', [
-                    (string) ($plan->plan_process_date ?? ''),
+                    (string) ($plan->date ?? ''),
                     (string) ($plan->shift ?? ''),
-                    (string) ($plan->plan_furnace ?? ''),
+                    (string) ($plan->furnace ?? ''),
                 ]);
             })
             ->each(function ($groupPlans) use (&$lotMap) {
@@ -577,7 +576,7 @@ class JshReportRepository implements JshReportRepositoryInterface
                             return $lotA <=> $lotB;
                         }
 
-                        return strcmp((string) ($a->production_plan_id ?? ''), (string) ($b->production_plan_id ?? ''));
+                        return strcmp((string) ($a->id ?? ''), (string) ($b->id ?? ''));
                     })
                     ->values();
 
@@ -620,7 +619,7 @@ class JshReportRepository implements JshReportRepositoryInterface
                     $lotValue = $lotText !== '' ? $lotText : '-';
 
                     foreach ($planGroup as $plan) {
-                        $planId = (string) ($plan->production_plan_id ?? '');
+                        $planId = (string) ($plan->id ?? '');
                         if ($planId !== '') {
                             $lotMap[$planId] = $lotValue;
                         }
@@ -652,7 +651,7 @@ class JshReportRepository implements JshReportRepositoryInterface
 
     private function resolveLotByPlanMap($plan, array $planLotMap, $head = null): string
     {
-        $planId = (string) ($plan->production_plan_id ?? '');
+        $planId = (string) ($plan->id ?? '');
 
         if ($planId !== '' && isset($planLotMap[$planId]) && $planLotMap[$planId] !== '-') {
             return $planLotMap[$planId];

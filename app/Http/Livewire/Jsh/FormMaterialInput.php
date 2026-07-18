@@ -25,8 +25,8 @@ class FormMaterialInput extends Component
         // dd($data);
         // dd($id, $data);
         $this->edit = $data['is_edit'];
-        $this->id = $data['production_plan_id'];
-        $this->chargeId = $data['chargingHeadId'];
+        $this->id = $data['plan_id_anchor'];
+        $this->chargeId = $data['id'];
         $this->lot = $data['lot'] ?? '-';
         $this->charging = $data['charging'] ?? null;
         $this->product = $data['model_id'] ?? "-";
@@ -41,8 +41,8 @@ class FormMaterialInput extends Component
         // dd($data);
         // dd($id, $data);
         $this->edit = $data['is_edit'];
-        $this->id = $data['production_plan_id'];
-        $this->chargeId = $data['chargingHeadId'];
+        $this->id = $data['plan_id_anchor'];
+        $this->chargeId = $data['id'];
         $this->lot = $data['lot'] ?? '-';
         $this->charging = $data['charging'] ?? '-';
         $this->product = $data['model_id'] ?? "-";

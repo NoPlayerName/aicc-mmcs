@@ -144,7 +144,7 @@ class MaterialInput extends BaseLivewireComponent
         $query = app(PlanProductionAceService::class)->generateFurnace();
         if ($query['status']) {
             $this->loadFurnaceHead();
-            $this->dispatch('success', message: 'Berhasil menambahkan furnace head.');
+            $this->dispatch('success', message: $query['message']);
         }
     }
     public function addCharge($furnaceId, $indexPlan)

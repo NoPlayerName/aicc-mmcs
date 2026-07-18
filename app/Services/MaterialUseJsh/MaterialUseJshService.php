@@ -168,34 +168,35 @@ class MaterialUseJshService
 
     public function createManualCharging($furnace, $date, $shift, $charging = null)
     {
+        // dd($furnace, $date, $shift, $charging);
         // Create furnace head if not exists
         $furnaceHeadService = app(FurnaceHeadService::class);
         $existingFurnace = $furnaceHeadService->getFurnaceHeadByDateShift($date, $shift)->where('furnace', $furnace)->first();
-
-        if (!$existingFurnace) {
-            $existingFurnace = $furnaceHeadService->createFurnaceHead($furnace, $date, $shift);
-        }
+        // dd($existingFurnace);
+        // if (!$existingFurnace) {
+        //     $existingFurnace = $furnaceHeadService->createFurnaceHead($furnace, $date, $shift);
+        // }
 
         if (!$existingFurnace) {
             return false;
         }
 
         // Determine charging number
-        // if ($charging === null) {
-        //     $lastCharging = $existingFurnace->chargings()->max('charging') ?? 0;
-        //     $charging = $lastCharging + 1;
-        // }
+        if ($charging === null) {
+            $lastCharging = $existingFurnace->chargings()->max('charging') ?? 0;
+            $charging = $lastCharging + 1;
+        }
 
         // Create charging head
         $chargingData = [
             'plan_id_anchor' => (string) $existingFurnace->id, // Use furnace head id as anchor
-            // 'charging' => $charging,
+            'charging' => $charging,
             'created_by' => Auth::user()->usr,
         ];
 
         $chargingHead = $this->saveChargingHead($chargingData);
 
-        return $chargingHead ? ['furnace_head' => $existingFurnace, 'charging_head' => $chargingHead] : false;
+        return $chargingHead ? ['status' => true, 'message' => 'Charging di tambahkan'] : false;
     }
     public function updateTemptTapping($data)
     {
